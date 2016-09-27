@@ -7,16 +7,25 @@
 
 ## Purpose
 
-The Configuration Service is a service which, given a list of input criteria,
-returns a set of key/value pairs. The input criteria can be ordered in any way, but the configuration
-tree is ordered, so the returned key/value pairs can be seen as the leafs of a search tree.
+Are you running a service with multiple, varying clients? Or does your system need some
+form of dynamic runtime configuration? The Configuration Service may help you in that case.
 
-If no leaf node (read: configuration, or key/value pairs) exist for a specific list
-of input criteria, the service returns the most specific configuration that *is*
-available, or status code 404 (NOT FOUND) if none is found.
+The Configuration Service is a service which selects a client configuration based on
+a set of input criteria. The configuration consists of generic key/value pairs, returned
+in either JSON or XML.
 
-This means that if a configuration is specified for the top node, the service will always
-return some configuration, if only the default configuration specified at the top node.
+The configurations for clients are defined in a "configuration tree", a search tree, which is 
+read by the service at start-up. 
+
+The hierarchy of the search tree is decoupled from the format of the query criteria, so
+you can rearrange the tree without affecting the clients.  
+
+If the query can only be partially matched with the search tree, the best matching node
+of the tree (which contains the key/value parameters) is returned. This allows you to 
+specify partial subtrees with "default" or "fallback" configurations.
+
+This also mean that if the top node of the tree specifies a configuration, the service will 
+always return a configuration, if only the default configuration specified at the top node.
 
 A concise description of the service is presented in the PDF file
 "Configuration Service.pdf", found in the root directory of this source
