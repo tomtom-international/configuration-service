@@ -1,6 +1,7 @@
 # Read Me of the Configuration Service
 
 [![Build Status](https://img.shields.io/travis/tomtom-international/configuration-service.svg?maxAge=3600)](https://travis-ci.org/tomtom-international/configuration-service)
+[![Coverage Status](https://coveralls.io/repos/github/tomtom-international/configuration-service/badge.svg?branch=master&maxAge=3600)](https://coveralls.io/github/tomtom-international/configuration-service?branch=master)
 [![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
 [![Release](https://img.shields.io/github/release/tomtom-international/configuration-service.svg?maxAge=3600)](https://github.com/tomtom-international/configuration-service/releases)
 

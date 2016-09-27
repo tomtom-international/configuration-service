@@ -58,7 +58,7 @@
     </scm>
 
     <properties>
-        <coveralls-maven-plugin.repoToken>xxx</coveralls-maven-plugin.repoToken>
+        <coveralls-maven-plugin.repoToken>ImCSTi6smZIDXJl3PWjUK8gVjKNFhbu9G</coveralls-maven-plugin.repoToken>
 
         <!-- Java and build properties. -->
         <jdk.version>1.8</jdk.version>
