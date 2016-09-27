@@ -1,6 +1,8 @@
-# CONFIGURATION SERVICE
+# Read Me of the Configuration Service
 
-This module is called the Configuration Service.
+[![Build Status](https://img.shields.io/travis/tomtom-international/configuration-service.svg?maxAge=3600)](https://travis-ci.org/tomtom-international/configuration-service)
+[![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
+[![Release](https://img.shields.io/github/release/tomtom-international/configuration-service.svg?maxAge=3600)](https://github.com/tomtom-international/configuration-service/releases)
 
 ## Purpose
 

@@ -65,6 +65,7 @@
     </scm>
 
     <properties>
+        <coveralls-maven-plugin.repoToken>xxx</coveralls-maven-plugin.repoToken>
 
         <!-- Java and build properties. -->
         <jdk.version>1.8</jdk.version>
@@ -353,6 +354,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls-maven-plugin.version}</version>
+                <configuration>
+                    <repoToken>${coveralls-maven-plugin.repoToken}</repoToken>
+                </configuration>
             </plugin>
 
             <plugin>
