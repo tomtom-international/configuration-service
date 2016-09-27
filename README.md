@@ -294,13 +294,13 @@ script).
     |
     +-- resources               Property files. These are read by the SpeedTools framework.
     |   |
-    |   +-- application-configuration-data.default.properties
-    |   +-- application-configuration-data.properties
+    |   +-- configuration-service.default.properties
+    |   +-- configuration-service.properties
 
 ## Specifying the Default Configuration
 
 You can specify a default configuration to be read at startup. This is configuration is specified
-in the properties file called `application-configuration-data.properties`.
+in the properties file called `configuration-service.properties`.
 
 The format of the configuration is JSON and is specified as:
 
