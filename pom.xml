@@ -8,13 +8,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Use the TomTom Java Developer POM. -->
-    <parent>
-        <groupId>com.tomtom.pom</groupId>
-        <artifactId>java-developer-pom</artifactId>
-        <version>1.27</version>
-    </parent>
-
     <!-- Define our own top-level POM. -->
     <groupId>com.tomtom.services</groupId>
     <artifactId>configuration-service</artifactId>
@@ -77,6 +70,7 @@
         <maven.httpserver.root>/</maven.httpserver.root>
 
         <!-- Maven plugin versions. -->
+        <coveralls-maven-plugin.version>4.2.0</coveralls-maven-plugin.version>
         <doxia-module-confluence.version>1.3</doxia-module-confluence.version>
         <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
