@@ -1,0 +1,15 @@
+{
+  "modified": "2016-01-01T00:00:10Z",
+  "levels": ["l1", "l2"],
+  "nodes": [
+    {
+      "include": "classpath::modified2.json"
+    }
+  ],
+  "parameters": [
+    {
+      "key": "x",
+      "value": "10"
+    }
+  ]
+}

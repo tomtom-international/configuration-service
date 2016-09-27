@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node>
+    <name>SYS</name>
+    <parameters>
+        <parameters>
+            <parameter>demo</parameter>
+            <parameter>false</parameter>
+        </parameters>
+        <parameters>
+            <parameter>sound</parameter>
+            <parameter>off</parameter>
+        </parameters>
+    </parameters>
+</node>

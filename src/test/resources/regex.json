@@ -1,0 +1,45 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["criterium"],
+  "nodes": [
+    {
+      "name": "String[0-9]*",
+      "parameters": [
+        {
+          "key": "value",
+          "value": "1"
+        }
+      ]
+    }, {
+      "name": "String",
+      "parameters": [
+        {
+          "key": "value",
+          "value": "2"
+        }
+      ]
+    }, {
+      "name": "String9[0-9]*",
+      "parameters": [
+        {
+          "key": "value",
+          "value": "3"
+        }
+      ]
+    }, {
+      "name": ".*",
+      "parameters": [
+        {
+          "key": "value",
+          "value": "4"
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "key": "value",
+      "value": "-1"
+    }
+  ]
+}

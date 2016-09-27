@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node>
+    <levels>
+        <level>criterium</level>
+    </levels>
+    <nodes>
+        <node>
+            <name>child-1</name>
+            <parameters>
+                <parameter>
+                    <key>key-1a</key>
+                    <value>value-1a</value>
+                </parameter>
+                <parameter>
+                    <key>key-1b</key>
+                    <value>value-1b</value>
+                </parameter>
+            </parameters>
+        </node>
+        <node>
+            <name>child-2</name>
+            <parameters>
+                <parameter>
+                    <key>key-2</key>
+                    <value>value-2</value>
+                </parameter>
+            </parameters>
+        </node>
+    </nodes>
+    <parameters>
+        <parameter>
+            <key>key-0</key>
+            <value>value-0</value>
+        </parameter>
+    </parameters>
+    <modified>2016-01-02T12:34:56Z</modified>
+</node>

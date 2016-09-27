@@ -1,0 +1,100 @@
+// Note that more specific regular expression should be placed BEFORE
+// less specific ones in order to not be overruled by the less specific ones.
+// Also, omit parameters for nodes that should never return anything.
+{
+  "modified": "2016-09-14T12:00:00Z",
+  "levels": ["deviceID", "country", "connection", "navkit"],
+  "nodes": [
+    // Top-level node - do NOT provide parameters.
+    {
+      // There must always be a deeper match in the tree!
+      "name": "XY12345678",
+      // MUID: only XY12345678
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "radius for specific device with MUID XY12345678"
+        },
+        {
+          "key": "interval",
+          "value": "radius for specific device with XY12345678"
+        }
+      ]
+    },
+    {
+      "name": ".*",
+      // MUID: any - do NOT provide parameters
+      "nodes": [
+        {
+          "name": "UK",
+          // Country: UK
+          "parameters": [
+            {
+              "key": "radius",
+              "value": "radius specific for UK"
+            },
+            {
+              "key": "interval",
+              "value": "interval specific for UK"
+            }
+          ]
+        },
+        {
+          "name": ".*",
+          // Country: any - do NOT provide parameters
+          "nodes": [
+            {
+              "name": "BT",
+              // Connection: bluetooth
+              "parameters": [
+                {
+                  "key": "radius",
+                  "value": "radius specific for bluetooth"
+                },
+                {
+                  "key": "interval",
+                  "value": "radius specific for bluetooth"
+                }
+              ]
+            },
+            {
+              "name": ".*",
+              // Connection: any - do NOT provide parameters
+              "nodes": [
+                {
+                  "name": "16[.]4.*",
+                  // NavKit: 16.4*
+                  "parameters": [
+                    {
+                      "key": "radius",
+                      "value": "radius specific for 16.4"
+                    },
+                    {
+                      "key": "interval",
+                      "value": "radius specific for 16.4"
+                    }
+                  ]
+                },
+                {
+                  "name": ".*",
+                  // NavKit: any - provide general fallback parameters
+                  "parameters": [
+                    // These parameters are returned if no match is found.
+                    {
+                      "key": "radius",
+                      "value": "general fallback"
+                    },
+                    {
+                      "key": "interval",
+                      "value": "general fallback"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

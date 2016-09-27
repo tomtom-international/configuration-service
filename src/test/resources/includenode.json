@@ -1,0 +1,13 @@
+{
+  "name": ".*",
+  "parameters": [
+    {
+      "key": "radius",
+      "value": "25"
+    },
+    {
+      "key": "interval",
+      "value": "120"
+    }
+  ]
+}

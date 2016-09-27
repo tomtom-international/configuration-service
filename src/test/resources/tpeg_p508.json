@@ -1,0 +1,32 @@
+{
+  "name": "P508",
+  "nodes": [
+    {
+      "name": "Device1.*",
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "100"
+        }
+      ]
+    }, {
+      "name": "Device999",
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "200"
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "key": "radius",
+      "value": "40"
+    },
+    {
+      "key": "interval",
+      "value": "120"
+    }
+  ]
+}

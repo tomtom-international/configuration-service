@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (C) 2016. TomTom International BV. All rights reserved.
+  -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0"
+         metadata-complete="true">
+
+    <display-name>Configuration Service REST API</display-name>
+
+    <context-param>
+
+        <!-- Connect Guice to the modules mentioned below. -->
+        <param-name>resteasy.guice.modules</param-name>
+
+        <param-value>
+
+            <!-- Include the modules we need from the SpeedTools framework. -->
+            com.tomtom.speedtools.rest.ServicesModule,
+
+            <!-- Include the REST API and bootstrap module for deployment. -->
+            com.tomtom.services.configuration.deployment.DeploymentModule
+        </param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.use.builtin.providers</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <!-- Add cross-site scripting support for Javascript. -->
+    <context-param>
+        <param-name>resteasy.providers</param-name>
+        <param-value>com.tomtom.services.configuration.deployment.CorsFeature</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.async.job.service.enabled</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.async.job.service.max.job.results</param-name>
+        <param-value>100</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.async.job.service.max.wait</param-name>
+        <param-value>300000</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.async.job.service.thread.pool.size</param-name>
+        <param-value>100</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.async.job.service.base.path</param-name>
+        <param-value>/asyncjobs</param-value>
+    </context-param>
+
+    <!-- Replace the default bootstrap servlet container listener with a version that logs
+         warnings and errors to the logger, for debugging purposes.
+    -->
+    <listener>
+        <listener-class>
+            com.tomtom.speedtools.guice.LoggingGuiceResteasyBootstrapServletContextListener
+        </listener-class>
+    </listener>
+
+    <!-- Include a custom listener for a shutdown request, to try and shut down the Akka
+         system properly, so actors can flush their info, if required.
+    -->
+    <listener>
+        <listener-class>
+            com.tomtom.speedtools.rest.Shutdown
+        </listener-class>
+    </listener>
+
+    <!-- Include a custom listener for a shutdown request, to try and shut down the Akka
+         system properly, so actors can flush their info, if required.
+    -->
+    <servlet>
+        <servlet-name>Resteasy</servlet-name>
+
+        <!--
+            We use a custom dispatcher in order to be able to access the HttpServletRequest
+            in an Resteasy interceptor.
+        -->
+        <servlet-class>
+            com.tomtom.speedtools.rest.CustomHttpServlet30Dispatcher
+        </servlet-class>
+
+        <!-- Original servlet dispatcher:
+        <servlet-class>
+            org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
+        </servlet-class>
+        -->
+
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <!-- Map the URL address space to the Resteasy servlet defined above, so Resteasy will
+         process these URLs.
+    -->
+    <servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

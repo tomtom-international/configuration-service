@@ -1,0 +1,9 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["l1", "l2"],
+  "nodes": [
+    {
+      "include": "classpath::includemultierror2.json"
+    }
+  ]
+}

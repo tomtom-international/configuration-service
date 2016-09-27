@@ -1,0 +1,23 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["service", "model", "deviceID"],
+  "name": "TPEG",
+  "parameters": [
+    {
+      "key": "radius",
+      "value": "25"
+    },
+    {
+      "key": "interval",
+      "value": "120"
+    }
+  ],
+  "nodes": [
+    {
+      "include": "classpath::tpeg_p107.json"
+    },
+    {
+      "include": "classpath::tpeg_p508.json"
+    }
+  ]
+}

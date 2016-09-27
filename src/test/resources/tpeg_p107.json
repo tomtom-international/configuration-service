@@ -1,0 +1,30 @@
+{
+  "name": "P107",
+  "nodes": [
+    {
+      "name": "Device[0-9]*",
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "10"
+        },
+        {
+          "key": "interval",
+          "value": "120"
+        }
+      ]
+    }, {
+      "name": "Device123",
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "80"
+        },
+        {
+          "key": "interval",
+          "value": "60"
+        }
+      ]
+    }
+  ]
+}

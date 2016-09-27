@@ -1,0 +1,22 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["l1", "l2"],
+  "nodes": [
+    {
+      "name": "X",
+      "nodes": [
+        {
+          "include": "classpath::includenode.json"
+        }
+      ]
+    },
+    {
+      "name": "Y",
+      "nodes": [
+        {
+          "include": "classpath::includenode.json"
+        }
+      ]
+    }
+  ]
+}

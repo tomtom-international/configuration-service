@@ -1,0 +1,10 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["service", "model", "deviceID"],
+  "parameters": [
+    {
+      "key": "x",
+      "value": "1"
+    }
+  ]
+}

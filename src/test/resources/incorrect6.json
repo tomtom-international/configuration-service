@@ -1,0 +1,15 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["criterium"],
+  "nodes": [
+    {
+      "name": "",
+      "parameters": [
+        {
+          "key": "should not be empty name",
+          "value": "1"
+        }
+      ]
+    }
+  ],
+}

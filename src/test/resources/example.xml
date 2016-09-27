@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node>
+    <modified>2016-01-02T12:34:56Z</modified>
+    <levels>
+        <level>service</level>
+        <level>model</level>
+        <level>deviceID</level>
+    </levels>
+    <nodes>
+        <child>
+            <include>classpath::tpeg.json</include>
+        </child>
+        <child>
+            <include>classpath::sys.json</include>
+        </child>
+    </nodes>
+</node>

@@ -1,0 +1,77 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "levels": ["service", "model", "deviceID"],
+  "nodes": [
+    {
+      "name": "TPEG",
+      "nodes": [
+        {
+          "name": "P10[0-9]",
+          "nodes": [
+            {
+              "name": "Device456",
+              "parameters": [
+                {
+                  "key": "radius",
+                  "value": "40"
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "key": "radius",
+              "value": "25"
+            }
+          ]
+        },
+        {
+          "name": "P508",
+          "nodes": [
+            {
+              "name": "Device1.*",
+              "parameters": [
+                {
+                  "key": "radius",
+                  "value": "100"
+                }
+              ]
+            },
+            {
+              "name": "Device999",
+              "parameters": [
+                {
+                  "key": "radius",
+                  "value": "200"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "key": "radius",
+          "value": "50"
+        },
+        {
+          "key": "parking",
+          "value": "free"
+        }
+      ]
+    },
+    {
+      "name": "SYS",
+      "parameters": [
+        {
+          "key": "demo",
+          "value": "false"
+        },
+        {
+          "key": "sound",
+          "value": "off"
+        }
+      ]
+    }
+  ]
+}
