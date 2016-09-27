@@ -594,24 +594,6 @@ Normally, one of our developers should be able to comment on them and fix.
 
 # Release Notes
 
-### 2.0.0
+### 1.0.0
 
-* Reworked API so the GET order of levels is no longer linked to the levels in the
-configuration tree.
-
-* Reworked the way `modified` worked.
-
-* Added support for `If-None-Match` and `ETag`s.
-
-### 1.3.0 - 1.3.1
-
-* Updated tgo SpeedTools 3.0.21.
-
-### 1.2.x
-
-* Removed all modification methods. The service is now read-only and restarting with a new
-configuration is the only way to update it (to keep the update method simple).
-
-### 1.1.x
-
-* Initial version, including GET/PUT/POST operations on tree.
+* Initial release.
