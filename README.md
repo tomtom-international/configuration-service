@@ -5,20 +5,35 @@
 [![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
 [![Release](https://img.shields.io/github/release/tomtom-international/configuration-service.svg?maxAge=3600)](https://github.com/tomtom-international/configuration-service/releases)
 
-## Purpose
+## Introduction
 
-Are you running a service with multiple, varying clients? Or does your system need some
-form of dynamic runtime configuration? The Configuration Service may help you in that case.
+The Configuration Service provide a REST API service to dynamically get "application
+configuration data", which consists of key-value pairs with any type of data. Typical
+use of the service would be: 
 
-The Configuration Service is a service which selects a client configuration based on
-a set of input criteria. The configuration consists of generic key/value pairs, returned
-in either JSON or XML.
+* to dynamically get configuration data for devices, without hard-coding the configuration
+in the device;
 
-The configurations for clients are defined in a "configuration tree", a search tree, which is 
-read by the service at start-up. 
+* to allow for dynamic service discovery of other services (returning key-value pairs which
+contain the service name and its URI, for example);
 
-The hierarchy of the search tree is decoupled from the format of the query criteria, so
-you can rearrange the tree without affecting the clients.  
+* to allow dynamically moving clients into different configurations, such as moving devices
+from production into beta-testing or debugging configurations;
+ 
+* and many more.
+
+A set of input criteria provided by the client determines what configuration data is returned.
+The input criteria are essentially search terms into a configurations search tree of the server.
+
+The return configuration data consists of generic key-value pairs, returned in either JSON 
+or XML format.
+
+The service reads its configurations search tree at start-up, is completely stateless and 
+requires no database or disk. This improves the service reliability and reduces its operational
+costs.
+
+The hierarchy of the configurations search tree is decoupled from the format of the query criteria,
+so you can rearrange the tree without affecting the clients.  
 
 If the query can only be partially matched with the search tree, the best matching node
 of the tree (which contains the key/value parameters) is returned. This allows you to 
@@ -27,8 +42,77 @@ specify partial subtrees with "default" or "fallback" configurations.
 This also mean that if the top node of the tree specifies a configuration, the service will 
 always return a configuration, if only the default configuration specified at the top node.
 
+## A Simple Example
+
+Consider a service which returns configuration data for a number of services,
+like "personal settings" and "URLs" for service discovery. Most clients will get the same
+configuration data, which are called the default configurations. But some
+clients need to get different configurations.
+
+The configurations search tree may be created like in the picture below. Notice how
+the configuration may be located in leaf nodes or in intermediate nodes (which are
+effectively default values for non-matching leaf node terms).
+
+                                   +------+
+     ROOT                          | ROOT |
+     LEVEL                         +------+
+                                     /  \               
+                      +-------------+    +------------------+
+     SERVICE          | "Settings"  |    | "URLs"           |
+     LEVEL            |             |    |                  |
+                      | color: blue |    | login: http://x1 |
+                      | pet:   dog  |    | status:http://x2 |
+                      +-------------+    +------------------+
+                      /             \                 \
+              +------------+   +--------------+   +------------------+      
+     CLIENT   | "Fred"     |   | "Jane"       |   | "Fred"           |      
+     LEVEL    |            |   |              |   |                  |
+              | color: red |   | color: green |   | login: http://y1 |
+              | pet:   cat |   | pet:   fish  |   | status:http://y2 |
+              +------------+   +--------------+   +------------------+
+
+Now, client may request their configurations providing 2 simple search
+criteria: 
+
+* the service name, "Settings" or "URLs", and
+
+* a client ID, like a device ID, or in this case, a name, "Fred" or "Jane".
+
+For example, requesting "settings" for "Fred" will return `color:red` and
+`pet:cat`, whilst requesting them for "Bob" (not listed) returns the defaults
+`color:blue` and `pet:dog`. 
+
+The way you organize levels in the configurations search tree may have a
+big impact in how complex the tree gets over time. For example, the same tree
+may have been specified as: 
+
+                                 +------+
+     ROOT                        | ROOT |
+     LEVEL                       +------+\_________
+                                /      \           \          
+                      +--------+      +--------+    +------+
+     CLIENT           | "Fred" |      | "Jane" |    |  .*  |   .* means:
+     LEVEL            |        |      |        |    |      |   if unmatched
+                      |        |      +--------+    |      |
+                      |        |       /      \     |      |
+                      +--------+     Settings URLs  +------+\_______
+                      /         \                       |           \
+               +-------------+ +------------------+ +-------------+ +------------------+
+     SERVICE   | "Settings"  | | "URLs"           | | "Settings"  | | "URLs"           |
+     LEVEL     |             | |                  | |             | |                  |
+               | color: red  | | login: http://y1 | | color: blue | | login: http://x1 |
+               | pet:   cat  | | status:http://y2 | | pet:   Dog  | | status:http://x2 |
+               +-------------+ +------------------+ +-------------+ +------------------+
+
+This tree serves the same configurations as the first one, but its levels are
+reversed: clients are selected first, then services. It now has 10 nodes, instead of 6. 
+
+The good new is that the design of the service allows you to rearrange the node levels in the
+configurations search tree without affecting the client. The client query remains exactly the
+same.
+
 A concise description of the service is presented in the PDF file
-"Configuration Service.pdf", found in the root directory of this source
+`Configuration Service.pdf`, found in the root directory of this source
 repository.
 
 ## Build and Run

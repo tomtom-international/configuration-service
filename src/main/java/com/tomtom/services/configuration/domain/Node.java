@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * This class represents nodes in the search tree. A node has a name, a list of children nodes
- * and optionally a number of parameters.
+ * optionally a number of parameters and a last modified time.
  */
 @Immutable
 @JsonInclude(Include.NON_EMPTY)
@@ -63,7 +63,8 @@ final public class Node {
     final private DateTime modified;
 
     /**
-     * Order of node level names. The map cannot be empty (only null).
+     * Order of node level names. The map cannot be empty (only null). This property is actually
+     * only allowed for the root node.
      */
     @Nullable
     final private List<String> levels;

@@ -243,72 +243,93 @@ public class ConfigurationTest {
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect1() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect1");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect1.json"));
+    public void testDuplicateName() throws IncorrectConfigurationException {
+        LOG.info("testDuplicateName");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:duplicate-name.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect2() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect2");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect2.json"));
+    public void testMissingKey() throws IncorrectConfigurationException {
+        LOG.info("testMissingKey");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:missing-key.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect3() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect3");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect3.json"));
+    public void testKeyNull() throws IncorrectConfigurationException {
+        LOG.info("testKeyNull");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:key-null.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect4() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect4");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect4.json"));
+    public void testRootNodeNotNull() throws IncorrectConfigurationException {
+        LOG.info("testRootNodeNotNull");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:root-node-with-name.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect5() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect5");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect5.json"));
+    public void testWrongDate() throws IncorrectConfigurationException {
+        LOG.info("testWrongDate");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:wrong-date.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
-    public void testIncorrect6() throws IncorrectConfigurationException {
-        LOG.info("testIncorrect6");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:incorrect6.json"));
+    public void testEmptyName() throws IncorrectConfigurationException {
+        LOG.info("testEmptyName");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:empty-name.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
     public void testIncludeMultiError1() throws IncorrectConfigurationException {
         LOG.info("testIncludeMultiError1");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:includemultierror1.json"));
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-multi-error1.json"));
         Assert.assertNull(configuration);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
     public void testIncludeMultiError2() throws IncorrectConfigurationException {
         LOG.info("testIncludeMultiError2");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:includemultierror2.json"));
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-multi-error2.json"));
         Assert.assertNull(configuration);
     }
 
     @Test
     public void testIncludeMultiOK1() throws IncorrectConfigurationException {
         LOG.info("testIncludeMultiOK1");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:includemultiok1.json"));
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-multi-ok1.json"));
         Assert.assertNotNull(configuration);
     }
 
     @Test
     public void testIncludeMultiOK2() throws IncorrectConfigurationException {
-        LOG.info("testIncludeMultiOK2");
-        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:includemultiok2.json"));
+        LOG.info("testWrongName1");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-multi-ok2.json"));
+        Assert.assertNotNull(configuration);
+    }
+
+    @Test(expected = IncorrectConfigurationException.class)
+    public void testWrongName1() throws IncorrectConfigurationException {
+        LOG.info("testWrongName1");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:wrong-name1.json"));
+        Assert.assertNotNull(configuration);
+    }
+
+    @Test(expected = IncorrectConfigurationException.class)
+    public void testWrongName2() throws IncorrectConfigurationException {
+        LOG.info("testWrongName2");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:wrong-name2.json"));
+        Assert.assertNotNull(configuration);
+    }
+
+    @Test(expected = IncorrectConfigurationException.class)
+    public void testWrongName3() throws IncorrectConfigurationException {
+        LOG.info("testWrongName3");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:wrong-name3.json"));
         Assert.assertNotNull(configuration);
     }
 }

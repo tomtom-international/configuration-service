@@ -67,7 +67,8 @@ public class NodeDTO extends ApiDTO {
     private String modified;
 
     /**
-     * List of nodes level names, can be null, but not empty.
+     * List of nodes level names, can be null, but not empty. This field is only
+     * allowed for the root level node.
      */
     @JsonProperty("levels")
     @XmlElementWrapper(name = "levels")
@@ -115,7 +116,7 @@ public class NodeDTO extends ApiDTO {
                 validator().checkNotNullAndValidateAll(false, "nodes", Immutables.listOf(nodes));
             }
             validator().checkNotNullAndValidate(false, "parameters", parameters);
-            validator().checkNull(false, "include", include);
+            validator().checkNull(true, "include", include);
             if (modified != null) {
 
                 // Check if the modified date/time can be parsed.
@@ -135,7 +136,11 @@ public class NodeDTO extends ApiDTO {
                 // Check length of string (longer than 20 chars indicates non-'Z' timezone.
                 validator().checkString(true, "modified", ok ? modified : "", 20, 20);
             }
-            validator().checkNotNull(false, "levels", levels);
+            if (name == null) {
+                validator().checkNotNull(false, "levels", levels);
+            } else {
+                validator().checkNull(true, "levels", levels);
+            }
         } else {
 
             // Include specified: all others must be null.

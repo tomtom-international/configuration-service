@@ -71,6 +71,7 @@ public class Configuration {
 
     static final char PATH_SEPARATOR = '/';
     static final char QUERY_SEPARATOR = ';';
+    static final char WRONG_SEPARATOR = ',';
 
     @Inject
     public Configuration(@Nonnull final ConfigurationServiceProperties configurationServiceProperties)
@@ -205,7 +206,7 @@ public class Configuration {
 
             // Make sure the query does not contains ',', just '/'.
             if (querySearch.contains(",")) {
-                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, querySearch, "Should not contain ',' (term separator is '/')");
+                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, querySearch, "Should not contain ',' (term separator is " + PATH_SEPARATOR + ")");
             }
             // Get original terms and reshuffle into newTerms.
             final List<String> queryTerms = splitTrimmed(querySearch, PATH_SEPARATOR);
@@ -568,9 +569,10 @@ public class Configuration {
                     throw new IncorrectConfigurationException("Level name cannot be empty.");
                 }
 
-                // Level name cannot contain ',' or ';', to avoid mistakes with '/' separator.
-                if (level.contains(",") || level.contains(";")) {
-                    throw new IncorrectConfigurationException("Level name cannot contains ',' or ';' (separator is '/').");
+                // Level name cannot contain ',' or z';', to avoid mistakes with '/' separator.
+                if (!isValidNodeName(level)) {
+                    throw new IncorrectConfigurationException("Level name cannot contain '" + WRONG_SEPARATOR +
+                            "', '" + PATH_SEPARATOR + "' or '" + QUERY_SEPARATOR + "'.");
                 }
 
                 // Level names must be unique.
@@ -590,6 +592,10 @@ public class Configuration {
         // Validate the root (and all of its children).
         root.validate();
         return root;
+    }
+
+    private static boolean isValidNodeName(@Nonnull final String nodeName) {
+        return ((nodeName.indexOf(WRONG_SEPARATOR) + nodeName.indexOf(PATH_SEPARATOR) + nodeName.indexOf(QUERY_SEPARATOR)) == -3);
     }
 
     @Nonnull
@@ -634,7 +640,8 @@ public class Configuration {
 
         // Check if node names do not conflict.
         if (!checkNodeNamesRoot(tree)) {
-            throw new IncorrectConfigurationException("Configuration is not OK! Nodes names are incorrect, not unique or contain incorrect key/value pairs.");
+            throw new IncorrectConfigurationException("Configuration is not OK! " +
+                    "Nodes names are incorrectly formatted, not unique or contain incorrect key/value pairs.");
         }
 
         // Validate the (sub)tree.
@@ -698,6 +705,9 @@ public class Configuration {
             } else if (name.isEmpty()) {
                 ok = false;
                 LOG.error("checkNodeNamesChildren: name cannot be empty");
+            } else if (!isValidNodeName(name)) {
+                ok = false;
+                LOG.error("checkNodeNamesChildren: incorrect format of node name");
             } else if (names.contains(name)) {
                 ok = false;
                 LOG.error("checkNodeNamesChildren: name must be unique, name={}", name);

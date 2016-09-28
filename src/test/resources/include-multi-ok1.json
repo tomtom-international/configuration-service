@@ -6,7 +6,7 @@
       "name": "X",
       "nodes": [
         {
-          "include": "classpath::includenode.json"
+          "include": "classpath::include-node.json"
         }
       ]
     }
