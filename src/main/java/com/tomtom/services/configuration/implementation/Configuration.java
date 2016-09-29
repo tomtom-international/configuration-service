@@ -524,7 +524,7 @@ public class Configuration {
             try (BufferedReader buffer = new BufferedReader(inputStreamReader)) {
                 String inputLine;
                 while ((inputLine = buffer.readLine()) != null) {
-                    LOG.debug("readConfiguration: {}", inputLine);
+                    LOG.trace("readConfiguration: {}", inputLine);
                     sb.append(inputLine);
                     sb.append('\n');
                 }
