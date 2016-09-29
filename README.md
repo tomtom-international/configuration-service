@@ -107,7 +107,7 @@ may have been specified as:
 This tree serves the same configurations as the first one, but its levels are
 reversed: clients are selected first, then services. It now has 10 nodes, instead of 6. 
 
-The good new is that the design of the service allows you to rearrange the node levels in the
+The good news is that the design of the service allows you to rearrange the node levels in the
 configurations search tree without affecting the client. The client query remains exactly the
 same.
 
@@ -658,8 +658,11 @@ limitations under the License.
 
 It's good practice to set up a personal global `.gitignore` file on your machine which filters a number of files
 on your file systems that you do not wish to submit to the Git repository. You can set up your own global
-`~/.gitignore` file by executing:
-`git config --global core.excludesfile ~/.gitignore`
+`~/.gitignore_global` file by executing:
+`git config --global core.excludesfile ~/.gitignore_global`
+
+Note that running this command does not *create* the file, it just makes `git` use it. You need to create the
+file in advance yourself (with a simple text editor).
 
 In general, add the following file types to `~/.gitignore` (each entry should be on a separate line):
 `*.com *.class *.dll *.exe *.o *.so *.log *.sql *.sqlite *.tlog *.epoch *.swp *.hprof *.hprof.index *.releaseBackup *~`
