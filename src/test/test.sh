@@ -116,7 +116,7 @@ checkString "$RESULT" P508
 
 echo ""
 echo "Search for TPEG,SYS -- Should produce multiple results"
-export RESULT=`curl -s -X GET http://$HOST/tree?levels=service/model/deviceID\&search=TPEG\;SYS`
+export RESULT=`curl -s -X GET http://$HOST/tree?levels=service/model/deviceID\&search=TPEG\,SYS`
 checkString "$RESULT" .*radius.*matched.*sound.*matched
 
 echo "Test was successful"
