@@ -27,6 +27,10 @@ public interface TreeResource {
     public static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
     public static final String HEADER_IF_NONE_MATCH = "If-None-Match";
 
+    public static final char PATH_SEPARATOR = '/';
+    public static final char QUERY_SEPARATOR = ',';
+    public static final char WRONG_SEPARATOR = ';';
+
     /**
      * Try to match a search query string, which is formatted as a path using separators, with the
      * search tree and return the deepest level parameters found in the tree.

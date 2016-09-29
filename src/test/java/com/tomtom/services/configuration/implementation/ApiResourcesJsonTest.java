@@ -184,7 +184,7 @@ public class ApiResourcesJsonTest {
     public void checkMultiSearch() {
         LOG.info("checkMultiSearch");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=service/model/deviceID&search=TPEG/P107/Device123;SYS").
+                target(server.getHost() + "/tree?levels=service/model/deviceID&search=TPEG/P107/Device123,SYS").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
@@ -262,14 +262,25 @@ public class ApiResourcesJsonTest {
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(403, response.getStatus());
+        Assert.assertEquals(400, response.getStatus());
+    }
+
+    @Test
+    public void checkUsingCorrectSeparator() {
+        LOG.info("checkUsingCorrectSeparator");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=service/model/deviceID&search=TPEG,TPEG/P508,TPEG/P508/Device999").
+                request().
+                accept(MediaType.APPLICATION_JSON_TYPE).get();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getStatus());
     }
 
     @Test
     public void checkUsingWrongSeparator() {
-        LOG.info("checkTreeSearchTermSeparator");
+        LOG.info("checkUsingWrongSeparator");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=service/model/deviceID&search=TPEG,P508,Device999").
+                target(server.getHost() + "/tree?levels=service/model/deviceID&search=TPEG;TPEG/P508;TPEG/P508/Device999").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
@@ -465,7 +476,7 @@ public class ApiResourcesJsonTest {
     public void checkMultiSearchMatch() {
         LOG.info("checkMultiSearchMatch");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=service&search=TPEG;SYS").
+                target(server.getHost() + "/tree?levels=service&search=TPEG,SYS").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
@@ -478,7 +489,7 @@ public class ApiResourcesJsonTest {
     public void checkMultiSearchNoMatch() {
         LOG.info("checkMultiSearchMatch");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=service&search=TPEG;XYZ").
+                target(server.getHost() + "/tree?levels=service&search=TPEG,XYZ").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);

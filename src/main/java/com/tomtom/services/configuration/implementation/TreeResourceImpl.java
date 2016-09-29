@@ -5,6 +5,7 @@
 package com.tomtom.services.configuration.implementation;
 
 import akka.dispatch.Futures;
+import com.google.common.base.Joiner;
 import com.tomtom.services.configuration.TreeResource;
 import com.tomtom.services.configuration.domain.Node;
 import com.tomtom.services.configuration.dto.NodeDTO;
@@ -12,6 +13,7 @@ import com.tomtom.services.configuration.dto.SearchResultDTO;
 import com.tomtom.services.configuration.dto.SearchResultsDTO;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiForbiddenException;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiNotFoundException;
+import com.tomtom.speedtools.apivalidation.exceptions.ApiParameterSyntaxException;
 import com.tomtom.speedtools.checksums.SHA1Hash;
 import com.tomtom.speedtools.json.Json;
 import com.tomtom.speedtools.rest.ResourceProcessor;
@@ -90,14 +92,17 @@ public class TreeResourceImpl implements TreeResource {
 
             // Levels must be present.
             if ((levels == null) || levels.isEmpty()) {
-                throw new ApiForbiddenException("Parameter " + TreeResource.PARAM_LEVELS + " must be specified, next to " + TreeResource.PARAM_SEARCH);
-
+                throw new ApiParameterSyntaxException(TreeResource.PARAM_LEVELS, levels, "Parameter " + TreeResource.PARAM_LEVELS + " must be specified, next to " + TreeResource.PARAM_SEARCH);
             }
 
             // Search terms must be present.
             if ((search == null) || search.isEmpty()) {
-                throw new ApiForbiddenException("Parameter " + TreeResource.PARAM_SEARCH + " must be specified, next to " + TreeResource.PARAM_LEVELS);
+                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, search, "Parameter " + TreeResource.PARAM_SEARCH + " must be specified, next to " + TreeResource.PARAM_LEVELS);
+            }
 
+            // Search terms must be present.
+            if (search.indexOf(WRONG_SEPARATOR) != -1) {
+                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, search, "Parameter " + TreeResource.PARAM_SEARCH + " cannot contain '" + WRONG_SEPARATOR + '\'');
             }
 
             // First try and find the response.

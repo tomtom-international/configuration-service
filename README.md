@@ -153,7 +153,7 @@ Try the following to fetch the entire configuration:
 
 Or one specific node (note that this does not apply the fallback search mechanism):
 
-    curl -s -X GET http://localhost:8080/tree?levels=service,model,device&search=TPEG,P508
+    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508
 
 Or search for a closest match with the fallback search mechanism:
 
@@ -162,6 +162,13 @@ Or search for a closest match with the fallback search mechanism:
     curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=OTHER
     curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=TPEG
     curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=SYS
+
+Notica how you can change the order of search terms by modifying `levels`. These 2 commands get
+the same configuration:
+
+    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508/Device123
+    curl -s -X GET http://localhost:8080/tree?levels=device/service/model&search=Device123/TPEG/P508
+
 
 ### JSON or XML
 
@@ -174,14 +181,31 @@ as XML or JSON. The system accepts both formats.
 To retrieve JSON bodies from the REST API, either omit the `Accept` header, or specify 
 `Accept:application/json`. To get XML repsonses, specify `Accept:application/xml`. 
 
+#### Recommended Practices
+
+* Node names cannot contain the characters ',', ';' or '/' (as they have a special meaning
+in the search query). The service will fail to start if it finds incorrect node names.
+
+* The names and number of parameters can be different for every node, but normally
+you would return the same number of parameters and they would have the same names.
+
+* The `modified` attribute may be specified for any node. Normally, you should at least
+provide a `modified` time for the root node, so clients can use the HTTP `If-Modified-Since`
+header.
+
+* The top-level node msut be nameless and may contain a set of default parameters.
+If it specifies default parameters, searches will always return a result.
+
 #### Example JSON Configuration File and Response
 
-A JSON configuration file looks like this.
+Below is an example of a configuration file for the service. Some remarks:
+
+
  
 ```json
 {
   "modified": "2016-01-02T12:34:56Z",
-  "levels": ["criterium-1"],
+  "levels": ["level-name"],
   "nodes": [
     {
       "name": "child-1",
@@ -208,15 +232,15 @@ A JSON configuration file looks like this.
   ],
   "parameters": [
     {
-      "key": "key-0",
-      "value": "value-0"
+      "key": "key-default",
+      "value": "value-default"
     }
   ]
 }
 
 ``` 
 
-And a JSON search response for this tree using `GET /tree?levels=criterium-1&search=child-2` looks this:
+And a JSON search response for this tree using `GET /tree?levels=level-name&search=child-2` looks this:
 
 ```json
 {
@@ -238,7 +262,7 @@ The same configuration file looks like this when provided as XML.
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <node>
     <levels>
-        <level>criterium-1</level>
+        <level>level-name</level>
     </levels>
     <nodes>
         <node>
@@ -292,9 +316,9 @@ And, similarly, a XML search response for this three using `GET /parameter/tree?
 
 Or, to save a couple of roundtrips from the client to the server to fetch multiple
 configurations, you can combine mutliple search queries into one by separating the sub-queries
-by ',', like this:
+by `,`, like this:
 
-    curl -s -X GET http://localhost:8080/tree?levels=service/model/deviceID&search=TPEG/P107;SYS
+    curl -s -X GET http://localhost:8080/tree?levels=service/model/deviceID&search=TPEG/P107,SYS
 
 This would produce a JSON array of results for 2 independent queries. Especially for configuration trees
 which are organized into 'product' subtrees, combining the queries for individual products may save

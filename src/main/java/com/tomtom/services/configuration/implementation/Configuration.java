@@ -39,6 +39,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.tomtom.services.configuration.TreeResource.PATH_SEPARATOR;
+import static com.tomtom.services.configuration.TreeResource.QUERY_SEPARATOR;
+import static com.tomtom.services.configuration.TreeResource.WRONG_SEPARATOR;
 import static com.tomtom.speedtools.objects.Objects.notNullOr;
 
 /**
@@ -68,10 +71,6 @@ public class Configuration {
      */
     @Nonnull
     private final ConfigurationServiceProperties configurationServiceProperties;
-
-    static final char PATH_SEPARATOR = '/';
-    static final char QUERY_SEPARATOR = ';';
-    static final char WRONG_SEPARATOR = ',';
 
     @Inject
     public Configuration(@Nonnull final ConfigurationServiceProperties configurationServiceProperties)
@@ -569,7 +568,7 @@ public class Configuration {
                     throw new IncorrectConfigurationException("Level name cannot be empty.");
                 }
 
-                // Level name cannot contain ',' or z';', to avoid mistakes with '/' separator.
+                // Level name cannot contain certain characters, like [,;/].
                 if (!isValidNodeName(level)) {
                     throw new IncorrectConfigurationException("Level name cannot contain '" + WRONG_SEPARATOR +
                             "', '" + PATH_SEPARATOR + "' or '" + QUERY_SEPARATOR + "'.");

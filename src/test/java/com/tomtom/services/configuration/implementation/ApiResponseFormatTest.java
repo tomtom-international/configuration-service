@@ -26,10 +26,10 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("{}", response.readEntity(String.class));
-        server.stopServer();
     }
 
     @Test
@@ -41,11 +41,11 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree").
                 request().
                 accept(MediaType.APPLICATION_XML_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><node/>",
                 response.readEntity(String.class));
-        server.stopServer();
 
     }
 
@@ -58,11 +58,11 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("{\"nodes\":[{\"name\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"modified\":\"2016-01-02T11:11:11Z\"},{\"name\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T00:00:00Z\",\"levels\":[\"criterium\"]}",
                 response.readEntity(String.class));
-        server.stopServer();
 
     }
 
@@ -75,11 +75,11 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree").
                 request().
                 accept(MediaType.APPLICATION_XML_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><node><nodes><node><name>child-1</name><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><modified>2016-01-02T11:11:11Z</modified></node><node><name>child-2</name><parameters><parameter><key>key-2</key><value>value-2</value></parameter></parameters></node></nodes><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><modified>2016-01-02T00:00:00Z</modified><levels><level>criterium</level></levels></node>",
                 response.readEntity(String.class));
-        server.stopServer();
 
     }
 
@@ -92,11 +92,11 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree?levels=criterium&search=child-1").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"/child-1\"}",
                 response.readEntity(String.class));
-        server.stopServer();
 
     }
 
@@ -110,12 +110,26 @@ public class ApiResponseFormatTest {
                 target(server.getHost() + "/tree?levels=criterium&search=child-1").
                 request().
                 accept(MediaType.APPLICATION_XML_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>/child-1</matched></searchResult>",
                 response.readEntity(String.class));
-        server.stopServer();
 
+    }
+
+    @Test
+    public void checkMultiSearchWrongSeparatorJson() throws Exception {
+        LOG.info("checkMultiSearchWrongSeparatorJson");
+        final LocalTestServer server = new LocalTestServer("classpath:simple1.json");
+        server.startServer();
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                request().
+                accept(MediaType.APPLICATION_JSON_TYPE).get();
+        server.stopServer();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(400, response.getStatus());
     }
 
     @Test
@@ -124,16 +138,29 @@ public class ApiResponseFormatTest {
         final LocalTestServer server = new LocalTestServer("classpath:simple1.json");
         server.startServer();
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                target(server.getHost() + "/tree?levels=criterium&search=child-1,unknown").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("[{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"/child-1\"},{\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"matched\":\"/\"}]",
                 response.readEntity(String.class));
-        server.stopServer();
     }
 
+    @Test
+    public void checkMultiSearchWrongSeparatorXml() throws Exception {
+        LOG.info("checkMultiSearchWrongSeparatorXml");
+        final LocalTestServer server = new LocalTestServer("classpath:simple1.json");
+        server.startServer();
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                request().
+                accept(MediaType.APPLICATION_XML_TYPE).get();
+        server.stopServer();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(400, response.getStatus());
+    }
 
     @Test
     public void checkMultiSearchXml() throws Exception {
@@ -141,13 +168,13 @@ public class ApiResponseFormatTest {
         final LocalTestServer server = new LocalTestServer("classpath:simple1.json");
         server.startServer();
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                target(server.getHost() + "/tree?levels=criterium&search=child-1,unknown").
                 request().
                 accept(MediaType.APPLICATION_XML_TYPE).get();
+        server.stopServer();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResults><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>/child-1</matched></searchResult><searchResult><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><matched>/</matched></searchResult></searchResults>",
                 response.readEntity(String.class));
-        server.stopServer();
     }
 }
