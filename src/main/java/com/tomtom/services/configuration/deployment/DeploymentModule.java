@@ -48,6 +48,13 @@ public class DeploymentModule extends GuiceConfigurationModule {
     @Override
     public void configure(@Nonnull final Binder binder) {
         assert binder != null;
+
+        /**
+         * Important: the next call will fail if tbe properties file is not found.
+         * Normally, the properties file should NOT be part of the WAR file and must
+         * be added to the deployment manually so the service is able to find it.
+         * See also the README file in the 'src/main/resource' directory.
+         */
         super.configure(binder);
 
         // Make sure incorrect JSON doesn't return a HTTP 500, but HTTP 400 code.
