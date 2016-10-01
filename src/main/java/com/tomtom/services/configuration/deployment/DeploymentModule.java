@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.inject.Binder;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
-import com.tomtom.services.configuration.RootResource;
+import com.tomtom.services.configuration.HelperResource;
 import com.tomtom.services.configuration.TreeResource;
 import com.tomtom.services.configuration.implementation.Configuration;
-import com.tomtom.services.configuration.implementation.RootResourceImpl;
+import com.tomtom.services.configuration.implementation.HelperResourceImpl;
 import com.tomtom.services.configuration.implementation.TreeResourceImpl;
 import com.tomtom.speedtools.guice.GuiceConfigurationModule;
 import com.tomtom.speedtools.json.Json;
@@ -54,7 +54,7 @@ public class DeploymentModule extends GuiceConfigurationModule {
         GeneralExceptionMapper.addCustomException(JsonParseException.class, false, Status.BAD_REQUEST);
 
         // Bind APIs to their implementation.
-        binder.bind(RootResource.class).to(RootResourceImpl.class).in(Singleton.class);
+        binder.bind(HelperResource.class).to(HelperResourceImpl.class).in(Singleton.class);
         binder.bind(TreeResource.class).to(TreeResourceImpl.class).in(Singleton.class);
 
         // Bind properties.

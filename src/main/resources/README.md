@@ -1,10 +1,16 @@
 # Including Property File and Configuration Files for Testing
 
-The default properties file must be included in the WAR file, to list the properties
+The *default properties file* must be included in the WAR file, to list the properties
 required by this service (and reasonable defaults if appropriate).
 
-The deployment/context-specific properties should not be included in the WAR file,
-however. This is why the `.gitignore` file should specifically list configuration files to be
+This file does not contain the URI of the initial configuration URI. Instead, it
+defines that this URI must be specified, but leaves it empty.
+
+This will ensure the service cannot startup unless the configuration URI is
+actually defined in a seperate properties file (not inside the WAR).
+
+So, the deployment/context-specific properties should not be included in the WAR file. 
+This is why the `.gitignore` file should specifically list these property files to be
 excluded from this directory, to avoid them ending up in a WAR file.
 
 In this case, the file `application-configuration-data.properties` should be in

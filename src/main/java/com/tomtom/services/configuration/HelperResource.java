@@ -12,8 +12,12 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * This class defines a number of helper methods for the service, such as for getting help text,
+ * version and status information.
+ */
 @Path("/")
-public interface RootResource {
+public interface HelperResource {
 
     /**
      * This method provides help info.

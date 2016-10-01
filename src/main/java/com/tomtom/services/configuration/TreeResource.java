@@ -18,6 +18,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * This class defines the methods to query the configurations search tree.
+ */
 @Path("/tree")
 public interface TreeResource {
 

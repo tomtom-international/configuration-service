@@ -67,7 +67,7 @@ public class LocalTestServer {
         final ResourceProcessor resourceProcessor = new ResourceProcessor(reactor);
 
         // Add root resource.
-        server.getDeployment().getResources().add(new RootResourceImpl(
+        server.getDeployment().getResources().add(new HelperResourceImpl(
                 configuration,
                 configurationServiceProperties,
                 mavenProperties
