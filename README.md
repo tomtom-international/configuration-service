@@ -208,8 +208,8 @@ main resources directory, so Maven will copy them to your classpath if your run 
 (Don't worry, the `.gitignore` file specifically excludes these file, so you won't accidentally
 commit them to Git later.)
 
-    cp src/test/resources/configuration.properties src/main/resources
-    cp src/test/resources/example.json src/main/resources
+    cp src/external-resources/configuration.properties  src/main/resources
+    cp src/external-resources/example.json              src/main/resources
 
 And then type:
 
