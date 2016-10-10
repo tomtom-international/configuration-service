@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
-import com.tomtom.services.configuration.TreeResource;
 import com.tomtom.services.configuration.domain.Node;
 import com.tomtom.services.configuration.dto.NodeDTO;
 import com.tomtom.services.configuration.dto.SearchResultDTO;
@@ -35,13 +35,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.tomtom.services.configuration.TreeResource.PATH_SEPARATOR;
-import static com.tomtom.services.configuration.TreeResource.QUERY_SEPARATOR;
-import static com.tomtom.services.configuration.TreeResource.WRONG_SEPARATOR;
+import static com.tomtom.services.configuration.TreeResource.*;
 import static com.tomtom.speedtools.objects.Objects.notNullOr;
 
 /**
@@ -171,7 +170,7 @@ public class Configuration {
         final List<Integer> queryToTreeMapper = new ArrayList<>();
 
         // Re-order the search criteria to match the order of the configuration tree.
-        final List<String> queryLevels = splitTrimmed(levels, PATH_SEPARATOR);
+        final Iterable<String> queryLevels = Splitter.on(SEPARATOR_PATH).trimResults().split(levels);
         if (root.getLevels() != null) {
 
             // Look up every level listed in the query. Their names must exist.
@@ -189,13 +188,13 @@ public class Configuration {
 
                 // Check if an unknown name was used in the query.
                 if (!found) {
-                    throw new ApiParameterSyntaxException(TreeResource.PARAM_LEVELS, queryLevel, "Name must be one of: " + Joiner.on(", ").join(root.getLevels()));
+                    throw new ApiParameterSyntaxException(QUERY_PARAM_LEVELS, queryLevel, "Name must be one of: " + Joiner.on(", ").join(root.getLevels()));
                 }
             }
         }
 
         // Separate the individual queries from the input (one input string may contains multiple search queries).
-        final List<String> querySearches = splitTrimmed(searchPaths, QUERY_SEPARATOR);
+        final Iterable<String> querySearches = Splitter.on(SEPARATOR_QUERY).trimResults().split(searchPaths);
 
         // Reshuffle the search terms as specified in the query to what we expect in the configuration tree.
         final List<String> searches = new ArrayList<>();
@@ -205,20 +204,31 @@ public class Configuration {
 
             // Make sure the query does not contains ',', just '/'.
             if (querySearch.contains(",")) {
-                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, querySearch, "Should not contain ',' (term separator is " + PATH_SEPARATOR + ")");
+                throw new ApiParameterSyntaxException(QUERY_PARAM_SEARCH, querySearch, "Should not contain ',' (term separator is " + SEPARATOR_PATH + ')');
             }
             // Get original terms and reshuffle into newTerms.
-            final List<String> queryTerms = splitTrimmed(querySearch, PATH_SEPARATOR);
-            if (queryTerms.size() > queryToTreeMapper.size()) {
-                throw new ApiParameterSyntaxException(TreeResource.PARAM_SEARCH, querySearch, "Can only be " + queryToTreeMapper.size() + " levels deep");
+            final Iterable<String> queryTerms = Splitter.on(SEPARATOR_PATH).trimResults().split(querySearch);
+            LOG.debug("findBestMatchingNodes: querySearch={}, queryTerms={}", querySearch, queryTerms.toString());
+
+            // Init tree terms.
+            final String[] treeTerms = new String[queryToTreeMapper.size()];
+            for (int i = 0; i < treeTerms.length; ++i) {
+                treeTerms[i] = "";
             }
-            final String[] treeTerms = new String[queryTerms.size()];
-            for (int index = 0; index < queryTerms.size(); ++index) {
-                treeTerms[queryToTreeMapper.get(index)] = queryTerms.get(index);
+
+            // Copy correct values in tree terms.
+            final Iterator<String> iterator = queryTerms.iterator();
+            int index = 0;
+            while (iterator.hasNext() && (index < treeTerms.length)) {
+                treeTerms[queryToTreeMapper.get(index)] = iterator.next();
+                ++index;
+            }
+            if (iterator.hasNext()) {
+                throw new ApiParameterSyntaxException(QUERY_PARAM_SEARCH, querySearch, "Must be no more than " + queryToTreeMapper.size() + " levels deep");
             }
 
             // Add reshuffled joined terms.
-            searches.add(Joiner.on(PATH_SEPARATOR).join(treeTerms));
+            searches.add(Joiner.on(SEPARATOR_PATH).join(treeTerms));
         }
 
         // Result list.
@@ -242,8 +252,8 @@ public class Configuration {
              * Split the slash-separate search terms, like 'path1/path2' into separate terms, like
              * 'path1' and 'path2'.
              */
-            for (final String searchTerm : splitTrimmed(search, PATH_SEPARATOR)) {
-                LOG.debug("findBestMatchingNodes: term={}", searchTerm);
+            for (final String searchTerm : Splitter.on(SEPARATOR_PATH).trimResults().split(search)) {
+                LOG.debug("findBestMatchingNodes: searchTerm={}", searchTerm);
                 boolean found = false;          // This indicates whether we found a match or not.
 
                 /**
@@ -365,11 +375,11 @@ public class Configuration {
     @Nullable
     Node findNode(@Nonnull final String fullNodePath) {
 
-        // Trim initial separator if preset.
-        final String trimmedFullNodePath = trimmedFullPath(fullNodePath);
+        // Trim path.
+        final String trimmedFullNodePath = fullNodePath.trim();
 
         // Return root node if path is empty.
-        if (trimmedFullNodePath.substring(1).isEmpty()) {
+        if (trimmedFullNodePath.isEmpty()) {
 
             // Important: root has no parent, but you cannot return null as a parent either, so return root as well.
             return root;
@@ -377,7 +387,7 @@ public class Configuration {
 
         // Search tree for right node.
         Node node = root;
-        for (final String sub : splitTrimmed(trimmedFullNodePath, PATH_SEPARATOR)) {
+        for (final String sub : Splitter.on(SEPARATOR_PATH).trimResults().split(trimmedFullNodePath)) {
             boolean found = false;
             final Collection<Node> children = node.getNodes();
             if (children != null) {
@@ -420,9 +430,9 @@ public class Configuration {
                 final String name = notNullOr(child.getName(), "");
                 //noinspection ObjectEquality
                 if (child == node) {
-                    return new Tuple<>(pathPrefix + PATH_SEPARATOR + name, true);
+                    return new Tuple<>(pathPrefix + SEPARATOR_PATH + name, true);
                 } else {
-                    final Tuple<String, Boolean> found = getPathOfNode(child, node, pathPrefix + PATH_SEPARATOR + name);
+                    final Tuple<String, Boolean> found = getPathOfNode(child, node, pathPrefix + SEPARATOR_PATH + name);
                     if (found.getValue2()) {
                         return found;
                     }
@@ -430,37 +440,6 @@ public class Configuration {
             }
         }
         return new Tuple<>(pathPrefix, false);
-    }
-
-    /**
-     * Given a path name, return the same path, with a prefixed '/'.
-     *
-     * @param path Path, with or without prefixed '/'.
-     * @return Path with prefixed '/'.
-     */
-    @Nonnull
-    private static String trimmedFullPath(@Nonnull final String path) {
-        final String trimmed = path.trim();
-        return String.valueOf(PATH_SEPARATOR) +
-                ((trimmed.startsWith(String.valueOf(PATH_SEPARATOR))) ? trimmed.substring(1) : trimmed);
-    }
-
-    /**
-     * Split a string into an array and trim all strings. Just like String.split() except it trims the substrings.
-     *
-     * @param path      Input string.
-     * @param separator Path separator.
-     * @return Array of trimmed substrings.
-     */
-    @Nonnull
-    private static List<String> splitTrimmed(@Nonnull final String path, final char separator) {
-        final String[] split = trimmedFullPath(path).substring(1).
-                split(String.valueOf('[') + String.valueOf(separator) + ']');
-        final List<String> trimmed = new ArrayList<>(split.length);
-        for (final String untrimmed : split) {
-            trimmed.add(untrimmed.trim());
-        }
-        return trimmed;
     }
 
     /**
@@ -570,8 +549,9 @@ public class Configuration {
 
                 // Level name cannot contain certain characters, like [,;/].
                 if (!isValidNodeName(level)) {
-                    throw new IncorrectConfigurationException("Level name cannot contain '" + WRONG_SEPARATOR +
-                            "', '" + PATH_SEPARATOR + "' or '" + QUERY_SEPARATOR + "'.");
+                    throw new IncorrectConfigurationException("Level name cannot contain '" + SEPARATOR_WRONG +
+                            "', '" + SEPARATOR_PATH + "' or '" + SEPARATOR_QUERY + "' and cannot be named '" +
+                            QUERY_PARAM_LEVELS + "' or '" + QUERY_PARAM_SEARCH + "'.");
                 }
 
                 // Level names must be unique.
@@ -594,7 +574,8 @@ public class Configuration {
     }
 
     private static boolean isValidNodeName(@Nonnull final String nodeName) {
-        return ((nodeName.indexOf(WRONG_SEPARATOR) + nodeName.indexOf(PATH_SEPARATOR) + nodeName.indexOf(QUERY_SEPARATOR)) == -3);
+        return ((nodeName.indexOf(SEPARATOR_WRONG) + nodeName.indexOf(SEPARATOR_PATH) + nodeName.indexOf(SEPARATOR_QUERY)) == -3) &&
+                !nodeName.equalsIgnoreCase(QUERY_PARAM_LEVELS) && !nodeName.equalsIgnoreCase(QUERY_PARAM_SEARCH);
     }
 
     @Nonnull
@@ -706,7 +687,7 @@ public class Configuration {
                 LOG.error("checkNodeNamesChildren: name cannot be empty");
             } else if (!isValidNodeName(name)) {
                 ok = false;
-                LOG.error("checkNodeNamesChildren: incorrect format of node name");
+                LOG.error("checkNodeNamesChildren: incorrect name or format of node");
             } else if (names.contains(name)) {
                 ok = false;
                 LOG.error("checkNodeNamesChildren: name must be unique, name={}", name);

@@ -107,7 +107,9 @@ public class ConfigurationTest {
         y = configuration.findBestMatchingNodes("service/model/deviceID", "Unknown");
         Assert.assertTrue(y.isEmpty());
 
-        SearchResultDTO x = configuration.findBestMatchingNodes("service/model/deviceID", "/SYS").get(0);
+        Assert.assertTrue(configuration.findBestMatchingNodes("service/model/deviceID", "/SYS").isEmpty());
+
+        SearchResultDTO x = configuration.findBestMatchingNodes("service/model/deviceID", "SYS").get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
@@ -165,11 +167,6 @@ public class ConfigurationTest {
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
         Assert.assertEquals("/", x.getMatched());
 
-        x = configuration.findBestMatchingNodes("service", "/TPEG").get(0);
-        Assert.assertEquals("x", x.getParameters().get(0).getKey());
-        Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/", x.getMatched());
-
         x = configuration.findBestMatchingNodes("service/model", "TPEG/P508").get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
@@ -206,10 +203,6 @@ public class ConfigurationTest {
         Assert.assertEquals("4", x.getParameters().get(0).getValue());
         Assert.assertEquals("/.*", x.getMatched());
 
-        x = configuration.findBestMatchingNodes("criterium", "/.*").get(0);
-        Assert.assertEquals("4", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/.*", x.getMatched());
-
         x = configuration.findBestMatchingNodes("criterium", "").get(0);
         Assert.assertEquals("4", x.getParameters().get(0).getValue());
         Assert.assertEquals("/.*", x.getMatched());
@@ -223,9 +216,6 @@ public class ConfigurationTest {
         Node x = configuration.findNode("");
         Assert.assertSame(configuration.getRoot(), x);
 
-        x = configuration.findNode("/");
-        Assert.assertSame(configuration.getRoot(), x);
-
         x = configuration.findNode("Unknown");
         Assert.assertNull(x);
 
@@ -235,11 +225,14 @@ public class ConfigurationTest {
         x = configuration.findNode("TPEG");
         Assert.assertEquals("TPEG", x.getName());
 
-        x = configuration.findNode("/TPEG");
-        Assert.assertEquals("TPEG", x.getName());
-
-        x = configuration.findNode("/TPEG/P508");
+        x = configuration.findNode("TPEG/P508");
         Assert.assertEquals("P508", x.getName());
+
+        x = configuration.findNode("/");            // Wrong use of '/' prefix!
+        Assert.assertNull(x);
+
+        x = configuration.findNode("/TPEG");        // Wrong use of '/' prefix!
+        Assert.assertNull(x);
     }
 
     @Test(expected = IncorrectConfigurationException.class)
