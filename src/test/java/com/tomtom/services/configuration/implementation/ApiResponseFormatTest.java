@@ -102,7 +102,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"/child-1\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"child-1\"}",
                 response.readEntity(String.class));
     }
 
@@ -116,7 +116,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>/child-1</matched></searchResult>",
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>child-1</matched></searchResult>",
                 response.readEntity(String.class));
 
     }
@@ -143,7 +143,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("[{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"/child-1\"},{\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"matched\":\"/\"}]",
+        assertEquals("[{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"child-1\"},{\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"matched\":\"\"}]",
                 response.readEntity(String.class));
     }
 
@@ -169,7 +169,89 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResults><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>/child-1</matched></searchResult><searchResult><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><matched>/</matched></searchResult></searchResults>",
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResults><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>child-1</matched></searchResult><searchResult><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><matched></matched></searchResult></searchResults>",
                 response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithEmptyTerm1() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerm1");
+        startServer("regex.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=criterium&search=").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("{\"parameters\":[{\"key\":\"value\",\"value\":\"4\"}],\"matched\":\".*\"}",
+                response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithEmptyTerm2() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerm2");
+        startServer("regex-config.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=///").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+                response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithEmptyTerm3() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerm3");
+        startServer("regex-config.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=x/y//").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+                response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithEmptyTerm4() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerm4");
+        startServer("regex-config.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=x/y//z").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+                response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithEmptyTerm5() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerm5");
+        startServer("regex-config.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678///").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"radius for specific device with MUID XY12345678\"},{\"key\":\"interval\",\"value\":\"radius for specific device with XY12345678\"}],\"matched\":\"XY12345678\"}",
+                response.readEntity(String.class));
+    }
+
+    @Test
+    public void checkRegexSearchWithTooManyTerms() throws Exception {
+        LOG.info("checkRegexSearchWithTooManyTerms");
+        startServer("regex-config.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678////").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(400, response.getStatus());
     }
 }

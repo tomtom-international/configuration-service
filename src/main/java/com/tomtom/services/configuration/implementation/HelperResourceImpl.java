@@ -16,8 +16,10 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * This class implements the REST API that deals with TTBin files.

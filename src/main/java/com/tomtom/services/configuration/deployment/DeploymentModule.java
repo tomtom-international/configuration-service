@@ -75,6 +75,6 @@ public class DeploymentModule extends GuiceConfigurationModule {
 
         final ObjectMapper jsonMapper = Json.getCurrentJsonObjectMapper();
         jsonMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        Json.getCurrentJsonObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 }

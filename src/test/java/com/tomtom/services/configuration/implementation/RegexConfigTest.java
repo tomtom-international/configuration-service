@@ -47,13 +47,16 @@ public class RegexConfigTest {
         LOG.info("response={}", s);
         assertTrue(s.contains("for specific device with MUID XY12345678"));
 
-        // Search with too few items specified; should return 404.
+        // Search with too few items specified; should return 400.
         response = new ResteasyClientBuilder().build().
                 target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
-        assertEquals(404, response.getStatus());
+        assertEquals(200, response.getStatus());
+        s = response.readEntity(String.class);
+        LOG.info("response={}", s);
+        assertTrue(s.contains("general fallback"));
 
         // Search with enough items, but nothing is found; provides fallback.
         response = new ResteasyClientBuilder().build().

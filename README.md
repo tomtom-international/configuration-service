@@ -57,10 +57,13 @@ file for the search tree.
 * `GET /status`: return `200 OK` if and only if the service is correctly configured and running OK; 
 it's used for monitoring purposes (and load balancers).
 
-* `GET /tree/[/{level1}[/{level2[...]]]`: return a specific node from the search tree (hardly ever used).
+* `GET /tree? {level1}={value1} & {level2}={value2} &...`: query the search tree for a configuration, specifying 
+level names and there values; this is the most commonly used method.
 
-* `GET /tree?levels={nameLevel1}[/{nameLevel2}[/...]]&search={level1}[/{level2}[/...]]`: query the search tree for a 
-configuration, the most commonly used method.
+* `GET /tree? levels={level1}/{level2}/... & search={value1}/{value2}/... [,{valueX}/{valueY}/...]`: 
+alternative syntax for the search query, which also allows for getting multiple configuration in a single call. 
+
+* `GET /tree/{level1}/{level2}/...`: return a specific node from the search tree (hardly ever used).
 
 The configuration of the service is fetched from a URI specified in the properties file called
 
@@ -69,7 +72,7 @@ The configuration of the service is fetched from a URI specified in the properti
 Normally you would use the search capability of the service to find the best matching node, based on
 hierarchical search criteria, which falls back to parent nodes for missing entries:
 
-    GET /tree?levels={nameLevel1}[/{nameLevel2}[/...]]&search={level1}[/{level2}[/...]]
+    GET /tree?{level1}={value1}&{level2}={value2}&...
 
 The search path is now provided as a query parameter and the order of the node levels is defined by
 'levels' (each node level in the configuration has a name).
@@ -81,10 +84,11 @@ The returned result is the value of the leaf of the deepest node matching the se
 The "matched" value indicates which node provided the parameters. This may be an exact match
 of the search path in the query, or any node above it (if path as partially matched).
 
-You can get multiple configurations at once by supplying more than 1 query string after 'search='
-all separated by a `;`, like this:
+You can get multiple configurations at once by using a alternative search syntax which uses the
+reserved parameter names `levels` and `search` and supplying more than 1 query string after `search=`
+all separated by a `,`, like this:
 
-    GET /tree?levels=level1/level2/...&search=query1;query2;...
+    GET /tree?levels=level1/level2/... & search=term1/term2/... , other1/other2/...
 
 The result of a multi-query request is a JSON array of results, with the elements in the same order
 as the sub-queries that were specified.
@@ -238,21 +242,19 @@ Try the following to fetch the entire configuration:
 
 Or one specific node (note that this does not apply the fallback search mechanism):
 
-    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508
+    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508
 
 Or search for a closest match with the fallback search mechanism:
 
-    curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=TPEG/P508/Device123
-    curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=TPEG/P508/Device456
-    curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=OTHER
-    curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=TPEG
-    curl -s -X GET http://localhost:8080/tree?levels=service/mode/deviceID&search=SYS
+    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device123
+    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device456
+    curl -s -X GET http://localhost:8080/tree?service=OTHER 
+    curl -s -X GET http://localhost:8080/tree?service=TPEG 
+    curl -s -X GET http://localhost:8080/tree?service=SYS 
 
-Notica how you can change the order of search terms by modifying `levels`. These 2 commands get
-the same configuration:
+Or you can use the alternative syntax, which also allows getting multiple requests in a single call.
 
-    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508/Device123
-    curl -s -X GET http://localhost:8080/tree?levels=device/service/model&search=Device123/TPEG/P508
+    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508/Device123,SYS
 
 
 ### JSON or XML
@@ -325,7 +327,7 @@ Below is an example of a configuration file for the service. Some remarks:
 
 ``` 
 
-And a JSON search response for this tree using `GET /tree?levels=level-name&search=child-2` looks this:
+And a JSON search response for this tree using `GET /tree?level-name=child-2` looks this:
 
 ```json
 {
@@ -383,7 +385,7 @@ The same configuration file looks like this when provided as XML.
 </node>
 ``` 
  
-And, similarly, a XML search response for this three using `GET /parameter/tree?search=child-2` looks this:
+And, similarly, a XML search response for this three using `GET /parameter/tree?level-name=child-2` looks this:
  
  ```xml
 <searchResult>
@@ -399,7 +401,7 @@ And, similarly, a XML search response for this three using `GET /parameter/tree?
   
 ### Multiple Search Queries in One Call
 
-Or, to save a couple of roundtrips from the client to the server to fetch multiple
+To save a couple of roundtrips from the client to the server to fetch multiple
 configurations, you can combine mutliple search queries into one by separating the sub-queries
 by `,`, like this:
 
