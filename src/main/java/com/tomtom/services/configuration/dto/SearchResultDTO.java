@@ -50,6 +50,7 @@ public class SearchResultDTO extends ApiDTO {
      * parameters.
      */
     @JsonProperty("matched")
+    @JsonInclude(Include.ALWAYS)
     @XmlElement(name = "matched")
     @Nullable
     private String matched;
@@ -125,7 +126,7 @@ public class SearchResultDTO extends ApiDTO {
 
     public void setMatched(@Nullable final String matched) {
         beforeSet();
-        this.matched = StringUtils.emptyToNull(StringUtils.trim(matched));
+        this.matched = StringUtils.nullToEmpty(StringUtils.trim(matched));
     }
 
     @Nonnull

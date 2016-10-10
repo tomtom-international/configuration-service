@@ -114,63 +114,63 @@ public class ConfigurationTest {
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("/SYS", x.getMatched());
+        Assert.assertEquals("SYS", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "SYS").get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("/SYS", x.getMatched());
+        Assert.assertEquals("SYS", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "SYS/Unknown/Device").get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("/SYS", x.getMatched());
+        Assert.assertEquals("SYS", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "TPEG").get(0);
         Assert.assertEquals("radius", x.getParameters().get(0).getKey());
         Assert.assertEquals("25", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/TPEG", x.getMatched());
+        Assert.assertEquals("TPEG", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "TPEG/Unknown").get(0);
         Assert.assertEquals("radius", x.getParameters().get(0).getKey());
         Assert.assertEquals("25", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/TPEG", x.getMatched());
+        Assert.assertEquals("TPEG", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "TPEG/P508").get(0);
         Assert.assertEquals("radius", x.getParameters().get(0).getKey());
         Assert.assertEquals("40", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/TPEG/P508", x.getMatched());
+        Assert.assertEquals("TPEG/P508", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "TPEG/P508/Device1.*").get(0);
         Assert.assertEquals("radius", x.getParameters().get(0).getKey());
         Assert.assertEquals("100", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/TPEG/P508/Device1.*", x.getMatched());
+        Assert.assertEquals("TPEG/P508/Device1.*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "TPEG/P508/Device999").get(0);
         Assert.assertEquals("radius", x.getParameters().get(0).getKey());
         Assert.assertEquals("200", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/TPEG/P508/Device999", x.getMatched());
+        Assert.assertEquals("TPEG/P508/Device999", x.getMatched());
 
         configuration = new Configuration(new ConfigurationServiceProperties("classpath:onlyparams.json"));
 
         x = configuration.findBestMatchingNodes("service/model/deviceID", "/").get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/", x.getMatched());
+        Assert.assertEquals("", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service", "TPEG").get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/", x.getMatched());
+        Assert.assertEquals("", x.getMatched());
 
         x = configuration.findBestMatchingNodes("service/model", "TPEG/P508").get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/", x.getMatched());
+        Assert.assertEquals("", x.getMatched());
     }
 
     @Test
@@ -181,31 +181,31 @@ public class ConfigurationTest {
         final SearchResultsDTO list = configuration.findBestMatchingNodes("criterium", "String");
         SearchResultDTO x = list.get(0);
         Assert.assertEquals("2", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/String", x.getMatched());
+        Assert.assertEquals("String", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", "String123").get(0);
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/String[0-9]*", x.getMatched());
+        Assert.assertEquals("String[0-9]*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", "String999").get(0);
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/String[0-9]*", x.getMatched());
+        Assert.assertEquals("String[0-9]*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", "other").get(0);
         Assert.assertEquals("4", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/.*", x.getMatched());
+        Assert.assertEquals(".*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", "String9[0-9]*").get(0);
         Assert.assertEquals("3", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/String9[0-9]*", x.getMatched());
+        Assert.assertEquals("String9[0-9]*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", ".*").get(0);
         Assert.assertEquals("4", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/.*", x.getMatched());
+        Assert.assertEquals(".*", x.getMatched());
 
         x = configuration.findBestMatchingNodes("criterium", "").get(0);
         Assert.assertEquals("4", x.getParameters().get(0).getValue());
-        Assert.assertEquals("/.*", x.getMatched());
+        Assert.assertEquals(".*", x.getMatched());
     }
 
     @Test
