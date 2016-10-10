@@ -34,7 +34,10 @@
     <!-- Add cross-site scripting support for Javascript. -->
     <context-param>
         <param-name>resteasy.providers</param-name>
-        <param-value>com.tomtom.services.configuration.deployment.CorsFeature</param-value>
+        <param-value>
+            com.tomtom.services.configuration.deployment.CorsFeature,
+            com.tomtom.services.configuration.deployment.ResteasyServletContext
+        </param-value>
     </context-param>
 
     <context-param>

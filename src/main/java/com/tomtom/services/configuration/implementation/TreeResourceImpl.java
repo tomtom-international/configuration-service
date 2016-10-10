@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -89,11 +90,12 @@ public class TreeResourceImpl implements TreeResource {
             @Nullable final String search,
             @Nullable final String ifModifiedSince,
             @Nullable final String ifNoneMatch,
-            @Nonnull UriInfo uriInfo,
+            @Nonnull final UriInfo uriInfo,
             @Nonnull final AsyncResponse response) {
 
         // If no query parameters were specified, return a specific node instead.
-        if ((uriInfo.getQueryParameters() == null) || uriInfo.getQueryParameters().keySet().isEmpty()) {
+        final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        if ((queryParameters == null) || queryParameters.keySet().isEmpty()) {
             getNode("", null, null, ifModifiedSince, ifNoneMatch, response);
             return;
         }
@@ -102,7 +104,7 @@ public class TreeResourceImpl implements TreeResource {
             LOG.info("findBestMatch: levels='{}', search='{}', if-modified-since={}, if-none-match={}", levels, search, ifModifiedSince, ifNoneMatch);
 
             // Get all level names.
-            final Set<String> keys = uriInfo.getQueryParameters().keySet();
+            final Set<String> keys = queryParameters.keySet();
 
             // Either 'levels' and 'search' must be present and no others, or only others and no 'levels' and 'search'.
             if (((levels == null) && (search == null) && keys.isEmpty()) ||
@@ -130,7 +132,7 @@ public class TreeResourceImpl implements TreeResource {
                 levelsToUse = Joiner.on(SEPARATOR_PATH).join(keys);
                 final List<String> values = new ArrayList<String>();
                 for (final String key : keys) {
-                    values.add(uriInfo.getQueryParameters().getFirst(key));
+                    values.add(queryParameters.getFirst(key));
                 }
                 searchToUse = Joiner.on(SEPARATOR_PATH).join(values);
                 LOG.debug("findBestMatch: using simple syntax, levels={}, search={}", levelsToUse, searchToUse);
