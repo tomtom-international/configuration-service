@@ -55,6 +55,7 @@ public interface TreeResource {
      * @param search          Search criteria values, in specified order.
      * @param ifModifiedSince Return parameters only if the configuration is newer than this.
      * @param ifNoneMatch     Return parameters only if the ETag of the response is different from the supplied ETag.
+     * @param uriInfo         URI info incl. parameters.
      * @param response        Deepest level parameters, format {@link SearchResultsDTO}.
      */
     @GET
@@ -81,6 +82,7 @@ public interface TreeResource {
      * @param search          Only provided to make sure it's null.
      * @param ifModifiedSince Return parameters only if the configuration is newer than this.
      * @param ifNoneMatch     Return parameters only if the ETag of the response is different from the supplied ETag.
+     * @param uriInfo         URI info incl. parameters.
      * @param response        Deepest level parameters, format {@link SearchResultsDTO}.
      */
     @GET
@@ -92,5 +94,6 @@ public interface TreeResource {
             @Nonnull @QueryParam(QUERY_PARAM_SEARCH) String search,
             @Nullable @HeaderParam(HEADER_IF_MODIFIED_SINCE) String ifModifiedSince,
             @Nullable @HeaderParam(HEADER_IF_NONE_MATCH) String ifNoneMatch,
+            @Nonnull @Context UriInfo uriInfo,
             @Suspended @Nonnull AsyncResponse response);
 }

@@ -96,7 +96,7 @@ public class TreeResourceImpl implements TreeResource {
         // If no query parameters were specified, return a specific node instead.
         final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         if ((queryParameters == null) || queryParameters.keySet().isEmpty()) {
-            getNode("", null, null, ifModifiedSince, ifNoneMatch, response);
+            getNode("", null, null, ifModifiedSince, ifNoneMatch, uriInfo, response);
             return;
         }
 
@@ -202,14 +202,19 @@ public class TreeResourceImpl implements TreeResource {
             @Nullable final String search,
             @Nullable final String ifModifiedSince,
             @Nullable final String ifNoneMatch,
+            @Nonnull final UriInfo uriInfo,
             @Nonnull final AsyncResponse response) {
+
+        // Keep URI parameters.
+        final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
         processor.process("getNode", LOG, response, () -> {
             LOG.info("getNode: fullNodePath='{}', if-modified-since={}, if-none-match={}", fullNodePath, ifModifiedSince, ifNoneMatch);
 
             // Make sure parameters 'levels' and 'search' were not specified.
-            if ((levels != null) || (search != null)) {
-                throw new ApiForbiddenException("Can't specify " + TreeResource.QUERY_PARAM_LEVELS + " or " + TreeResource.QUERY_PARAM_SEARCH + " when retrieving specific configuration tree nodes");
+            if (!queryParameters.keySet().isEmpty()) {
+                throw new ApiForbiddenException("Can't specify '" + TreeResource.QUERY_PARAM_LEVELS + "' or '" +
+                        TreeResource.QUERY_PARAM_SEARCH + "' or level names when retrieving specific configuration tree nodes");
             }
 
             // First, try and get the node from the tree.

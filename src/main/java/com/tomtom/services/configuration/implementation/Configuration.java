@@ -356,7 +356,7 @@ public class Configuration {
              * Set the 'matched' of the node from which the parameters were gotten.
              */
             final String matched = getPathOfNode(root, nodeOfParameters, "").getValue1();
-            searchResult.setMatched(matched.isEmpty() ? "/" : matched);
+            searchResult.setMatched(matched);
             results.add(searchResult);
         }
         final SearchResultsDTO searchResults = new SearchResultsDTO(results);
@@ -430,9 +430,10 @@ public class Configuration {
                 final String name = notNullOr(child.getName(), "");
                 //noinspection ObjectEquality
                 if (child == node) {
-                    return new Tuple<>(pathPrefix + SEPARATOR_PATH + name, true);
+                    return new Tuple<>(pathPrefix + (pathPrefix.isEmpty() ? "" : SEPARATOR_PATH) + name, true);
                 } else {
-                    final Tuple<String, Boolean> found = getPathOfNode(child, node, pathPrefix + SEPARATOR_PATH + name);
+                    final Tuple<String, Boolean> found = getPathOfNode(child, node,
+                            pathPrefix + (pathPrefix.isEmpty() ? "" : SEPARATOR_PATH) + name);
                     if (found.getValue2()) {
                         return found;
                     }

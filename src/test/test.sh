@@ -56,42 +56,42 @@ checkString "$RESULT" radius.*\"50
 
 echo ""
 echo "Search for TPEG/P508 -- Should produce radius:50"
-export RESULT=`curl -s -X GET http://$HOST/tree?service=TPEG&model=P508`
+export RESULT=`curl -s -X GET http://$HOST/tree?service=TPEG\&model=P508`
 checkString "$RESULT" radius.*\"50
 
 echo ""
 echo "Search for TPEG/P508/Device123 -- Should produce radius:100"
-export RESULT=`curl -s -X GET http://$HOST/tree?service=TPEG&model=P508&deviceID=Device123`
+export RESULT=`curl -s -X GET http://$HOST/tree?service=TPEG\&model=P508\&deviceID=Device123`
 checkString "$RESULT" radius.*\"100
 
 echo ""
 echo "Search for TPEG/P107/Device456 with earlier If-Modified-Since -- Should produce radius:40"
-export RESULT=`curl -s -H "If-Modified-Since: Mon, 2 Jan 2000 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-Modified-Since: Mon, 2 Jan 2000 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString "$RESULT" radius.*\"40
 
 echo ""
 echo "Search for TPEG/P107/Device456 with non-matching If-None-match -- Should produce radius:40"
-export RESULT=`curl -s -H "If-None-Match: \"x\"" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-None-Match: \"x\"" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString "$RESULT" radius.*\"40
 
 echo ""
 echo "Search for TPEG/P107/Device456 with matching If-None-match -- Should produce radius:40"
-export RESULT=`curl -s -H "If-None-Match: \"8c3754f2\"" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-None-Match: \"8c3754f2\"" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString x"$RESULT" x
 
 echo ""
 echo "Get node TPEG/P107/Device456 with newer If-Modified-Since -- Should produce nothing"
-export RESULT=`curl -s -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString x"$RESULT" x
 
 echo ""
 echo "Get node TPEG/P107/Device456 with newer If-Modified-Since and non-matching If-None-Match -- Should produce radius:40"
-export RESULT=`curl -s -H "If-None-Match: \"x\"" -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-None-Match: \"x\"" -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString "$RESULT" radius.*\"40
 
 echo ""
 echo "Get node TPEG/P107/Device456 with newer If-Modified-Since and matching If-None-Match -- Should produce radius:40"
-export RESULT=`curl -s -H "If-None-Match: \"8c3754f2\"" -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG&model=P107&deviceID=Device456`
+export RESULT=`curl -s -H "If-None-Match: \"8c3754f2\"" -H "If-Modified-Since: Mon, 2 Jan 2020 19:43:31 GMT" -X GET http://$HOST/tree?service=TPEG\&model=P107\&deviceID=Device456`
 checkString x"$RESULT" x
 
 echo ""
