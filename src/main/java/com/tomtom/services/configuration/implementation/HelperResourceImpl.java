@@ -16,10 +16,8 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * This class implements the REST API that deals with TTBin files.
@@ -29,7 +27,7 @@ public class HelperResourceImpl implements HelperResource {
 
     @Nonnull
     private static final String HELP_TEXT = "" +
-            "The API of this service conisst of:\n\n" +
+            "The API of this service provides:\n\n" +
 
             "  GET /        : return human-readable HTML help text, useful as a quick reference guide.\n" +
             "  GET /version : return the (POM) version of the service and the URI of the configuration\n" +
@@ -40,27 +38,32 @@ public class HelperResourceImpl implements HelperResource {
 
             "The configuration of the service is fetched from a URI specified in the properties file called\n\n" +
 
-            "  application-configuration-data.properties\n\n" +
+            "  configuration-service.properties\n\n" +
+
+            "This properties file must contain the property\"ConfigurationService.startupConfigurationURI\" which\n" +
+            "points at the search tree configuration to use (which has the same format as you get from \"GET /tree\").\n\n" +
 
             "Normally you would use the search capability of the service to find the best matching node, based on\n" +
             "hierarchical search criteria, which falls back to parent nodes for missing entries:\n\n" +
 
-            "  GET /tree?levels={nameLevel1}[/{nameLevel2}[/...]]&search={level1}[/{level2}[/...]]\n\n" +
+            "  GET /tree? {level1}={value1} & {level2}={value2} & ...\n\n" +
 
-            "The search path is now provided as a query parameter and the order of the node levels is defined by\n" +
-            "`levels` (each node level in the configuration has a name).\n" +
+            "The values are matched with the \"match\" attributes of nodes at the specified levels.\n" +
             "The returned result is the value of the leaf of the deepest node matching the search criteria:\n\n" +
 
             "  {\"parameters\" : [{\"key\": \"{key1}\", \"value\": \"{value1}\"}, ...],\n" +
-            "  \"matched\" : \"{path-of-deepest-node-that-matched}\"}\n\n" +
+            "  \"matched\" : \"{matched-search-criteria}\"}\n\n" +
 
-            "The \"matched\" value indicates which node provided the parameters. This may be an exact match\n" +
-            "of the search path in the query, or any node above it (if path as partially matched).\n\n" +
+            "The \"matched\" value indicates which matches were used to provided the parameters. If the root node\n" +
+            "was returned, the \"matched\" value is the empty string.\n" +
 
-            "You can get multiple configurations at once by supplying more than 1 query string after `search=`\n" +
-            "all separated by a `;`, like this:\n\n" +
+            "You can get multiple configurations at once by supplying more than 1 query string after a level name\n" +
+            "separated by a `,`, like this:\n\n" +
 
-            "  GET /tree?levels=level1/level2/...&search=query1;query2;...\n\n" +
+            "  GET /tree? {level1}={valueX},{valueY} & {level2}=...\n\n" +
+
+            "You can specify an empty search term by only providing the comma, or you can leave search terms out for\n" +
+            "levels, in which case their last value is re-used in subsequent searches.\n\n" +
 
             "The result of a multi-query request is a JSON array of results, with the elements in the same order\n" +
             "as the sub-queries that were specified.\n\n" +
@@ -86,7 +89,7 @@ public class HelperResourceImpl implements HelperResource {
 
             "  {\"nodes\": [\"{node1}\", \"{node2}\", ...],\n" +
             "  \"parameters\": [{\"key\": \"{key1}\", \"value\": \"{value1}\"]}, ...]," +
-            "  \"name\": \"{node-name\"}}\n\n" +
+            "  \"match\": \"{node-name\"}}\n\n" +
 
             "The \"nodes\" array is optional and lists the children nodes with search\n" +
             "terms one level below the specified node.\n\n" +

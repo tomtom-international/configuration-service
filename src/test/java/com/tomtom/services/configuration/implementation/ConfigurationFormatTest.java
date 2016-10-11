@@ -27,7 +27,7 @@ public class ConfigurationFormatTest {
         final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:empty.json"));
         final Node root = configuration.getRoot();
         Assert.assertNotNull(root);
-        Assert.assertNull(root.getName());
+        Assert.assertNull(root.getMatch());
         Assert.assertNull(root.getNodes());
         Assert.assertNull(root.getParameters());
         Assert.assertNull(root.getModified());
@@ -42,7 +42,7 @@ public class ConfigurationFormatTest {
         final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:empty.xml"));
         final Node root = configuration.getRoot();
         Assert.assertNotNull(root);
-        Assert.assertNull(root.getName());
+        Assert.assertNull(root.getMatch());
         Assert.assertNull(root.getNodes());
         Assert.assertNull(root.getParameters());
         Assert.assertNull(root.getModified());
@@ -59,7 +59,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(root);
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"modified\":\"2016-01-02T11:11:11Z\"},{\"name\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T00:00:00Z\",\"levels\":[\"criterium\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"modified\":\"2016-01-02T11:11:11Z\"},{\"match\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T00:00:00Z\",\"levels\":[\"criterium\"]}",
                 rootJson);
     }
 
@@ -71,7 +71,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(root);
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"TPEG\",\"nodes\":[{\"name\":\"P107\",\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"}]},{\"name\":\"P508\",\"nodes\":[{\"name\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"name\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"50\"}]},{\"name\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}]}],\"modified\":\"2016-04-05T17:28:16Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"50\"}]},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}]}],\"modified\":\"2016-04-05T17:28:16Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
                 rootJson);
     }
 
@@ -83,7 +83,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(root);
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}]},{\"name\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T12:34:56Z\",\"levels\":[\"criterium\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}]},{\"match\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T12:34:56Z\",\"levels\":[\"criterium\"]}",
                 rootJson);
     }
 
@@ -95,7 +95,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(root);
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"TPEG\",\"nodes\":[{\"name\":\"P107\",\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"}]},{\"name\":\"P508\",\"nodes\":[{\"name\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"name\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"50\"}]},{\"name\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}]}],\"modified\":\"2016-04-05T17:28:16Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"50\"}]},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}]}],\"modified\":\"2016-04-05T17:28:16Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
                 rootJson);
     }
 
@@ -112,7 +112,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(rootDTO);
         rootDTO.validate();
 
-        Assert.assertNull(rootDTO.getName());
+        Assert.assertNull(rootDTO.getMatch());
         Assert.assertNotNull(rootDTO.getNodes());
         Assert.assertEquals(2, rootDTO.getNodes().size());
         Immutables.listOf(rootDTO.getNodes()).stream().forEach(x -> {
@@ -122,8 +122,8 @@ public class ConfigurationFormatTest {
             }
         });
 
-        Assert.assertEquals("TPEG", rootDTO.getNodes().get(0).getName());
-        Assert.assertEquals("SYS", rootDTO.getNodes().get(1).getName());
+        Assert.assertEquals("TPEG", rootDTO.getNodes().get(0).getMatch());
+        Assert.assertEquals("SYS", rootDTO.getNodes().get(1).getMatch());
         Assert.assertNotNull(rootDTO.getNodes().get(1).getParameters());
 
         Assert.assertEquals(2, rootDTO.getNodes().get(1).getParameters().size());
@@ -134,12 +134,12 @@ public class ConfigurationFormatTest {
 
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"TPEG\",\"nodes\":[{\"name\":\"P107\",\"nodes\":[{\"name\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"name\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"name\":\"P508\",\"nodes\":[{\"name\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"name\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"name\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
                 rootJson);
 
         final String rootDTOJson = mapper.writeValueAsString(rootDTO);
         LOG.info("rootDTOJson={}", rootDTOJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"TPEG\",\"nodes\":[{\"name\":\"P107\",\"nodes\":[{\"name\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"name\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"name\":\"P508\",\"nodes\":[{\"name\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"name\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"name\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
                 rootDTOJson);
     }
 
@@ -152,7 +152,7 @@ public class ConfigurationFormatTest {
         Assert.assertNotNull(root);
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        Assert.assertEquals("{\"nodes\":[{\"name\":\"TPEG\",\"nodes\":[{\"name\":\"P107\",\"nodes\":[{\"name\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"name\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"name\":\"P508\",\"nodes\":[{\"name\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"name\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"name\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:56Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:56Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
                 rootJson);
     }
 
@@ -168,7 +168,7 @@ public class ConfigurationFormatTest {
 
         final String rootJson = mapper.writeValueAsString(root);
         LOG.info("rootJson={}", rootJson);
-        final String expected = "{\"nodes\":[{\"name\":\"time 30\",\"nodes\":[{\"name\":\"time 20\",\"parameters\":[{\"key\":\"x\",\"value\":\"20\"}],\"modified\":\"2016-01-01T00:00:20Z\"}],\"parameters\":[{\"key\":\"x\",\"value\":\"30\"}],\"modified\":\"2016-01-01T00:00:30Z\"}],\"parameters\":[{\"key\":\"x\",\"value\":\"10\"}],\"modified\":\"2016-01-01T00:00:10Z\",\"levels\":[\"l1\",\"l2\"]}";
+        final String expected = "{\"nodes\":[{\"match\":\"time 30\",\"nodes\":[{\"match\":\"time 20\",\"parameters\":[{\"key\":\"x\",\"value\":\"20\"}],\"modified\":\"2016-01-01T00:00:20Z\"}],\"parameters\":[{\"key\":\"x\",\"value\":\"30\"}],\"modified\":\"2016-01-01T00:00:30Z\"}],\"parameters\":[{\"key\":\"x\",\"value\":\"10\"}],\"modified\":\"2016-01-01T00:00:10Z\",\"levels\":[\"l1\",\"l2\"]}";
         Assert.assertEquals(expected, rootJson);
     }
 

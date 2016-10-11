@@ -27,7 +27,7 @@ public class RegexConfigTest {
         server.startServer();
 
         Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678/nl/wifi/17.0").
+                target(server.getHost() + "/tree?deviceID=XY12345678&country=nl&connection=wifi&navkit=17.0").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -38,7 +38,7 @@ public class RegexConfigTest {
 
         // Search for specific MUID.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678/uk/bt/16.4").
+                target(server.getHost() + "/tree?deviceID=XY12345678&country=uk&connection=bt&navkit=16.4").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -49,7 +49,7 @@ public class RegexConfigTest {
 
         // Search with too few items specified; should return 400.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid").
+                target(server.getHost() + "/tree?deviceID=nomuid").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -60,7 +60,7 @@ public class RegexConfigTest {
 
         // Search with enough items, but nothing is found; provides fallback.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/country/connect/navkit").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=country&connection=connect&navkit=navkit").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -71,7 +71,7 @@ public class RegexConfigTest {
 
         // Search for config in UK.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/UK/connect/navkit").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=UK&connection=connect&navkit=navkit").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -82,7 +82,7 @@ public class RegexConfigTest {
 
         // Search for config in UK, even though BT and 16.4 is specified.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/UK/BT/16.4").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=UK&connection=BT&navkit16.4").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -93,7 +93,7 @@ public class RegexConfigTest {
 
         // Same, but now with lowercase 'uk'.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/uk/BT/16.4").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=uk&connection=BT&navkit16.4").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -104,7 +104,7 @@ public class RegexConfigTest {
 
         // Search for config of BT.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/NL/BT/16.4").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=NL&connection=BT&navkit16.4").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -115,7 +115,7 @@ public class RegexConfigTest {
 
         // Search for config of 16.4.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/x/x/16.4").
+                target(server.getHost() + "/tree?deviceID=nomuid&country=x&connection=x&navkit=16.4").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -126,7 +126,7 @@ public class RegexConfigTest {
 
         // Search for config of variant of 16.4.
         response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=nomuid/x/x/16.4.100").
+                target(server.getHost() + "/tree?levels=deviceID=nomuid&country=x&connection=x&navkit=16.4.100").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);

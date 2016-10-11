@@ -5,7 +5,6 @@
 package com.tomtom.services.configuration.implementation;
 
 import akka.dispatch.Futures;
-import com.google.common.base.Joiner;
 import com.tomtom.services.configuration.TreeResource;
 import com.tomtom.services.configuration.domain.Node;
 import com.tomtom.services.configuration.dto.NodeDTO;
@@ -13,12 +12,10 @@ import com.tomtom.services.configuration.dto.SearchResultDTO;
 import com.tomtom.services.configuration.dto.SearchResultsDTO;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiForbiddenException;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiNotFoundException;
-import com.tomtom.speedtools.apivalidation.exceptions.ApiParameterSyntaxException;
 import com.tomtom.speedtools.checksums.SHA1Hash;
 import com.tomtom.speedtools.json.Json;
 import com.tomtom.speedtools.rest.ResourceProcessor;
 import com.tomtom.speedtools.time.UTCTime;
-import com.tomtom.speedtools.utils.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +32,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -86,66 +85,71 @@ public class TreeResourceImpl implements TreeResource {
 
     @Override
     public void findBestMatch(
-            @Nullable final String levels,
-            @Nullable final String search,
             @Nullable final String ifModifiedSince,
             @Nullable final String ifNoneMatch,
             @Nonnull final UriInfo uriInfo,
             @Nonnull final AsyncResponse response) {
 
-        // If no query parameters were specified, return a specific node instead.
+        // If no query parameters were specified, use getNode() instead.
         final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         if ((queryParameters == null) || queryParameters.keySet().isEmpty()) {
-            getNode("", null, null, ifModifiedSince, ifNoneMatch, uriInfo, response);
+            getNode("", ifModifiedSince, ifNoneMatch, uriInfo, response);
             return;
         }
 
         processor.process("findBestMatch", LOG, response, () -> {
-            LOG.info("findBestMatch: levels='{}', search='{}', if-modified-since={}, if-none-match={}", levels, search, ifModifiedSince, ifNoneMatch);
+            LOG.info("findBestMatch: query={}, if-modified-since={}, if-none-match={}", queryParameters.keySet().toString(), ifModifiedSince, ifNoneMatch);
 
-            // Get all level names.
-            final Set<String> keys = queryParameters.keySet();
+            // Get all parameter names (which are the level names).
+            final Set<String> levelNames = queryParameters.keySet();
 
-            // Either 'levels' and 'search' must be present and no others, or only others and no 'levels' and 'search'.
-            if (((levels == null) && (search == null) && keys.isEmpty()) ||
-                    ((levels != null) && (search != null) && (keys.size() != 2))) {
-                throw new ApiForbiddenException("Use either syntax: '" + QUERY_PARAM_LEVELS + "=x/y/...&" + QUERY_PARAM_SEARCH +
-                        "=1/2/...', or use syntax: 'x=1&y=2&...', but you cannot mix them");
+            // Determine how many searches are specified.
+            int nrOfSearches = 0;
+            for (final String levelName : levelNames) {
+                nrOfSearches = Math.max(nrOfSearches, queryParameters.get(levelName).size());
             }
 
-            // Parameters 'levels' and 'search' must live together.
-            if ((levels == null) && (search != null)) {
-                throw new ApiParameterSyntaxException(QUERY_PARAM_LEVELS, null, "Parameter '" + QUERY_PARAM_LEVELS + "' must be specified");
-            }
-            if ((levels != null) && (search == null)) {
-                throw new ApiParameterSyntaxException(QUERY_PARAM_SEARCH, null, "Parameters '" + QUERY_PARAM_SEARCH + " must be specified");
-            }
+            // Now create a full set of search maps with (level-name: search-term).
+            final List<Map<String, String>> levelSearchTermsList = new ArrayList<>();
+            for (int i = 0; i < nrOfSearches; ++i) {
+                Map<String, String> levelSearchTerms = new HashMap<>();
+                String previousSearchTerm = "";
+                for (final String levelName : levelNames) {
+                    final String searchTerm;
+                    final List<String> terms = queryParameters.get(levelName);
+                    if ((terms == null) || (terms.isEmpty())) {
 
-            // Search terms must be present.
-            if ((search != null) && (search.indexOf(SEPARATOR_WRONG) != -1)) {
-                throw new ApiParameterSyntaxException(TreeResource.QUERY_PARAM_SEARCH, search, "Parameter " + TreeResource.QUERY_PARAM_SEARCH + " cannot contain '" + SEPARATOR_WRONG + '\'');
-            }
+                        // If no terms are supplied for this level, provide an empty search term.
+                        searchTerm = "";
+                    } else {
 
-            final String levelsToUse;
-            final String searchToUse;
-            if (levels == null) {
-                levelsToUse = Joiner.on(SEPARATOR_PATH).join(keys);
-                final List<String> values = new ArrayList<String>();
-                for (final String key : keys) {
-                    values.add(queryParameters.getFirst(key));
+                        if (terms.size() > i) {
+
+                            // If a search terms is available at this level, use it.
+                            searchTerm  = terms.get(i);
+                        }
+                        else {
+
+                            // If not, use the last used value.
+                            searchTerm  = previousSearchTerm;
+                        }
+                    }
+
+                    // Update last used search term and add to map of (level-name, search-term).
+                    previousSearchTerm = searchTerm;
+                    levelSearchTerms.put(levelName, searchTerm);
                 }
-                searchToUse = Joiner.on(SEPARATOR_PATH).join(values);
-                LOG.debug("findBestMatch: using simple syntax, levels={}, search={}", levelsToUse, searchToUse);
-            } else {
-                levelsToUse = levels;
-                searchToUse = search;
-                LOG.debug("findBestMatch: using multi-get syntax, levels={}, search={}", levelsToUse, searchToUse);
+                assert levelSearchTerms.size() == levelNames.size();
+
+                // Add the search to the list of searches.
+                levelSearchTermsList.add(levelSearchTerms);
             }
+            assert levelSearchTermsList.size() == nrOfSearches;
 
             // First try and find the response.
-            final SearchResultsDTO foundResults = configuration.findBestMatchingNodes(levelsToUse, StringUtils.nullToEmpty(searchToUse));
+            final SearchResultsDTO foundResults = configuration.findBestMatchingNodes(levelSearchTermsList);
             if (foundResults.isEmpty()) {
-                throw new ApiNotFoundException("No result found: searchQuery=" + searchToUse);
+                throw new ApiNotFoundException("No result found: query=" + levelSearchTermsList.toString());
             }
 
             // Check if the ETag matches.
@@ -198,8 +202,6 @@ public class TreeResourceImpl implements TreeResource {
     @Override
     public void getNode(
             @Nonnull final String fullNodePath,
-            @Nullable final String levels,
-            @Nullable final String search,
             @Nullable final String ifModifiedSince,
             @Nullable final String ifNoneMatch,
             @Nonnull final UriInfo uriInfo,
@@ -209,12 +211,11 @@ public class TreeResourceImpl implements TreeResource {
         final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
         processor.process("getNode", LOG, response, () -> {
-            LOG.info("getNode: fullNodePath='{}', if-modified-since={}, if-none-match={}", fullNodePath, ifModifiedSince, ifNoneMatch);
+            LOG.info("getNode: fullNodePath={}, if-modified-since={}, if-none-match={}", fullNodePath, ifModifiedSince, ifNoneMatch);
 
-            // Make sure parameters 'levels' and 'search' were not specified.
+            // Make sure no search parameters are specified.
             if (!queryParameters.keySet().isEmpty()) {
-                throw new ApiForbiddenException("Can't specify '" + TreeResource.QUERY_PARAM_LEVELS + "' or '" +
-                        TreeResource.QUERY_PARAM_SEARCH + "' or level names when retrieving specific configuration tree nodes");
+                throw new ApiForbiddenException("Can't specify search parameters when retrieving specific configuration tree nodes");
             }
 
             // First, try and get the node from the tree.

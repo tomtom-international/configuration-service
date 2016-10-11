@@ -1,6 +1,6 @@
 {
   "modified": "2016-01-02T12:34:56Z",
-  "name": "TPEG",
+  "match": "TPEG",
   "parameters": [
     {
       "key": "radius",

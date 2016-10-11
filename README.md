@@ -113,7 +113,7 @@ It just returns a node if it exists or `404 NOT FOUND` if it doesn't.
 The returned response looks like this:
 
     {"nodes": ["{node1}", "{node2}", ...],
-    "parameters": [{"key": "{key1}", "value": "{value1}"]}, ...],  "name": "{node-name"}}
+    "parameters": [{"key": "{key1}", "value": "{value1}"]}, ...],  "match": "{node-name"}}
 
 The `nodes` array is optional and lists the children nodes with search
 terms one level below the specified node.
@@ -295,7 +295,7 @@ Below is an example of a configuration file for the service. Some remarks:
   "levels": ["level-name"],
   "nodes": [
     {
-      "name": "child-1",
+      "match": "child-1",
       "parameters": [
         {
           "key": "key-1a",
@@ -308,7 +308,7 @@ Below is an example of a configuration file for the service. Some remarks:
       ]
     },
     {
-      "name": "child-2",
+      "match": "child-2",
       "parameters": [
         {
           "key": "key-2",
@@ -353,7 +353,7 @@ The same configuration file looks like this when provided as XML.
     </levels>
     <nodes>
         <node>
-            <name>child-1</name>
+            <match>child-1</match>
             <parameters>
                 <parameter>
                     <key>key-1a</key>
@@ -366,7 +366,7 @@ The same configuration file looks like this when provided as XML.
             </parameters>
         </node>
         <node>
-            <name>child-2</name>
+            <match>child-2</match>
             <parameters>
                 <parameter>
                     <key>key-2</key>
@@ -509,7 +509,7 @@ in the properties file called `configuration-service.properties`.
 
 The format of the configuration is JSON and is specified as:
 
-    { "name" : "some name",
+    { "match" : "some name",
     "modified" : {MODIFIED},
     "levels" : [ {LEVEL}, {LEVEL}, ... ],
     "nodes" : [ {NODE}, {NODE}, ... ],
@@ -553,19 +553,19 @@ Example:
   "levels" : ["service", "model", "deviceID" ],
   "nodes": [
     {
-      "name": "TPEG",
+      "match": "TPEG",
       "nodes": [
         {
-          "name": "P508",
+          "match": "P508",
           "parameters": [{"key": "radius", "value": "40"}, {"key": "interval", "value": "120"}]
         }, {
-          "name": "P107",
+          "match": "P107",
           "nodes": [
             {
-              "name": "Device[0-9]*",
+              "match": "Device[0-9]*",
               "parameters": [{"key": "radius", "value": "10"}, {"key": "interval", "value": "120"}]
             }, {
-              "name": "Device123",
+              "match": "Device123",
               "parameters": [{"key": "radius", "value": "80"}, {"key": "interval", "value": "60"}]
             }
           ]
@@ -573,7 +573,7 @@ Example:
       ],
       "parameters": [{"key": "radius", "value": "25"}, {"key": "interval", "value": "120"}]
     }, {
-      "name": "SYS",
+      "match": "SYS",
       "parameters": [{"key": "demo", "value": "false"}, {"key": "sound", "value": "off"}]
     }
   ]
@@ -627,7 +627,7 @@ the root of the configuration, not here):
 
 ```json
 {
-  "name": "TPEG",
+  "match": "TPEG",
   "parameters": [ {"key":"radius", "value": "25"}, {"key":"interval", "value": "120"} ],
   "nodes": [
     { "include": "classpath::tpeg_p107.json" },
@@ -641,13 +641,13 @@ And include  file `tpeg_p107.json` looks like this:
 
 ```json
 {
-  "name": "P107",
+  "match": "P107",
   "nodes": [
     {
-      "name": "Device[0-9]*",
+      "match": "Device[0-9]*",
       "parameters": [ {"key":"radius", "value": "10"}, {"key":"interval", "value": "120"} ]
     }, {
-      "name": "Device123",
+      "match": "Device123",
       "parameters": [ {"key":"radius", "value": "80"}, {"key":"interval", "value": "60"} ]
     }
   ]
@@ -658,13 +658,13 @@ And include file `tpeg_p508.json` looks like this:
 
 ```json
 {
-  "name": "P508",
+  "match": "P508",
   "nodes": [
     {
-      "name": "Device1.*",
+      "match": "Device1.*",
       "parameters": [ {"key":"radius", "value": "100"} ]
     }, {
-      "name": "Device999",
+      "match": "Device999",
       "parameters": [ {"key":"radius", "value": "200"} ]
     }
   ],
@@ -676,7 +676,7 @@ And include file `sys.json` looks like this:
 
 ```json
 {
-  "name": "SYS",
+  "match": "SYS",
   "parameters": [
     {"key":"demo", "value": "false"},
     {"key":"sound", "value": "off"}
@@ -692,27 +692,27 @@ Then the resulting configuration looks like this:
   "levels" : ["service", "model", "deviceID"],
   "nodes": [
     {
-      "name": "TPEG",
+      "match": "TPEG",
       "nodes": [
         {
-          "name": "P107",
+          "match": "P107",
           "nodes": [
             {
-              "name": "Device[0-9]*",
+              "match": "Device[0-9]*",
               "parameters": [ { "key": "radius", "value": "10" }, { "key": "interval", "value": "120" } ]
             }, { 
-              "name": "Device123", 
+              "match": "Device123", 
               "parameters": [ { "key": "radius", "value": "80" }, { "key": "interval", "value": "60" } ]
             }
           ]
         }, {
-          "name": "P508",
+          "match": "P508",
           "nodes": [
             {
-              "name": "Device1.*",
+              "match": "Device1.*",
               "parameters": [ { "key": "radius", "value": "100" } ]
             }, {
-              "name": "Device999",
+              "match": "Device999",
               "parameters": [ { "key": "radius", "value": "200" }
               ]
             }
@@ -722,7 +722,7 @@ Then the resulting configuration looks like this:
       ],
       "parameters": [ { "key": "radius", "value": "25" }, { "key": "interval", "value": "120" } ]
     }, {
-      "name": "SYS",
+      "match": "SYS",
       "parameters": [ { "key": "demo", "value": "false" }, { "key": "sound", "value": "off" } ]
     }
   ]

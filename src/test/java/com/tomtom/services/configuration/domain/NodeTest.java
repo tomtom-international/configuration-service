@@ -18,7 +18,7 @@ public class NodeTest {
     public void testNodeEmpty1() {
         LOG.info("testNodeEmpty1");
         Node x = new Node("x");
-        assertEquals("x", x.getName());
+        assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNull(x.getNodes());
         assertNull(x.getParameters());
@@ -28,7 +28,7 @@ public class NodeTest {
     public void testNodeEmpty2() {
         LOG.info("testNodeEmpty2");
         Node x = new Node("x", Immutables.emptyList(), Immutables.emptyList(), null, null, null);
-        assertEquals("x", x.getName());
+        assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNull(x.getNodes());
         assertNull(x.getParameters());
@@ -38,12 +38,12 @@ public class NodeTest {
     public void testNode() {
         LOG.info("testNode");
         Node x = new Node("x", Immutables.listOf(new Node("y")), Immutables.listOf(new Parameter("1", "2")), null, null, null);
-        assertEquals("x", x.getName());
+        assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNotNull(x.getNodes());
         assertNotNull(x.getParameters());
-        assertEquals("y", x.getNodes().iterator().next().getName());
+        assertEquals("y", x.getNodes().iterator().next().getMatch());
         assertEquals("1", x.getParameters().iterator().next().getKey());
-        assertEquals("{\"name\":\"x\",\"nodes\":[{\"name\":\"y\"}],\"parameters\":[{\"key\":\"1\",\"value\":\"2\"}]}", x.toString());
+        assertEquals("{\"match\":\"x\",\"nodes\":[{\"match\":\"y\"}],\"parameters\":[{\"key\":\"1\",\"value\":\"2\"}]}", x.toString());
     }
 }

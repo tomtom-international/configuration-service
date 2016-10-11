@@ -3,10 +3,10 @@
   "levels": ["service", "model", "deviceID"],
   "nodes": [
     {
-      "name": "TPEG",
+      "match": "TPEG",
       "nodes": [
         {
-          "name": "P107",
+          "match": "P107",
           "parameters": [
             {
               "key": "radius",
@@ -14,10 +14,10 @@
             }
           ]
         }, {
-          "name": "P508",
+          "match": "P508",
           "nodes": [
             {
-              "name": "Device123",
+              "match": "Device123",
               "parameters": [
                 {
                   "key": "radius",
@@ -26,7 +26,7 @@
               ]
             },
             {
-              "name": "Device999",
+              "match": "Device999",
               "parameters": [
                 {
                   "key": "radius",
@@ -44,7 +44,7 @@
         }
       ]
     }, {
-      "name": "SYS",
+      "match": "SYS",
       "parameters": [
         {
           "key": "demo",

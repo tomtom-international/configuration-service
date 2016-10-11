@@ -5,7 +5,7 @@
     </levels>
     <nodes>
         <node>
-            <name>child-1</name>
+            <match>child-1</match>
             <parameters>
                 <parameter>
                     <key>key-1a</key>
@@ -18,7 +18,7 @@
             </parameters>
         </node>
         <node>
-            <name>child-2</name>
+            <match>child-2</match>
             <parameters>
                 <parameter>
                     <key>key-2</key>

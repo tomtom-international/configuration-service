@@ -3,7 +3,7 @@
   "levels": ["criterium"],
   "nodes": [
     {
-      "name": "x",
+      "match": "x",
       "parameters": [
         {
           "key": null,

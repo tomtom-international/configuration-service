@@ -7,10 +7,10 @@
     </levels>
     <nodes>
         <node>
-            <name>TPEG</name>
+            <match>TPEG</match>
             <nodes>
                 <node>
-                    <name>P107</name>
+                    <match>P107</match>
                     <parameters>
                         <parameter>
                             <key>radius</key>
@@ -19,10 +19,10 @@
                     </parameters>
                 </node>
                 <node>
-                    <name>P508</name>
+                    <match>P508</match>
                     <nodes>
                         <node>
-                            <name>Device123</name>
+                            <match>Device123</match>
                             <parameters>
                                 <parameter>
                                     <key>radius</key>
@@ -31,7 +31,7 @@
                             </parameters>
                         </node>
                         <node>
-                            <name>Device999</name>
+                            <match>Device999</match>
                             <parameters>
                                 <parameter>
                                     <key>radius</key>
@@ -50,7 +50,7 @@
             </parameters>
         </node>
         <node>
-            <name>SYS</name>
+            <match>SYS</match>
             <parameters>
                 <parameter>
                     <key>demo</key>

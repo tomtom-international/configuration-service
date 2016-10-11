@@ -1,6 +1,6 @@
 {
   "modified": "2016-01-02T12:34:50Z",
-  "name": "SYS",
+  "match": "SYS",
   "parameters": [
     {
       "key": "demo",

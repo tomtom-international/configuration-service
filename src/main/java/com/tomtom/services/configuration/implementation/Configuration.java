@@ -7,7 +7,6 @@ package com.tomtom.services.configuration.implementation;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
 import com.tomtom.services.configuration.domain.Node;
@@ -15,7 +14,6 @@ import com.tomtom.services.configuration.dto.NodeDTO;
 import com.tomtom.services.configuration.dto.SearchResultDTO;
 import com.tomtom.services.configuration.dto.SearchResultsDTO;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiException;
-import com.tomtom.speedtools.apivalidation.exceptions.ApiParameterSyntaxException;
 import com.tomtom.speedtools.objects.Immutables;
 import com.tomtom.speedtools.objects.Tuple;
 import org.slf4j.Logger;
@@ -35,8 +33,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -58,6 +56,7 @@ public class Configuration {
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     private final boolean initialConfigurationOK;
+
 
     /**
      * The root node of the tree.
@@ -156,90 +155,19 @@ public class Configuration {
      * Find the deepest node which matches the provide search path and which has a leaf with parameters
      * attached to it.
      *
-     * @param levels      Order of level names.
-     * @param searchPaths Search paths, separated by path separator '/'. Multiple queries (search paths) separated by ','.
+     * @param levelSearchTermsList A list of queries, which consists of a map: (level-name: search-term).
      * @return Empty list if no matching node was found. Otherwise a list of tuples with the parameters of the deepest node found
      * and the full path to the matching node.
      */
     @Nonnull
-    SearchResultsDTO findBestMatchingNodes(
-            @Nonnull final String levels,
-            @Nonnull final String searchPaths) {
-
-        // Index mapper from input order of node levels to root configuration order.
-        final List<Integer> queryToTreeMapper = new ArrayList<>();
-
-        // Re-order the search criteria to match the order of the configuration tree.
-        final Iterable<String> queryLevels = Splitter.on(SEPARATOR_PATH).trimResults().split(levels);
-        if (root.getLevels() != null) {
-
-            // Look up every level listed in the query. Their names must exist.
-            for (final String queryLevel : queryLevels) {
-                boolean found = false;
-                int index = 0;
-                for (final String level : root.getLevels()) {
-                    if (queryLevel.equalsIgnoreCase(level)) {
-                        queryToTreeMapper.add(index);
-                        found = true;
-                        break;
-                    }
-                    ++index;
-                }
-
-                // Check if an unknown name was used in the query.
-                if (!found) {
-                    throw new ApiParameterSyntaxException(QUERY_PARAM_LEVELS, queryLevel, "Name must be one of: " + Joiner.on(", ").join(root.getLevels()));
-                }
-            }
-        }
-
-        // Separate the individual queries from the input (one input string may contains multiple search queries).
-        final Iterable<String> querySearches = Splitter.on(SEPARATOR_QUERY).trimResults().split(searchPaths);
-
-        // Reshuffle the search terms as specified in the query to what we expect in the configuration tree.
-        final List<String> searches = new ArrayList<>();
-
-        // Reshuffle all queries.
-        for (final String querySearch : querySearches) {
-
-            // Make sure the query does not contains ',', just '/'.
-            if (querySearch.contains(",")) {
-                throw new ApiParameterSyntaxException(QUERY_PARAM_SEARCH, querySearch, "Should not contain ',' (term separator is " + SEPARATOR_PATH + ')');
-            }
-            // Get original terms and reshuffle into newTerms.
-            final Iterable<String> queryTerms = Splitter.on(SEPARATOR_PATH).trimResults().split(querySearch);
-            LOG.debug("findBestMatchingNodes: querySearch={}, queryTerms={}", querySearch, queryTerms.toString());
-
-            // Init tree terms.
-            final String[] treeTerms = new String[queryToTreeMapper.size()];
-            for (int i = 0; i < treeTerms.length; ++i) {
-                treeTerms[i] = "";
-            }
-
-            // Copy correct values in tree terms.
-            final Iterator<String> iterator = queryTerms.iterator();
-            int index = 0;
-            while (iterator.hasNext() && (index < treeTerms.length)) {
-                treeTerms[queryToTreeMapper.get(index)] = iterator.next();
-                ++index;
-            }
-            if (iterator.hasNext()) {
-                throw new ApiParameterSyntaxException(QUERY_PARAM_SEARCH, querySearch, "Must be no more than " + queryToTreeMapper.size() + " levels deep");
-            }
-
-            // Add reshuffled joined terms.
-            searches.add(Joiner.on(SEPARATOR_PATH).join(treeTerms));
-        }
+    SearchResultsDTO findBestMatchingNodes(@Nonnull final List<Map<String, String>> levelSearchTermsList) {
 
         // Result list.
         final List<SearchResultDTO> results = new ArrayList<>();
 
-        /**
-         * Split the comma-separated queries, which is something 'path1/path2,path2/path3' into
-         * separate queries, like 'path1/path2' and 'path3/path4'.
-         */
-        for (final String search : searches) {
-            LOG.debug("findBestMatchingNodes: search={}", search);
+        // Process all search queries.
+        for (final Map<String, String> levelSearchTerms : levelSearchTermsList) {
+            LOG.debug("findBestMatchingNodes: levelSearchTerms={}", levelSearchTerms.toString());
 
             /*
              * Search tree for parameters. Start with assuming the search fails and the result is
@@ -247,65 +175,37 @@ public class Configuration {
              */
             Node nodeOfParameters = root;       // This points at the node the parameters were taken from.
             Node nodeToCheck = root;            // This points at the node to we need to dive into.
+            if (root.getLevels() != null) {     // Only execute search if levels actually exist.
 
-            /**
-             * Split the slash-separate search terms, like 'path1/path2' into separate terms, like
-             * 'path1' and 'path2'.
-             */
-            for (final String searchTerm : Splitter.on(SEPARATOR_PATH).trimResults().split(search)) {
-                LOG.debug("findBestMatchingNodes: searchTerm={}", searchTerm);
-                boolean found = false;          // This indicates whether we found a match or not.
+                for (final String levelName : root.getLevels()) {
+                    LOG.debug("findBestMatchingNodes: levelName={}", levelName);
+                    boolean found = false;          // This indicates whether we found a match or not.
 
-                /**
-                 * Check all children nodes of this node (if they exist).
-                 */
-                final Collection<Node> children = nodeToCheck.getNodes();
-                if (children != null) {
+                    // Find the corresponding search term in the query.
+                    final String searchTerm = levelSearchTerms.get(levelName);
 
                     /**
-                     * First check all 'exact' (non-regex) matches. If the string match is exact,
-                     * regular expression matches will not be checked.
+                     * Check all children nodes of this node (if they exist).
                      */
-                    final List<Node> nonExactMatches = new ArrayList<>();
-                    for (final Node child : children) {
+                    final Collection<Node> children = nodeToCheck.getNodes();
+                    if (children != null) {
 
-                        // The name of children is a regex.
-                        final String name = child.getName();
-                        assert name != null;
-
-                        // Check if the term matches the node name literally.
-                        //noinspection ConstantConditions
-                        if (searchTerm.matches(createCaseInsensitivePattern(Pattern.quote(name)))) {
-                            found = true;
-
-                            /**
-                             * Remember the parameters of this child node, as it is more specific than the
-                             * one kept until now.
-                             */
-                            if (child.getParameters() != null) {
-                                nodeOfParameters = child;
-                            }
-
-                            // Start next search in this subtree.
-                            nodeToCheck = child;
-                            break;
-                        } else {
-
-                            // Keep this node for second round, checking regex matches.
-                            nonExactMatches.add(child);
-                        }
-                    }
-
-                    // Second round: only if no exact match was found, check regular expressions.
-                    if (!found) {
-                        for (final Node child : nonExactMatches) {
+                        /**
+                         * First check all 'exact' literal (non-regex) matches. If the string match is exact,
+                         * regular expression matches will not be checked. This is to make sure that if
+                         * a ".*" node is specified "left of" other nodes, it does not overrule literal
+                         * matches.
+                         */
+                        final List<Node> nonExactMatches = new ArrayList<>();
+                        for (final Node child : children) {
 
                             // The name of children is a regex.
-                            final String name = child.getName();
+                            final String name = child.getMatch();
                             assert name != null;
 
+                            // Check if the term matches the node name literally.
                             //noinspection ConstantConditions
-                            if (searchTerm.matches(createCaseInsensitivePattern(name))) {
+                            if (searchTerm.matches(createCaseInsensitivePattern(Pattern.quote(name)))) {
                                 found = true;
 
                                 /**
@@ -319,14 +219,45 @@ public class Configuration {
                                 // Start next search in this subtree.
                                 nodeToCheck = child;
                                 break;
+                            } else {
+
+                                // Keep this node for second round, checking regex matches.
+                                nonExactMatches.add(child);
+                            }
+                        }
+
+                        // Second round: only if no exact match was found, check regular expressions.
+                        if (!found) {
+                            for (final Node child : nonExactMatches) {
+
+                                // The name of children is a regex.
+                                final String name = child.getMatch();
+                                assert name != null;
+
+                                //noinspection ConstantConditions
+                                if (searchTerm.matches(createCaseInsensitivePattern(name))) {
+                                    found = true;
+
+                                    /**
+                                     * Remember the parameters of this child node, as it is more specific than the
+                                     * one kept until now.
+                                     */
+                                    if (child.getParameters() != null) {
+                                        nodeOfParameters = child;
+                                    }
+
+                                    // Start next search in this subtree.
+                                    nodeToCheck = child;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                // Stop searching for deeper path terms if we couldn't find a match for this term.
-                if (!found) {
-                    break;
+                    // Stop searching for deeper path terms if we couldn't find a match for this term.
+                    if (!found) {
+                        break;
+                    }
                 }
             }
 
@@ -355,7 +286,7 @@ public class Configuration {
             /**
              * Set the 'matched' of the node from which the parameters were gotten.
              */
-            final String matched = getPathOfNode(root, nodeOfParameters, "").getValue1();
+            final String matched = getMatchedValue(0, root, nodeOfParameters, "").getValue1();
             searchResult.setMatched(matched);
             results.add(searchResult);
         }
@@ -392,7 +323,7 @@ public class Configuration {
             final Collection<Node> children = node.getNodes();
             if (children != null) {
                 for (final Node child : children) {
-                    final String name = notNullOr(child.getName(), "");
+                    final String name = notNullOr(child.getMatch(), "");
                     if (name.equals(sub)) {
                         found = true;
                         node = child;
@@ -412,6 +343,7 @@ public class Configuration {
      * Get the full path name of a node. Note that the node object itself will be searched for, so the method
      * will use an object equality test to find a specific node, not an equals() test.
      *
+     * @param level      Number of level at which we are searching.
      * @param tree       Tree to search the node in.
      * @param node       Node to search for.
      * @param pathPrefix Path to be used as prefix (without trailing '/').
@@ -421,19 +353,31 @@ public class Configuration {
      * equals the path prefix.
      */
     @Nonnull
-    private static Tuple<String, Boolean> getPathOfNode(
+    private Tuple<String, Boolean> getMatchedValue(
+            final int level,
             @Nonnull final Node tree,
             @Nullable final Node node,
             @Nonnull final String pathPrefix) {
         if (tree.getNodes() != null) {
             for (final Node child : tree.getNodes()) {
-                final String name = notNullOr(child.getName(), "");
+
+                // Get level name.
+                assert root.getLevels() != null;
+                assert level < root.getLevels().size();
+                final String levelName = root.getLevels().get(level);
+
+                // Get match string from node.
+                final String nodeMatch = notNullOr(child.getMatch(), "");
+
+                // Check if this is the exact node (object equality).
                 //noinspection ObjectEquality
                 if (child == node) {
-                    return new Tuple<>(pathPrefix + (pathPrefix.isEmpty() ? "" : SEPARATOR_PATH) + name, true);
+
+                    // Get level name and append search term.
+                    return new Tuple<>(pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + nodeMatch, true);
                 } else {
-                    final Tuple<String, Boolean> found = getPathOfNode(child, node,
-                            pathPrefix + (pathPrefix.isEmpty() ? "" : SEPARATOR_PATH) + name);
+                    final Tuple<String, Boolean> found = getMatchedValue(level + 1, child, node,
+                            pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + nodeMatch);
                     if (found.getValue2()) {
                         return found;
                     }
@@ -526,7 +470,7 @@ public class Configuration {
         final NodeDTO root = getChildNodeFromConfiguration(include, content, new ArrayList<>());
 
         // Check if the name of the root is null; all child names have been checked by now (when tree was read in).
-        if (root.getName() != null) {
+        if (root.getMatch() != null) {
             throw new IncorrectConfigurationException("Configuration is not OK! Top-level root node must be nameless.");
         }
 
@@ -551,8 +495,7 @@ public class Configuration {
                 // Level name cannot contain certain characters, like [,;/].
                 if (!isValidNodeName(level)) {
                     throw new IncorrectConfigurationException("Level name cannot contain '" + SEPARATOR_WRONG +
-                            "', '" + SEPARATOR_PATH + "' or '" + SEPARATOR_QUERY + "' and cannot be named '" +
-                            QUERY_PARAM_LEVELS + "' or '" + QUERY_PARAM_SEARCH + "'.");
+                            "', '" + SEPARATOR_PATH + "' or '" + SEPARATOR_QUERY + "'.");
                 }
 
                 // Level names must be unique.
@@ -575,8 +518,7 @@ public class Configuration {
     }
 
     private static boolean isValidNodeName(@Nonnull final String nodeName) {
-        return ((nodeName.indexOf(SEPARATOR_WRONG) + nodeName.indexOf(SEPARATOR_PATH) + nodeName.indexOf(SEPARATOR_QUERY)) == -3) &&
-                !nodeName.equalsIgnoreCase(QUERY_PARAM_LEVELS) && !nodeName.equalsIgnoreCase(QUERY_PARAM_SEARCH);
+        return ((nodeName.indexOf(SEPARATOR_WRONG) + nodeName.indexOf(SEPARATOR_PATH) + nodeName.indexOf(SEPARATOR_QUERY)) == -3);
     }
 
     @Nonnull
@@ -679,7 +621,7 @@ public class Configuration {
         boolean ok = true;
         final Set<String> names = new HashSet<>();      // Node names (per level).
         for (final NodeDTO child : children) {
-            final String name = child.getName();
+            final String name = child.getMatch();
             if (name == null) {
                 ok = false;
                 LOG.error("checkNodeNamesChildren: name cannot be null");
@@ -730,7 +672,7 @@ public class Configuration {
 
             // Remove include, replace with read node.
             tree.setInclude(null);
-            tree.setName(expandedChild.getName());
+            tree.setMatch(expandedChild.getMatch());
             tree.setNodes(expandedChild.getNodes());
             tree.setParameters(expandedChild.getParameters());
             tree.setModified(expandedChild.getModified());

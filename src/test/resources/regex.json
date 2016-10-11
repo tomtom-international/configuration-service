@@ -3,7 +3,7 @@
   "levels": ["criterium"],
   "nodes": [
     {
-      "name": "String[0-9]*",
+      "match": "String[0-9]*",
       "parameters": [
         {
           "key": "value",
@@ -11,7 +11,7 @@
         }
       ]
     }, {
-      "name": "String",
+      "match": "String",
       "parameters": [
         {
           "key": "value",
@@ -19,7 +19,7 @@
         }
       ]
     }, {
-      "name": "String9[0-9]*",
+      "match": "String9[0-9]*",
       "parameters": [
         {
           "key": "value",
@@ -27,7 +27,7 @@
         }
       ]
     }, {
-      "name": ".*",
+      "match": ".*",
       "parameters": [
         {
           "key": "value",

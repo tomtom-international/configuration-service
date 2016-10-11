@@ -35,11 +35,11 @@ import java.util.Set;
 final public class Node {
 
     /**
-     * Node name. The name is null for the root node and non-null,
+     * Node match string. The match is null for the root node and non-null,
      * non-empty for other nodes.
      */
     @Nullable
-    final private String name;
+    final private String match;
 
     /**
      * Children nodes (optional), null if none. The collection cannot be empty (only null).
@@ -79,13 +79,13 @@ final public class Node {
     transient final private Node parentNode;
 
     public Node(
-            @Nullable final String name,
+            @Nullable final String match,
             @Nullable final Collection<Node> nodes,
             @Nullable final Collection<Parameter> parameters,
             @Nullable final DateTime modified,
             @Nullable final List<String> levels,
             @Nullable final Node parentNode) {
-        this.name = name;
+        this.match = match;
         this.nodes = ((nodes == null) || nodes.isEmpty()) ? null : Immutables.setOf(nodes);
         this.parameters = ((parameters == null) || parameters.isEmpty()) ? null : Immutables.setOf(parameters);
         this.modified = modified;
@@ -93,8 +93,8 @@ final public class Node {
         this.parentNode = parentNode;
     }
 
-    public Node(@Nonnull final String name) {
-        this(name, null, null, null, null, null);
+    public Node(@Nonnull final String match) {
+        this(match, null, null, null, null, null);
     }
 
     /**
@@ -106,7 +106,7 @@ final public class Node {
     public Node(@Nonnull final NodeDTO nodeDTO, @Nullable Node parentNode) {
 
         // Set name. Replace null-name (always root) with root name.
-        this.name = nodeDTO.getName();
+        this.match = nodeDTO.getMatch();
 
         // Set parameters, create an immutable list.
         final Collection<Parameter> parameters = new ArrayList<>();
@@ -138,8 +138,8 @@ final public class Node {
     }
 
     @Nullable
-    public String getName() {
-        return name;
+    public String getMatch() {
+        return match;
     }
 
     @Nullable

@@ -4,7 +4,7 @@
   "nodes": [
     {
       "modified": "2016-01-02T11:11:11Z",
-      "name": "child-1",
+      "match": "child-1",
       "parameters": [
         {
           "key": "key-1a",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "name": "child-2",
+      "match": "child-2",
       "parameters": [
         {
           "key": "key-2",

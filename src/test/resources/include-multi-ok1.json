@@ -3,7 +3,7 @@
   "levels": ["l1", "l2"],
   "nodes": [
     {
-      "name": "X",
+      "match": "X",
       "nodes": [
         {
           "include": "classpath::include-node.json"

@@ -6,11 +6,11 @@
         <level>deviceID</level>
     </levels>
     <nodes>
-        <name>TPEG</name>
+        <match>TPEG</match>
         <nodes>
-            <name>P10[0-9]</name>
+            <match>P10[0-9]</match>
             <nodes>
-                <name>Device456</name>
+                <match>Device456</match>
                 <parameters>
                     <parameters>
                         <parameters>
@@ -30,9 +30,9 @@
             </parameters>
         </nodes>
         <nodes>
-            <name>P508</name>
+            <match>P508</match>
             <nodes>
-                <name>Device1.*</name>
+                <match>Device1.*</match>
                 <parameters>
                     <parameters>
                         <parameters>
@@ -43,7 +43,7 @@
                 </parameters>
             </nodes>
             <nodes>
-                <name>Device999</name>
+                <match>Device999</match>
                 <parameters>
                     <parameters>
                         <parameters>
@@ -68,7 +68,7 @@
         </parameters>
     </nodes>
     <nodes>
-        <name>SYS</name>
+        <match>SYS</match>
         <parameters>
             <parameters>
                 <parameters>

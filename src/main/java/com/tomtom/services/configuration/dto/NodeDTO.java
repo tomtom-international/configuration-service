@@ -32,12 +32,12 @@ import java.util.List;
 public class NodeDTO extends ApiDTO {
 
     /**
-     * Node name, can only be null for root node. Cannot be empty, only null.
+     * Node match string, can only be null for root node. Cannot be empty, only null.
      */
-    @JsonProperty("name")
-    @XmlElement(name = "name")
+    @JsonProperty("match")
+    @XmlElement(name = "match")
     @Nullable
-    private String name;
+    private String match;
 
     /**
      * List of nodes, can be null, but not empty.
@@ -111,7 +111,7 @@ public class NodeDTO extends ApiDTO {
         if (include == null) {
 
             // No include specified.
-            validator().checkString(false, "name", name, 1, Integer.MAX_VALUE);
+            validator().checkString(false, "match", match, 1, Integer.MAX_VALUE);
             if (nodes != null) {
                 validator().checkNotNullAndValidateAll(false, "nodes", Immutables.listOf(nodes));
             }
@@ -136,7 +136,7 @@ public class NodeDTO extends ApiDTO {
                 // Check length of string (longer than 20 chars indicates non-'Z' timezone.
                 validator().checkString(true, "modified", ok ? modified : "", 20, 20);
             }
-            if (name == null) {
+            if (match == null) {
                 validator().checkNotNull(false, "levels", levels);
             } else {
                 validator().checkNull(true, "levels", levels);
@@ -144,7 +144,7 @@ public class NodeDTO extends ApiDTO {
         } else {
 
             // Include specified: all others must be null.
-            validator().checkNull(false, "name", name);
+            validator().checkNull(false, "match", match);
             validator().checkNull(false, "nodes", nodes);
             validator().checkNull(false, "parameters", parameters);
             validator().checkNull(false, "modified", modified);
@@ -155,14 +155,14 @@ public class NodeDTO extends ApiDTO {
     }
 
     public NodeDTO(
-            @Nullable final String name,
+            @Nullable final String match,
             @Nullable final List<NodeDTO> nodes,
             @Nullable final ParameterListDTO parameters,
             @Nullable final String modified,
             @Nullable final List<String> levels,
             @Nullable final String include) {
         super(false);
-        setName(name);
+        setMatch(match);
         setNodes(nodes);
         setParameters(parameters);
         setModified(modified);
@@ -178,7 +178,7 @@ public class NodeDTO extends ApiDTO {
     public NodeDTO(@Nonnull final Node node) {
 
         // Set name.
-        setName(node.getName());
+        setMatch(node.getMatch());
 
         // Copy nodes.
         if (node.getNodes() == null) {
@@ -221,14 +221,14 @@ public class NodeDTO extends ApiDTO {
     }
 
     @Nullable
-    public String getName() {
+    public String getMatch() {
         beforeGet();
-        return name;
+        return match;
     }
 
-    public void setName(@Nullable final String name) {
+    public void setMatch(@Nullable final String match) {
         beforeSet();
-        this.name = StringUtils.emptyToNull(StringUtils.trim(name));
+        this.match = StringUtils.emptyToNull(StringUtils.trim(match));
     }
 
     @Nullable

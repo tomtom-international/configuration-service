@@ -1,8 +1,8 @@
 {
-  "name": "P107",
+  "match": "P107",
   "nodes": [
     {
-      "name": "Device[0-9]*",
+      "match": "Device[0-9]*",
       "parameters": [
         {
           "key": "radius",
@@ -14,7 +14,7 @@
         }
       ]
     }, {
-      "name": "Device123",
+      "match": "Device123",
       "parameters": [
         {
           "key": "radius",

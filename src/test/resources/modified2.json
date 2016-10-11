@@ -1,6 +1,6 @@
 {
   "modified": "2016-01-01T00:00:30Z",
-  "name": "time 30",
+  "match": "time 30",
   "nodes": [
     {
       "include": "classpath::modified3.json"

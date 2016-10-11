@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <node>
-    <name>P107</name>
+    <match>P107</match>
     <nodes>
-        <name>P10[0-9]</name>
+        <match>P10[0-9]</match>
         <nodes>
-            <name>Device456</name>
+            <match>Device456</match>
             <parameters>
                 <parameters>
                     <parameters>
@@ -24,9 +24,9 @@
         </parameters>
     </nodes>
     <nodes>
-        <name>P508</name>
+        <match>P508</match>
         <nodes>
-            <name>Device1.*</name>
+            <match>Device1.*</match>
             <parameters>
                 <parameters>
                     <parameters>
@@ -37,7 +37,7 @@
             </parameters>
         </nodes>
         <nodes>
-            <name>Device999</name>
+            <match>Device999</match>
             <parameters>
                 <parameters>
                     <parameters>

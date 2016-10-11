@@ -72,7 +72,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"nodes\":[{\"name\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"modified\":\"2016-01-02T11:11:11Z\"},{\"name\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T00:00:00Z\",\"levels\":[\"criterium\"]}",
+        assertEquals("{\"nodes\":[{\"match\":\"child-1\",\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"modified\":\"2016-01-02T11:11:11Z\"},{\"match\":\"child-2\",\"parameters\":[{\"key\":\"key-2\",\"value\":\"value-2\"}]}],\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"modified\":\"2016-01-02T00:00:00Z\",\"levels\":[\"criterium\"]}",
                 response.readEntity(String.class));
 
     }
@@ -87,7 +87,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><node><nodes><node><name>child-1</name><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><modified>2016-01-02T11:11:11Z</modified></node><node><name>child-2</name><parameters><parameter><key>key-2</key><value>value-2</value></parameter></parameters></node></nodes><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><modified>2016-01-02T00:00:00Z</modified><levels><level>criterium</level></levels></node>",
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><node><nodes><node><match>child-1</match><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><modified>2016-01-02T11:11:11Z</modified></node><node><match>child-2</match><parameters><parameter><key>key-2</key><value>value-2</value></parameter></parameters></node></nodes><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><modified>2016-01-02T00:00:00Z</modified><levels><level>criterium</level></levels></node>",
                 response.readEntity(String.class));
 
     }
@@ -97,7 +97,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkSearchInSImpleTreeJson");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1").
+                target(server.getHost() + "/tree?criterium=child-1").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -111,7 +111,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkSearchInSimpleTreeXml");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1").
+                target(server.getHost() + "/tree?criterium=child-1").
                 request().
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
@@ -126,7 +126,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkMultiSearchWrongSeparatorJson");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                target(server.getHost() + "/tree?criterium=child-1;unknown").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -138,7 +138,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkMultiSearchJson");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1,unknown").
+                target(server.getHost() + "/tree?criterium=child-1,unknown").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -152,7 +152,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkMultiSearchWrongSeparatorXml");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1;unknown").
+                target(server.getHost() + "/tree?criterium=child-1;unknown").
                 request().
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
@@ -164,7 +164,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkMultiSearchXml");
         startServer("simple1.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=child-1,unknown").
+                target(server.getHost() + "/tree?criterium=child-1,unknown").
                 request().
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
@@ -178,7 +178,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm1");
         startServer("regex.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=criterium&search=").
+                target(server.getHost() + "/tree?criterium=").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -188,11 +188,25 @@ public class ApiResponseFormatTest {
     }
 
     @Test
+    public void checkRegexSearchWithEmptyTerms1() throws Exception {
+        LOG.info("checkRegexSearchWithEmptyTerms1");
+        startServer("regex.json");
+        final Response response = new ResteasyClientBuilder().build().
+                target(server.getHost() + "/tree?criterium=,").
+                request().
+                accept(APPLICATION_JSON_TYPE).get();
+        assertNotNull(response);
+        assertEquals(200, response.getStatus());
+        assertEquals("xxx",
+                response.readEntity(String.class));
+    }
+
+    @Test
     public void checkRegexSearchWithEmptyTerm2() throws Exception {
         LOG.info("checkRegexSearchWithEmptyTerm2");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=///").
+                target(server.getHost() + "/tree?deviceID=&country=&connection=&navkit=").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -206,7 +220,7 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm3");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=x/y//").
+                target(server.getHost() + "/tree?deviceID=x&country=y").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
@@ -220,38 +234,12 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm4");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=x/y//z").
+                target(server.getHost() + "/tree?deviceID=x&country=y&connection=&navkit=z").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
         assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
                 response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkRegexSearchWithEmptyTerm5() throws Exception {
-        LOG.info("checkRegexSearchWithEmptyTerm5");
-        startServer("regex-config.json");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678///").
-                request().
-                accept(APPLICATION_JSON_TYPE).get();
-        assertNotNull(response);
-        assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"radius for specific device with MUID XY12345678\"},{\"key\":\"interval\",\"value\":\"radius for specific device with XY12345678\"}],\"matched\":\"XY12345678\"}",
-                response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkRegexSearchWithTooManyTerms() throws Exception {
-        LOG.info("checkRegexSearchWithTooManyTerms");
-        startServer("regex-config.json");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?levels=deviceID/country/connection/navkit&search=XY12345678////").
-                request().
-                accept(APPLICATION_JSON_TYPE).get();
-        assertNotNull(response);
-        assertEquals(400, response.getStatus());
     }
 }

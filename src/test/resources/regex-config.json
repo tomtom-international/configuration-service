@@ -8,7 +8,7 @@
     // Top-level node - do NOT provide parameters.
     {
       // There must always be a deeper match in the tree!
-      "name": "XY12345678",
+      "match": "XY12345678",
       // MUID: only XY12345678
       "parameters": [
         {
@@ -22,11 +22,11 @@
       ]
     },
     {
-      "name": ".*",
+      "match": ".*",
       // MUID: any - do NOT provide parameters
       "nodes": [
         {
-          "name": "UK",
+          "match": "UK",
           // Country: UK
           "parameters": [
             {
@@ -40,11 +40,11 @@
           ]
         },
         {
-          "name": ".*",
+          "match": ".*",
           // Country: any - do NOT provide parameters
           "nodes": [
             {
-              "name": "BT",
+              "match": "BT",
               // Connection: bluetooth
               "parameters": [
                 {
@@ -58,11 +58,11 @@
               ]
             },
             {
-              "name": ".*",
+              "match": ".*",
               // Connection: any - do NOT provide parameters
               "nodes": [
                 {
-                  "name": "16[.]4.*",
+                  "match": "16[.]4.*",
                   // NavKit: 16.4*
                   "parameters": [
                     {
@@ -76,7 +76,7 @@
                   ]
                 },
                 {
-                  "name": ".*",
+                  "match": ".*",
                   // NavKit: any - provide general fallback parameters
                   "parameters": [
                     // These parameters are returned if no match is found.
