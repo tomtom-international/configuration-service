@@ -60,35 +60,52 @@ it's used for monitoring purposes (and load balancers).
 * `GET /tree? {level1}={value1} & {level2}={value2} &...`: query the search tree for a configuration, specifying 
 level names and there values; this is the most commonly used method.
 
-* `GET /tree? levels={level1}/{level2}/... & search={value1}/{value2}/... [,{valueX}/{valueY}/...]`: 
-alternative syntax for the search query, which also allows for getting multiple configuration in a single call. 
+* `GET /tree? {level1}={valueX},{valueY} & {level2}=... &...`: 
+extended query syntax to allow multiple searches in a single query; the response is an array of results.  
 
 * `GET /tree/{level1}/{level2}/...`: return a specific node from the search tree (hardly ever used).
 
 The configuration of the service is fetched from a URI specified in the properties file called
 
-    application-configuration-data.properties
+    configuration-service.properties
 
 Normally you would use the search capability of the service to find the best matching node, based on
 hierarchical search criteria, which falls back to parent nodes for missing entries:
 
-    GET /tree?{level1}={value1}&{level2}={value2}&...
+    GET /tree? {level1}={value1} & {level2}={value2} & ...
 
-The search path is now provided as a query parameter and the order of the node levels is defined by
-'levels' (each node level in the configuration has a name).
 The returned result is the value of the leaf of the deepest node matching the search criteria:
 
-    {"parameters" : [{"key": "{key1}", "value": "{value1}"}, ...],
-    "matched" : "{path-of-deepest-node-that-matched}"}
+    {
+      "parameters" : [{"key": "{key1}", "value": "{value1}"}, ...],
+      "searched"   : "{original terms used in search}",
+      "matched"    : "{actual matches in search tree}"
+    }
 
-The "matched" value indicates which node provided the parameters. This may be an exact match
-of the search path in the query, or any node above it (if path as partially matched).
+The `parameters` are the key-value pairs you would normally be interested in. 
+They were returned from the matched node in the search tree. The `matched` attribute 
+specifies the node in the search tree that was found. The `searched` attribute contains
+the (original) search terms used in the search. 
 
-You can get multiple configurations at once by using a alternative search syntax which uses the
-reserved parameter names `levels` and `search` and supplying more than 1 query string after `search=`
-all separated by a `,`, like this:
+You can get multiple configurations at once by separating search terms for levels by
+comma's. For every search, the next value of each level is used. If you omit values for
+levels, like `level1=value1,value2 & level2=onlyone`, the last value for that level is
+simply reused for subsequent searches. If you want to specify an empty search term, only
+provide the comma, but omit the value itself.
 
-    GET /tree?levels=level1/level2/... & search=term1/term2/... , other1/other2/...
+For example:
+
+    GET /tree? service=traffic,sys & model=luxuri & device=123
+    
+will first search for `service=traffic & model=luxuri & device=123` followed by a search
+for `service=sys & model=luxuri & device=123`
+    
+Alternatively:
+
+    GET /tree? service=traffic,sys & model=luxuri, & device=123,
+    
+will first search for `service=traffic & model=luxuri & device=123` followed by a search
+for `service=sys` (with empty strings for `model` and `device`).
 
 The result of a multi-query request is a JSON array of results, with the elements in the same order
 as the sub-queries that were specified.
@@ -212,8 +229,8 @@ main resources directory, so Maven will copy them to your classpath if your run 
 (Don't worry, the `.gitignore` file specifically excludes these file, so you won't accidentally
 commit them to Git later.)
 
-    cp src/external-resources/configuration.properties  src/main/resources
-    cp src/external-resources/example.json              src/main/resources
+    cp src/external-resources/configuration-service.properties  src/main/resources
+    cp src/external-resources/example.json                      src/main/resources
 
 And then type:
 
@@ -248,16 +265,10 @@ Or search for a closest match with the fallback search mechanism:
 
     curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device123
     curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device456
-    curl -s -X GET http://localhost:8080/tree?service=OTHER 
-    curl -s -X GET http://localhost:8080/tree?service=TPEG 
-    curl -s -X GET http://localhost:8080/tree?service=SYS 
+    curl -s -X GET http://localhost:8080/tree?service=other 
+    curl -s -X GET http://localhost:8080/tree?service=tpeg,sys
 
-Or you can use the alternative syntax, which also allows getting multiple requests in a single call.
-
-    curl -s -X GET http://localhost:8080/tree?levels=service/model/device&search=TPEG/P508/Device123,SYS
-
-
-### JSON or XML
+## JSON or XML
 
 The service allows both JSON and XML, both for the configuration files, as well as
 as the REST API responses.
@@ -268,7 +279,7 @@ as XML or JSON. The system accepts both formats.
 To retrieve JSON bodies from the REST API, either omit the `Accept` header, or specify 
 `Accept:application/json`. To get XML repsonses, specify `Accept:application/xml`. 
 
-#### Recommended Practices
+## Recommended Practices
 
 * Node names cannot contain the characters ',', ';' or '/' (as they have a special meaning
 in the search query). The service will fail to start if it finds incorrect node names.
@@ -283,12 +294,10 @@ header.
 * The top-level node msut be nameless and may contain a set of default parameters.
 If it specifies default parameters, searches will always return a result.
 
-#### Example JSON Configuration File and Response
+## Example JSON Configuration File and Response
 
 Below is an example of a configuration file for the service. Some remarks:
 
-
- 
 ```json
 {
   "modified": "2016-01-02T12:34:56Z",
@@ -341,7 +350,7 @@ And a JSON search response for this tree using `GET /tree?level-name=child-2` lo
 }
 ```
  
-#### Example XML Configuration File
+## Example XML Configuration File
 
 The same configuration file looks like this when provided as XML.
  
@@ -399,21 +408,9 @@ And, similarly, a XML search response for this three using `GET /parameter/tree?
 </searchResult>
 ```
   
-### Multiple Search Queries in One Call
+## Reducing Data Usage
 
-To save a couple of roundtrips from the client to the server to fetch multiple
-configurations, you can combine mutliple search queries into one by separating the sub-queries
-by `,`, like this:
-
-    curl -s -X GET http://localhost:8080/tree?levels=service/model/deviceID&search=TPEG/P107,SYS
-
-This would produce a JSON array of results for 2 independent queries. Especially for configuration trees
-which are organized into 'product' subtrees, combining the queries for individual products may save
-quite some calls.
-
-### Reducing Data Usage
-
-#### Using HTTP Header `If-Modified-Since`
+### Using HTTP Header `If-Modified-Since`
 
 You can also use the `If-Modified-Since` header to have the service return `304 NOT MODIFIED` if the configuration
 was no newer than the supplied date. Note that the HTTP header must be of the format
@@ -435,7 +432,7 @@ be used, or any other time zone.
 The time provided in the request is compared to the `modified` property of the found node, or, if the node
 has no such property, of its closest parent that has a `modified` property.
 
-#### Using HTTP Header `If-None-Match`
+### Using HTTP Header `If-None-Match`
 
 You can also use `ETag`s to reduce data consumption. ETags may be thought of as the hash of the response: 
 if two response are the same, they have the same `ETag` and if the `ETag`s differs, the responses differ.
@@ -509,11 +506,13 @@ in the properties file called `configuration-service.properties`.
 
 The format of the configuration is JSON and is specified as:
 
-    { "match" : "some name",
-    "modified" : {MODIFIED},
-    "levels" : [ {LEVEL}, {LEVEL}, ... ],
-    "nodes" : [ {NODE}, {NODE}, ... ],
-    "parameters" : [ {PARAM}, {PARAM}, ...] }
+    { 
+      "match"       : "some name",
+      "modified"    : {MODIFIED},
+      "levels"      : [ {LEVEL}, {LEVEL}, ... ],
+      "nodes"       : [ {NODE}, {NODE}, ... ],
+      "parameters"  : [ {PARAM}, {PARAM}, ...] 
+    }
 
 Only for the root node, `{MODIFIED}` and `{LEVELS}` can be specified. 
 
@@ -743,6 +742,12 @@ This means you could separate config files into, for example:
 
 Note that include files do not have their own `modified` date. The modified date from the
 root node is always used to determine the date/time of the entire configuration.
+
+## Copying the Configuration File from an Existing Node
+
+You can use `GET /tree` to retrieve the full search tree from an existing node.
+You can actually use the output of this call as the input for a new node. All you
+need to do, is point the `ConfigurationService.startupConfigurationURI` property at it.
 
 ## Build Environment (Java 8)
 

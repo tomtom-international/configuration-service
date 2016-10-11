@@ -48,7 +48,16 @@ public class SearchResultDTO extends ApiDTO {
     private ParameterListDTO parameters;
 
     /**
-     * Optional element, which is used to specify the path of the node which contains the specified
+     * Used to specify the original search terms.
+     */
+    @JsonProperty("searched")
+    @JsonInclude(Include.ALWAYS)
+    @XmlElement(name = "searched")
+    @Nullable
+    private String searched;
+
+    /**
+     * Used to specify the path of the node which contains the specified
      * parameters.
      */
     @JsonProperty("matched")
@@ -72,17 +81,20 @@ public class SearchResultDTO extends ApiDTO {
     public void validate() {
         validator().start();
         validator().checkNotNullAndValidate(false, "parameters", parameters);
-        validator().checkNotNull(false, "matched", matched);
+        validator().checkNotNull(true, "searched", matched);
+        validator().checkNotNull(true, "matched", matched);
         validator().checkNotNull(true, "node", node);
         validator().done();
     }
 
     public SearchResultDTO(
             @Nullable final ParameterListDTO parameters,
+            @Nullable final String searched,
             @Nullable final String matched,
             @Nonnull final Node node) {
         super(false);
         setParameters(parameters);
+        setSearched(searched);
         setMatched(matched);
         setNode(node);
     }
@@ -98,6 +110,7 @@ public class SearchResultDTO extends ApiDTO {
             }
         }
         setParameters(new ParameterListDTO(parameterDTOs));
+        setSearched(null);
         setMatched(null);
         setNode(node);
     }
@@ -118,6 +131,17 @@ public class SearchResultDTO extends ApiDTO {
     public void setParameters(@Nullable final ParameterListDTO parameters) {
         beforeSet();
         this.parameters = ((parameters == null) || parameters.isEmpty()) ? null : parameters;
+    }
+
+    @Nullable
+    public String getSearched() {
+        beforeGet();
+        return searched;
+    }
+
+    public void setSearched(@Nullable final String searched) {
+        beforeSet();
+        this.searched = nullToEmpty(StringUtils.trim(searched));
     }
 
     @Nullable

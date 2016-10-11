@@ -285,12 +285,20 @@ public class Configuration {
                 searchResult = new SearchResultDTO(nodeOfParameters);
             }
 
-            /**
-             * Set the 'matched' of the node from which the parameters were gotten.
-             */
+            // Set the 'searched' attribute.
+            @SuppressWarnings("NonConstantStringShouldBeStringBuffer")
+            String searched = "";
+            for (final String levelName : root.getLevels()) {
+                final String searchTerm = nullToEmpty(levelSearchTerms.get(levelName));
+                searched = searched + (searched.isEmpty() ? "" : "&") + levelName + '=' + searchTerm;
+            }
+            searchResult.setSearched(searched);
+
+            // Set the 'matched' of the node from which the parameters were gotten.
             final String matched = getMatchedValue(0, root, nodeOfParameters, "").getValue1();
             searchResult.setMatched(matched);
             results.add(searchResult);
+            LOG.debug("matchNode:   searched={}, matched={}", searched, matched);
         }
         final SearchResultsDTO searchResults = new SearchResultsDTO(results);
         return searchResults;
@@ -365,6 +373,7 @@ public class Configuration {
                 // Get level name.
                 assert root.getLevels() != null;
                 assert level < root.getLevels().size();
+                @SuppressWarnings("ConstantConditions")
                 final String levelName = root.getLevels().get(level);
 
                 // Get match string from node.

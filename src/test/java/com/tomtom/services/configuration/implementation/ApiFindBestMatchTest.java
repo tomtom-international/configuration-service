@@ -4,9 +4,6 @@
 
 package com.tomtom.services.configuration.implementation;
 
-import com.google.gson.Gson;
-import com.tomtom.services.configuration.dto.NodeDTO;
-import com.tomtom.services.configuration.dto.VersionDTO;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.junit.After;
 import org.junit.Assert;
@@ -19,12 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-public class ApiResourcesJsonTest {
-    private static final Logger LOG = LoggerFactory.getLogger(ApiResourcesJsonTest.class);
+public class ApiFindBestMatchTest {
+    private static final Logger LOG = LoggerFactory.getLogger(ApiFindBestMatchTest.class);
 
     private final LocalTestServer server = new LocalTestServer("classpath:example.json");
 
-    static final String HASH1 = "\"15bba634096a454170b51c072aefbab07cffd817\"";
+    static final String HASH1 = "\"ca147bd00f0190dca5a904bf3a7f9d7b4d37760f\"";
     static final String HASH2 = "\"8b26f819393571120aac51ab767b3b666ccfd7b4\"";
 
     @Before
@@ -38,139 +35,6 @@ public class ApiResourcesJsonTest {
     }
 
     @Test
-    public void checkHelp() {
-        LOG.info("checkHelp");
-        final Response r = new ResteasyClientBuilder().build().
-                target(server.getHost() + '/').
-                request().
-                get();
-        Assert.assertNotNull(r);
-        final int status = r.getStatus();
-        LOG.info("status = {}", status);
-        Assert.assertEquals(200, status);
-    }
-
-    @Test
-    public void checkStatusOK() {
-        LOG.info("checkStatusOK");
-        final Response r = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/status").
-                request().
-                get();
-        Assert.assertNotNull(r);
-        final int status = r.getStatus();
-        LOG.info("status = {}", status);
-        Assert.assertEquals(200, status);
-    }
-
-    @Test
-    public void checkVersionWithParameters() {
-        LOG.info("checkVersionWithParameters");
-        final Response r = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/version?x=1&y=2").
-                request().
-                get();
-        Assert.assertNotNull(r);
-        final int status = r.getStatus();
-        LOG.info("status = {}", status);
-        Assert.assertEquals(200, status);
-        final String s = r.readEntity(String.class);
-        Assert.assertEquals("{\"version\":\"1.0.0-TEST\",\"startupConfigurationURI\":\"classpath:example.json\"}",
-                s);
-
-        final VersionDTO x = new Gson().fromJson(s, VersionDTO.class);
-        Assert.assertEquals("1.0.0-TEST", x.getVersion());
-        Assert.assertEquals("classpath:example.json", x.getStartupConfigurationURI());
-    }
-
-    @Test
-    public void checkVersionJson() {
-        LOG.info("checkVersionJson");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/version").
-                request().
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"version\":\"1.0.0-TEST\",\"startupConfigurationURI\":\"classpath:example.json\"}",
-                response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkVersionXml() {
-        LOG.info("checkVersionXml");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/version").
-                request().
-                accept(MediaType.APPLICATION_XML_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><version><version>1.0.0-TEST</version><startupConfigurationURI>classpath:example.json</startupConfigurationURI></version>",
-                response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkTreeJson() {
-        LOG.info("checkSimpleTreeJson");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree").
-                request().
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        final String s = response.readEntity(String.class);
-        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
-                s);
-        final NodeDTO x = new Gson().fromJson(s, NodeDTO.class);
-        Assert.assertEquals(null, x.getMatch());
-        Assert.assertNotNull(x.getNodes());
-
-        final NodeDTO n = x.getNodes().get(0);
-        Assert.assertNotNull(n.getNodes());
-        Assert.assertNotNull(n.getParameters());
-        Assert.assertEquals("TPEG", n.getMatch());
-        Assert.assertEquals(2, n.getNodes().size());
-        Assert.assertEquals(2, n.getParameters().size());
-    }
-
-    @Test
-    public void checkUnknownNode() {
-        LOG.info("checkUnknownNode");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/UNKNOWN").
-                request().
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(404, response.getStatus());
-    }
-
-    @Test
-    public void checkSubTree1() {
-        LOG.info("checkSubTree1");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/SYS").
-                request().
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}",
-                response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkSubTree2() {
-        LOG.info("checkSubTree2");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508").
-                request().
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}",
-                response.readEntity(String.class));
-    }
-
-    @Test
     public void checkSearch() {
         LOG.info("checkSearch");
         final Response response = new ResteasyClientBuilder().build().
@@ -179,7 +43,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"searched\":\"service=tpeg&model=p107&deviceID=Device123\",\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -192,7 +56,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"searched\":\"service=TPEG&model=P107&deviceID=Device123\",\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -205,7 +69,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=TPEG&model=P107&deviceID=\",\"matched\":\"service=TPEG\"}",
                 response.readEntity(String.class));
     }
 
@@ -218,7 +82,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"searched\":\"service=tpeg&model=p107&deviceID=Device123\",\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -231,7 +95,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"matched\":\"service=SYS\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"searched\":\"service=tpeg&model=p107&deviceID=Device123\",\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=sys&model=p107&deviceID=Device123\",\"matched\":\"service=SYS\"}]",
                 response.readEntity(String.class));
     }
 
@@ -244,7 +108,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}],\"searched\":\"service=tpeg&model=p107&deviceID=Device123\",\"matched\":\"service=TPEG&model=P107&deviceID=Device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -257,7 +121,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG&model=P508\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=tpeg&model=P508&deviceID=\",\"matched\":\"service=TPEG&model=P508\"}",
                 response.readEntity(String.class));
     }
 
@@ -270,7 +134,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG&model=P508\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=tpeg&model=p508&deviceID=\",\"matched\":\"service=TPEG&model=P508\"}",
                 response.readEntity(String.class));
     }
 
@@ -283,7 +147,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"searched\":\"service=tpeg&model=p508&deviceID=Device999\",\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
                 response.readEntity(String.class));
     }
 
@@ -307,7 +171,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG\"},{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG&model=P508\"},{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=tpeg&model=&deviceID=\",\"matched\":\"service=TPEG\"},{\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=tpeg&model=p508&deviceID=\",\"matched\":\"service=TPEG&model=P508\"},{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"searched\":\"service=tpeg&model=p508&deviceID=Device999\",\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}]",
                 response.readEntity(String.class));
     }
 
@@ -348,50 +212,8 @@ public class ApiResourcesJsonTest {
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"searched\":\"service=tpeg&model=p508&deviceID=Device999\",\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
                 response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkNodeNotModified() {
-        LOG.info("checkNodeNotModified");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508/Device999").
-                request().
-                header("If-Modified-Since", "Mon, 2 Jan 2016 12:34:57 GMT").    // 1 sec later than config tree.
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(304, response.getStatus());
-        Assert.assertEquals(HASH2, response.getHeaderString("ETag"));
-        Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-    }
-
-    @Test
-    public void checkNodeModified() {
-        LOG.info("checkNodeModified");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508/Device999").
-                request().
-                header("If-Modified-Since", "Mon, 2 Jan 2016 12:34:56 GMT").    // Same time as in config tree.
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}",
-                response.readEntity(String.class));
-        Assert.assertEquals(HASH2, response.getHeaderString("ETag"));
-        Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-    }
-
-    @Test
-    public void checkModifiedFormatWrong() {
-        LOG.info("checkModifiedFormatWrong");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG").
-                request().
-                header("If-Modified-Since", "wrong").
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
     }
 
     @Test
@@ -480,20 +302,8 @@ public class ApiResourcesJsonTest {
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}],\"searched\":\"service=tpeg&model=p508&deviceID=Device999\",\"matched\":\"service=TPEG&model=P508&deviceID=Device999\"}",
                 response.readEntity(String.class));
-    }
-
-    @Test
-    public void checkETagEmpty() {
-        LOG.info("checkETagEmpty");
-        final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG").
-                request().
-                header("If-None-Match", "").
-                accept(MediaType.APPLICATION_JSON_TYPE).get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatus());
     }
 
     @Test
@@ -516,7 +326,7 @@ public class ApiResourcesJsonTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"matched\":\"service=TPEG\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"matched\":\"service=SYS\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"searched\":\"service=TPEG&model=&deviceID=\",\"matched\":\"service=TPEG\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=SYS&model=&deviceID=\",\"matched\":\"service=SYS\"}]",
                 response.readEntity(String.class));
     }
 
