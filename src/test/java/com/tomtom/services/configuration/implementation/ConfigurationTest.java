@@ -35,7 +35,7 @@ public class ConfigurationTest {
     public Map<String, String> mapOf(final String... args) {
         Assert.assertTrue((args.length % 2) == 0);
         Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < (args.length / 2); i = i + 2) {
+        for (int i = 0; i < args.length; i = i + 2) {
             map.put(args[i], args[i + 1]);
         }
         return map;
@@ -247,10 +247,10 @@ public class ConfigurationTest {
         Assert.assertNull(x);
 
         x = configuration.findNode("TPEG");
-        Assert.assertEquals("service=TPEG", x.getMatch());
+        Assert.assertEquals("TPEG", x.getMatch());
 
         x = configuration.findNode("TPEG/P508");
-        Assert.assertEquals("service=P508", x.getMatch());
+        Assert.assertEquals("P508", x.getMatch());
 
         x = configuration.findNode("/");            // Wrong use of '/' prefix!
         Assert.assertNull(x);
