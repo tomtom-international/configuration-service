@@ -374,10 +374,10 @@ public class Configuration {
                 if (child == node) {
 
                     // Get level name and append search term.
-                    return new Tuple<>(pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + nodeMatch, true);
+                    return new Tuple<>(pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + '=' + nodeMatch, true);
                 } else {
                     final Tuple<String, Boolean> found = getMatchedValue(level + 1, child, node,
-                            pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + nodeMatch);
+                            pathPrefix + (pathPrefix.isEmpty() ? "" : "&") + levelName + '=' + nodeMatch);
                     if (found.getValue2()) {
                         return found;
                     }
