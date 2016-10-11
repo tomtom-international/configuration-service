@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.tomtom.services.configuration.TreeResource.*;
 import static com.tomtom.speedtools.objects.Objects.notNullOr;
 
@@ -45,11 +46,9 @@ import static com.tomtom.speedtools.objects.Objects.notNullOr;
  * This class implements the search tree, which consists of nodes and leafs. Every node can have
  * 0 or more children nodes and 0 or 1 leaf node. There is a single root node.
  *
- * Nodes have a name, an optional list of child nodes and an optional leaf with parameters.
- * Node names are unique within children nodes and cannot be empty, except for the root node name
- * which is empty.
- *
- * Nodes cannot be renamed, although you can replace nodes with other nodes (with another name).
+ * Nodes have a match string, an optional list of child nodes and an optional leaf with parameters.
+ * Node match strings are unique within children nodes and cannot be empty, except for the root node
+ * which is absent.
  */
 @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 public class Configuration {
@@ -144,7 +143,7 @@ public class Configuration {
     /**
      * Get the root node.
      *
-     * @return Root node. Has an empty name.
+     * @return Root node. Has an empty match strings.
      */
     @Nonnull
     public Node getRoot() {
@@ -160,14 +159,14 @@ public class Configuration {
      * and the full path to the matching node.
      */
     @Nonnull
-    SearchResultsDTO findBestMatchingNodes(@Nonnull final List<Map<String, String>> levelSearchTermsList) {
+    SearchResultsDTO matchNode(@Nonnull final List<Map<String, String>> levelSearchTermsList) {
 
         // Result list.
         final List<SearchResultDTO> results = new ArrayList<>();
 
         // Process all search queries.
         for (final Map<String, String> levelSearchTerms : levelSearchTermsList) {
-            LOG.debug("findBestMatchingNodes: levelSearchTerms={}", levelSearchTerms.toString());
+            LOG.debug("matchNode: search #{}, levelSearchTerms={}", results.size() + 1, levelSearchTerms.toString());
 
             /*
              * Search tree for parameters. Start with assuming the search fails and the result is
@@ -178,11 +177,11 @@ public class Configuration {
             if (root.getLevels() != null) {     // Only execute search if levels actually exist.
 
                 for (final String levelName : root.getLevels()) {
-                    LOG.debug("findBestMatchingNodes: levelName={}", levelName);
                     boolean found = false;          // This indicates whether we found a match or not.
 
                     // Find the corresponding search term in the query.
-                    final String searchTerm = levelSearchTerms.get(levelName);
+                    final String searchTerm = nullToEmpty(levelSearchTerms.get(levelName));
+                    LOG.debug("matchNode:   {}={}", levelName, searchTerm);
 
                     /**
                      * Check all children nodes of this node (if they exist).
@@ -206,6 +205,7 @@ public class Configuration {
                             // Check if the term matches the node name literally.
                             //noinspection ConstantConditions
                             if (searchTerm.matches(createCaseInsensitivePattern(Pattern.quote(name)))) {
+                                LOG.debug("matchNode:     FOUND, literal match, {}={}", levelName, name);
                                 found = true;
 
                                 /**
@@ -231,11 +231,12 @@ public class Configuration {
                             for (final Node child : nonExactMatches) {
 
                                 // The name of children is a regex.
-                                final String name = child.getMatch();
-                                assert name != null;
+                                final String match = child.getMatch();
+                                assert match != null;
 
                                 //noinspection ConstantConditions
-                                if (searchTerm.matches(createCaseInsensitivePattern(name))) {
+                                if (searchTerm.matches(createCaseInsensitivePattern(match))) {
+                                    LOG.debug("matchNode:     FOUND, regular expression match, {}={}", levelName, match);
                                     found = true;
 
                                     /**
@@ -256,6 +257,7 @@ public class Configuration {
 
                     // Stop searching for deeper path terms if we couldn't find a match for this term.
                     if (!found) {
+                        LOG.debug("matchNode:    NOT FOUND, nothing for {}={}", levelName, searchTerm);
                         break;
                     }
                 }
@@ -340,7 +342,7 @@ public class Configuration {
     }
 
     /**
-     * Get the full path name of a node. Note that the node object itself will be searched for, so the method
+     * Get matched search terms. Note that the node object itself will be searched for, so the method
      * will use an object equality test to find a specific node, not an equals() test.
      *
      * @param level      Number of level at which we are searching.
@@ -348,9 +350,8 @@ public class Configuration {
      * @param node       Node to search for.
      * @param pathPrefix Path to be used as prefix (without trailing '/').
      *                   This is supplied to be able to make the method recursively callable.
-     * @return A tuple with as value 1 the path name of the node, within the specified tree (with the specified path
-     * prefix, and as value 2 a boolean which indicates whether the node was found or not. If not, the returned path
-     * equals the path prefix.
+     * @return A tuple with as value 1 the matched search terms, within the specified tree and as value 2 a boolean
+     * which indicates whether the node was found or not. If not, the returned path equals the path prefix.
      */
     @Nonnull
     private Tuple<String, Boolean> getMatchedValue(
@@ -469,9 +470,9 @@ public class Configuration {
         // Read the tree from the configuration.
         final NodeDTO root = getChildNodeFromConfiguration(include, content, new ArrayList<>());
 
-        // Check if the name of the root is null; all child names have been checked by now (when tree was read in).
+        // Check if the match string of the root is null; all child match strings have been checked by now (when tree was read in).
         if (root.getMatch() != null) {
-            throw new IncorrectConfigurationException("Configuration is not OK! Top-level root node must be nameless.");
+            throw new IncorrectConfigurationException("Configuration is not OK! Top-level root node must not contain a match string.");
         }
 
         // Check 'levels' specification.
@@ -493,7 +494,7 @@ public class Configuration {
                 }
 
                 // Level name cannot contain certain characters, like [,;/].
-                if (!isValidNodeName(level)) {
+                if (!isValidMatchString(level)) {
                     throw new IncorrectConfigurationException("Level name cannot contain '" + SEPARATOR_WRONG +
                             "', '" + SEPARATOR_PATH + "' or '" + SEPARATOR_QUERY + "'.");
                 }
@@ -517,8 +518,8 @@ public class Configuration {
         return root;
     }
 
-    private static boolean isValidNodeName(@Nonnull final String nodeName) {
-        return ((nodeName.indexOf(SEPARATOR_WRONG) + nodeName.indexOf(SEPARATOR_PATH) + nodeName.indexOf(SEPARATOR_QUERY)) == -3);
+    private static boolean isValidMatchString(@Nonnull final String match) {
+        return ((match.indexOf(SEPARATOR_WRONG) + match.indexOf(SEPARATOR_PATH) + match.indexOf(SEPARATOR_QUERY)) == -3);
     }
 
     @Nonnull
@@ -561,10 +562,10 @@ public class Configuration {
         // Inline all includes recursively.
         expandAllIncludes(tree, included);
 
-        // Check if node names do not conflict.
-        if (!checkNodeNamesRoot(tree)) {
+        // Check if node match strings do not conflict.
+        if (!checkNodeMatchStringsRoot(tree)) {
             throw new IncorrectConfigurationException("Configuration is not OK! " +
-                    "Nodes names are incorrectly formatted, not unique or contain incorrect key/value pairs.");
+                    "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
         }
 
         // Validate the (sub)tree.
@@ -597,46 +598,46 @@ public class Configuration {
     }
 
     /**
-     * Give a series of nodes at the same level, check if the names are OK.
+     * Give a series of nodes at the same level, check if the match strings are OK.
      * Check the children as well
      *
      * @param root Root node.
      * @return True if all OK, false otherwise.
      */
-    private static boolean checkNodeNamesRoot(@Nonnull final NodeDTO root) {
-        return checkNodeNamesChildren(root.getNodes());
+    private static boolean checkNodeMatchStringsRoot(@Nonnull final NodeDTO root) {
+        return checkNodeMatchStringsChildren(root.getNodes());
     }
 
     /**
-     * Give a series of nodes at the same level, check if the names are OK.
+     * Give a series of nodes at the same level, check if the match strings are OK.
      * Check the children as well
      *
      * @param children Set of nodes.
      * @return True if all OK, false otherwise.
      */
-    private static boolean checkNodeNamesChildren(@Nullable final List<NodeDTO> children) {
+    private static boolean checkNodeMatchStringsChildren(@Nullable final List<NodeDTO> children) {
         if (children == null) {
             return true;
         }
         boolean ok = true;
-        final Set<String> names = new HashSet<>();      // Node names (per level).
+        final Set<String> matches = new HashSet<>();      // Node match strings (per level).
         for (final NodeDTO child : children) {
-            final String name = child.getMatch();
-            if (name == null) {
+            final String match = child.getMatch();
+            if (match == null) {
                 ok = false;
-                LOG.error("checkNodeNamesChildren: name cannot be null");
-            } else if (name.isEmpty()) {
+                LOG.error("checkNodeMatchStringsChildren: match cannot be null");
+            } else if (match.isEmpty()) {
                 ok = false;
-                LOG.error("checkNodeNamesChildren: name cannot be empty");
-            } else if (!isValidNodeName(name)) {
+                LOG.error("checkNodeMatchStringsChildren: match cannot be empty");
+            } else if (!isValidMatchString(match)) {
                 ok = false;
-                LOG.error("checkNodeNamesChildren: incorrect name or format of node");
-            } else if (names.contains(name)) {
+                LOG.error("checkNodeMatchStringsChildren: incorrect format fort match");
+            } else if (matches.contains(match)) {
                 ok = false;
-                LOG.error("checkNodeNamesChildren: name must be unique, name={}", name);
+                LOG.error("checkNodeMatchStringsChildren: match string must be unique, match={}", match);
             } else {
-                names.add(name);
-                ok = ok && checkNodeNamesChildren(child.getNodes());
+                matches.add(match);
+                ok = ok && checkNodeMatchStringsChildren(child.getNodes());
             }
         }
         return ok;

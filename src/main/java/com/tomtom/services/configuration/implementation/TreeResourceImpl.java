@@ -5,6 +5,9 @@
 package com.tomtom.services.configuration.implementation;
 
 import akka.dispatch.Futures;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.tomtom.services.configuration.TreeResource;
 import com.tomtom.services.configuration.domain.Node;
 import com.tomtom.services.configuration.dto.NodeDTO;
@@ -12,6 +15,7 @@ import com.tomtom.services.configuration.dto.SearchResultDTO;
 import com.tomtom.services.configuration.dto.SearchResultsDTO;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiForbiddenException;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiNotFoundException;
+import com.tomtom.speedtools.apivalidation.exceptions.ApiParameterSyntaxException;
 import com.tomtom.speedtools.checksums.SHA1Hash;
 import com.tomtom.speedtools.json.Json;
 import com.tomtom.speedtools.rest.ResourceProcessor;
@@ -106,18 +110,18 @@ public class TreeResourceImpl implements TreeResource {
             // Determine how many searches are specified.
             int nrOfSearches = 0;
             for (final String levelName : levelNames) {
-                nrOfSearches = Math.max(nrOfSearches, queryParameters.get(levelName).size());
+                final Iterable<String> terms = Splitter.on(SEPARATOR_QUERY).trimResults().split(queryParameters.getFirst(levelName));
+                nrOfSearches = Math.max(nrOfSearches, Iterables.size(terms));
             }
 
             // Now create a full set of search maps with (level-name: search-term).
             final List<Map<String, String>> levelSearchTermsList = new ArrayList<>();
             for (int i = 0; i < nrOfSearches; ++i) {
                 Map<String, String> levelSearchTerms = new HashMap<>();
-                String previousSearchTerm = "";
                 for (final String levelName : levelNames) {
                     final String searchTerm;
-                    final List<String> terms = queryParameters.get(levelName);
-                    if ((terms == null) || (terms.isEmpty())) {
+                    final List<String> terms = Lists.newArrayList(Splitter.on(SEPARATOR_QUERY).trimResults().split(queryParameters.getFirst(levelName)));
+                    if (terms.isEmpty()) {
 
                         // If no terms are supplied for this level, provide an empty search term.
                         searchTerm = "";
@@ -126,18 +130,19 @@ public class TreeResourceImpl implements TreeResource {
                         if (terms.size() > i) {
 
                             // If a search terms is available at this level, use it.
-                            searchTerm  = terms.get(i);
-                        }
-                        else {
+                            searchTerm = terms.get(i);
+                        } else {
 
-                            // If not, use the last used value.
-                            searchTerm  = previousSearchTerm;
+                            // If not, re-use the last value.
+                            searchTerm = terms.get(terms.size() - 1);
                         }
                     }
 
                     // Update last used search term and add to map of (level-name, search-term).
-                    previousSearchTerm = searchTerm;
                     levelSearchTerms.put(levelName, searchTerm);
+                    if (searchTerm.indexOf(SEPARATOR_WRONG) >= 0) {
+                        throw new ApiParameterSyntaxException(levelName, searchTerm, "Search terms cannot contain '" + SEPARATOR_WRONG + "'.");
+                    }
                 }
                 assert levelSearchTerms.size() == levelNames.size();
 
@@ -147,7 +152,7 @@ public class TreeResourceImpl implements TreeResource {
             assert levelSearchTermsList.size() == nrOfSearches;
 
             // First try and find the response.
-            final SearchResultsDTO foundResults = configuration.findBestMatchingNodes(levelSearchTermsList);
+            final SearchResultsDTO foundResults = configuration.matchNode(levelSearchTermsList);
             if (foundResults.isEmpty()) {
                 throw new ApiNotFoundException("No result found: query=" + levelSearchTermsList.toString());
             }

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
 /**
  * This class represents a single element in the response of a 'GET' call to query the
  * search tree, with multiple search criteria.
@@ -126,7 +128,7 @@ public class SearchResultDTO extends ApiDTO {
 
     public void setMatched(@Nullable final String matched) {
         beforeSet();
-        this.matched = StringUtils.nullToEmpty(StringUtils.trim(matched));
+        this.matched = nullToEmpty(StringUtils.trim(matched));
     }
 
     @Nonnull

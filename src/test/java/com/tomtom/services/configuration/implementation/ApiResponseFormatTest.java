@@ -102,7 +102,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"child-1\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"criterium=child-1\"}",
                 response.readEntity(String.class));
     }
 
@@ -116,7 +116,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>child-1</matched></searchResult>",
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>criterium=child-1</matched></searchResult>",
                 response.readEntity(String.class));
 
     }
@@ -143,7 +143,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("[{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"child-1\"},{\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"matched\":\"\"}]",
+        assertEquals("[{\"parameters\":[{\"key\":\"key-1a\",\"value\":\"value-1a\"},{\"key\":\"key-1b\",\"value\":\"value-1b\"}],\"matched\":\"criterium=child-1\"},{\"parameters\":[{\"key\":\"key-0\",\"value\":\"value-0\"}],\"matched\":\"\"}]",
                 response.readEntity(String.class));
     }
 
@@ -169,7 +169,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_XML_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResults><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>child-1</matched></searchResult><searchResult><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><matched></matched></searchResult></searchResults>",
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><searchResults><searchResult><parameters><parameter><key>key-1a</key><value>value-1a</value></parameter><parameter><key>key-1b</key><value>value-1b</value></parameter></parameters><matched>criterium=child-1</matched></searchResult><searchResult><parameters><parameter><key>key-0</key><value>value-0</value></parameter></parameters><matched></matched></searchResult></searchResults>",
                 response.readEntity(String.class));
     }
 
@@ -183,7 +183,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"value\",\"value\":\"4\"}],\"matched\":\".*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"value\",\"value\":\"4\"}],\"matched\":\"criterium=.*\"}",
                 response.readEntity(String.class));
     }
 
@@ -197,7 +197,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("xxx",
+        assertEquals("[{\"parameters\":[{\"key\":\"value\",\"value\":\"4\"}],\"matched\":\"criterium=.*\"},{\"parameters\":[{\"key\":\"value\",\"value\":\"4\"}],\"matched\":\"criterium=.*\"}]",
                 response.readEntity(String.class));
     }
 
@@ -211,7 +211,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
                 response.readEntity(String.class));
     }
 
@@ -225,7 +225,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
                 response.readEntity(String.class));
     }
 
@@ -239,7 +239,7 @@ public class ApiResponseFormatTest {
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\".*/.*/.*/.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
                 response.readEntity(String.class));
     }
 }
