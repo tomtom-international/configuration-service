@@ -163,10 +163,10 @@ public class TreeResourceImpl implements TreeResource {
             if (ifNoneMatch != null) {
                 final String ifNoneMatchWithoutGZip;
                 final int indexOfGZIP = ifNoneMatch.indexOf("--gzip");
-                if (indexOfGZIP >= 0) {
+                if (indexOfGZIP >= 1) {
 
                     // Strip "--gzip" before matching ETag.
-                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP);
+                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP - 1);
                 } else {
 
                     // Match ETag as-is.

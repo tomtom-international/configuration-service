@@ -23,8 +23,7 @@ public class ApiGetNodeTest {
 
     private final LocalTestServer server = new LocalTestServer("classpath:example.json");
 
-    static final String HASH1 = "\"15bba634096a454170b51c072aefbab07cffd817\"";
-    static final String HASH2 = "\"b69a440a2bab59d6fd4cb073d8fbaaf1aef8e2bd\"";
+    static final String HASH = "\"b69a440a2bab59d6fd4cb073d8fbaaf1aef8e2bd\"";
 
     @Before
     public void startServer() throws IncorrectConfigurationException {
@@ -107,7 +106,7 @@ public class ApiGetNodeTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(304, response.getStatus());
-        Assert.assertEquals(HASH2, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
     }
 
@@ -123,7 +122,7 @@ public class ApiGetNodeTest {
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals("{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}",
                 response.readEntity(String.class));
-        Assert.assertEquals(HASH2, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
     }
 

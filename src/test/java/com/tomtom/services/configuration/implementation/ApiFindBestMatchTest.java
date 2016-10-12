@@ -21,8 +21,7 @@ public class ApiFindBestMatchTest {
 
     private final LocalTestServer server = new LocalTestServer("classpath:example.json");
 
-    static final String HASH1 = "\"5b2d902ec1b147215da8e08331d68dc09f9a19af\"";
-    static final String HASH2 = "\"8b26f819393571120aac51ab767b3b666ccfd7b4\"";
+    static final String HASH = "\"5b2d902ec1b147215da8e08331d68dc09f9a19af\"";
 
     @Before
     public void startServer() throws IncorrectConfigurationException {
@@ -196,7 +195,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(304, response.getStatus());
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
     }
 
@@ -210,7 +209,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
         Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
                 response.readEntity(String.class));
@@ -222,11 +221,11 @@ public class ApiFindBestMatchTest {
         final Response response = new ResteasyClientBuilder().build().
                 target(server.getHost() + "/tree?service=traffic&model=luxuri&device=device999").
                 request().
-                header("If-None-Match", HASH1).
+                header("If-None-Match", HASH).
                 header("If-Modified-Since", "Mon, 2 Jan 2016 22:22:22 GMT").
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
         Assert.assertEquals(304, response.getStatus());
     }
@@ -237,11 +236,11 @@ public class ApiFindBestMatchTest {
         final Response response = new ResteasyClientBuilder().build().
                 target(server.getHost() + "/tree?service=traffic&model=luxuri&device=device999").
                 request().
-                header("If-None-Match", HASH1).
+                header("If-None-Match", HASH).
                 header("If-Modified-Since", "Mon, 2 Jan 2016 00:00:00 GMT").
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
         Assert.assertEquals(304, response.getStatus());
     }
@@ -256,7 +255,7 @@ public class ApiFindBestMatchTest {
                 header("If-Modified-Since", "Mon, 2 Jan 2016 00:00:00 GMT").
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
         Assert.assertEquals(200, response.getStatus());
     }
@@ -272,7 +271,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
     }
 
@@ -282,11 +281,11 @@ public class ApiFindBestMatchTest {
         final Response response = new ResteasyClientBuilder().build().
                 target(server.getHost() + "/tree?service=traffic&model=luxuri&device=device999").
                 request().
-                header("If-None-Match", HASH1).
+                header("If-None-Match", HASH).
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(304, response.getStatus());
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
     }
 
@@ -300,7 +299,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals(HASH1, response.getHeaderString("ETag"));
+        Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
         Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
                 response.readEntity(String.class));
