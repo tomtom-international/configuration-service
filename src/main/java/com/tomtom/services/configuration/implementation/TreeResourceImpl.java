@@ -164,12 +164,18 @@ public class TreeResourceImpl implements TreeResource {
                 final String ifNoneMatchWithoutGZip;
                 final int indexOfGZIP = ifNoneMatch.indexOf("--gzip");
                 if (indexOfGZIP >= 0) {
+
+                    // Strip "--gzip" before matching ETag.
                     ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP);
                 } else {
+
+                    // Match ETag as-is.
                     ifNoneMatchWithoutGZip = ifNoneMatch;
                 }
                 eTagMatches = ifNoneMatchWithoutGZip.equalsIgnoreCase(eTag);
             } else {
+
+                // Missing ETag, so consider it different.
                 eTagMatches = false;
             }
             LOG.debug("findBestMatch: etag='{}', matches={}", eTag, eTagMatches);
