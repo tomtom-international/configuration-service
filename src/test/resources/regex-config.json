@@ -3,7 +3,7 @@
 // Also, omit parameters for nodes that should never return anything.
 {
   "modified": "2016-09-14T12:00:00Z",
-  "levels": ["deviceID", "country", "connection", "navkit"],
+  "levels": ["device", "country", "connection", "version"],
   "nodes": [
     // Top-level node - do NOT provide parameters.
     {
@@ -12,12 +12,12 @@
       // MUID: only XY12345678
       "parameters": [
         {
-          "key": "radius",
-          "value": "radius for specific device with MUID XY12345678"
+          "key": "radius_km",
+          "value": "radius_km for specific device with MUID XY12345678"
         },
         {
-          "key": "interval",
-          "value": "radius for specific device with XY12345678"
+          "key": "interval_secs",
+          "value": "radius_km for specific device with XY12345678"
         }
       ]
     },
@@ -30,12 +30,12 @@
           // Country: UK
           "parameters": [
             {
-              "key": "radius",
-              "value": "radius specific for UK"
+              "key": "radius_km",
+              "value": "radius_km specific for UK"
             },
             {
-              "key": "interval",
-              "value": "interval specific for UK"
+              "key": "interval_secs",
+              "value": "interval_secs specific for UK"
             }
           ]
         },
@@ -48,12 +48,12 @@
               // Connection: bluetooth
               "parameters": [
                 {
-                  "key": "radius",
-                  "value": "radius specific for bluetooth"
+                  "key": "radius_km",
+                  "value": "radius_km specific for bluetooth"
                 },
                 {
-                  "key": "interval",
-                  "value": "radius specific for bluetooth"
+                  "key": "interval_secs",
+                  "value": "radius_km specific for bluetooth"
                 }
               ]
             },
@@ -66,12 +66,12 @@
                   // NavKit: 16.4*
                   "parameters": [
                     {
-                      "key": "radius",
-                      "value": "radius specific for 16.4"
+                      "key": "radius_km",
+                      "value": "radius_km specific for 16.4"
                     },
                     {
-                      "key": "interval",
-                      "value": "radius specific for 16.4"
+                      "key": "interval_secs",
+                      "value": "radius_km specific for 16.4"
                     }
                   ]
                 },
@@ -81,11 +81,11 @@
                   "parameters": [
                     // These parameters are returned if no match is found.
                     {
-                      "key": "radius",
+                      "key": "radius_km",
                       "value": "general fallback"
                     },
                     {
-                      "key": "interval",
+                      "key": "interval_secs",
                       "value": "general fallback"
                     }
                   ]

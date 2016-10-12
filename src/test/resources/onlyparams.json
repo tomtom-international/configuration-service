@@ -1,6 +1,6 @@
 {
   "modified": "2016-01-02T12:34:56Z",
-  "levels": ["service", "model", "deviceID"],
+  "levels": ["service", "model", "device"],
   "parameters": [
     {
       "key": "x",

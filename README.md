@@ -95,17 +95,17 @@ provide the comma, but omit the value itself.
 
 For example:
 
-    GET /tree? service=traffic,sys & model=luxuri & device=123
+    GET /tree? service=traffic,settings & model=luxuri & device=123
     
 will first search for `service=traffic & model=luxuri & device=123` followed by a search
-for `service=sys & model=luxuri & device=123`
+for `service=settings & model=luxuri & device=123`
     
 Alternatively:
 
-    GET /tree? service=traffic,sys & model=luxuri, & device=123,
+    GET /tree? service=traffic,settings & model=luxuri, & device=123,
     
 will first search for `service=traffic & model=luxuri & device=123` followed by a search
-for `service=sys` (with empty strings for `model` and `device`).
+for `service=settings` (with empty strings for `model` and `device`).
 
 The result of a multi-query request is a JSON array of results, with the elements in the same order
 as the sub-queries that were specified.
@@ -259,14 +259,14 @@ Try the following to fetch the entire configuration:
 
 Or one specific node (note that this does not apply the fallback search mechanism):
 
-    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508
+    curl -s -X GET http://localhost:8080/tree?service=traffic&model=luxuri
 
 Or search for a closest match with the fallback search mechanism:
 
-    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device123
-    curl -s -X GET http://localhost:8080/tree?service=TPEG&model=P508&deviceID=Device456
+    curl -s -X GET http://localhost:8080/tree?service=traffic&model=luxuri&device=device123
+    curl -s -X GET http://localhost:8080/tree?service=traffic&model=luxuri&device=device456
     curl -s -X GET http://localhost:8080/tree?service=other 
-    curl -s -X GET http://localhost:8080/tree?service=tpeg,sys
+    curl -s -X GET http://localhost:8080/tree?service=traffic,settings
 
 ## JSON or XML
 
@@ -549,30 +549,30 @@ Example:
 ```json
 {
   "modified" : "2016-01-02T12:34:56Z",
-  "levels" : ["service", "model", "deviceID" ],
+  "levels" : ["service", "model", "device" ],
   "nodes": [
     {
-      "match": "TPEG",
+      "match": "traffic",
       "nodes": [
         {
-          "match": "P508",
-          "parameters": [{"key": "radius", "value": "40"}, {"key": "interval", "value": "120"}]
+          "match": "luxuri",
+          "parameters": [{"key": "radius_km", "value": "40"}, {"key": "interval_secs", "value": "120"}]
         }, {
-          "match": "P107",
+          "match": "cheapo",
           "nodes": [
             {
-              "match": "Device[0-9]*",
-              "parameters": [{"key": "radius", "value": "10"}, {"key": "interval", "value": "120"}]
+              "match": "device[0-9]*",
+              "parameters": [{"key": "radius_km", "value": "10"}, {"key": "interval_secs", "value": "120"}]
             }, {
-              "match": "Device123",
-              "parameters": [{"key": "radius", "value": "80"}, {"key": "interval", "value": "60"}]
+              "match": "device123",
+              "parameters": [{"key": "radius_km", "value": "80"}, {"key": "interval_secs", "value": "60"}]
             }
           ]
         }
       ],
-      "parameters": [{"key": "radius", "value": "25"}, {"key": "interval", "value": "120"}]
+      "parameters": [{"key": "radius_km", "value": "25"}, {"key": "interval_secs", "value": "120"}]
     }, {
-      "match": "SYS",
+      "match": "Settings",
       "parameters": [{"key": "demo", "value": "false"}, {"key": "sound", "value": "off"}]
     }
   ]
@@ -613,69 +613,69 @@ For example, suppose the main file `example.json` contains this:
 ```json
 {
   "modified" : "2016-01-02T12:34:56Z",
-  "levels" : ["service", "model", "deviceID"],
+  "levels" : ["service", "model", "device"],
   "nodes": [
-    { "include" : "classpath::tpeg.json" },
-    { "include" : "classpath::sys.json" }
+    { "include" : "classpath::traffic.json" },
+    { "include" : "classpath::settings.json" }
   ]
 }
 ```
 
-And include file `tpeg.json` looks like this (note that `levels` can only be specified at
+And include file `traffic.json` looks like this (note that `levels` can only be specified at
 the root of the configuration, not here):
 
 ```json
 {
-  "match": "TPEG",
-  "parameters": [ {"key":"radius", "value": "25"}, {"key":"interval", "value": "120"} ],
+  "match": "traffic",
+  "parameters": [ {"key":"radius_km", "value": "25"}, {"key":"interval_secs", "value": "120"} ],
   "nodes": [
-    { "include": "classpath::tpeg_p107.json" },
-    { "include": "classpath::tpeg_p508.json" }
+    { "include": "classpath::traffic_cheapo.json" },
+    { "include": "classpath::traffic_luxuri.json" }
   ]
 }
 ```
 
 
-And include  file `tpeg_p107.json` looks like this:
+And include  file `traffic_cheapo.json` looks like this:
 
 ```json
 {
-  "match": "P107",
+  "match": "cheapo",
   "nodes": [
     {
-      "match": "Device[0-9]*",
-      "parameters": [ {"key":"radius", "value": "10"}, {"key":"interval", "value": "120"} ]
+      "match": "device[0-9]*",
+      "parameters": [ {"key":"radius_km", "value": "10"}, {"key":"interval_secs", "value": "120"} ]
     }, {
-      "match": "Device123",
-      "parameters": [ {"key":"radius", "value": "80"}, {"key":"interval", "value": "60"} ]
+      "match": "device123",
+      "parameters": [ {"key":"radius_km", "value": "80"}, {"key":"interval_secs", "value": "60"} ]
     }
   ]
 }
 ```
 
-And include file `tpeg_p508.json` looks like this:
+And include file `traffic_luxuri.json` looks like this:
 
 ```json
 {
-  "match": "P508",
+  "match": "luxuri",
   "nodes": [
     {
-      "match": "Device1.*",
-      "parameters": [ {"key":"radius", "value": "100"} ]
+      "match": "device1.*",
+      "parameters": [ {"key":"radius_km", "value": "100"} ]
     }, {
-      "match": "Device999",
-      "parameters": [ {"key":"radius", "value": "200"} ]
+      "match": "device999",
+      "parameters": [ {"key":"radius_km", "value": "200"} ]
     }
   ],
-  "parameters": [ {"key":"radius", "value": "40"}, {"key":"interval", "value": "120"} ]
+  "parameters": [ {"key":"radius_km", "value": "40"}, {"key":"interval_secs", "value": "120"} ]
 }
 ```
 
-And include file `sys.json` looks like this:
+And include file `settings.json` looks like this:
 
 ```json
 {
-  "match": "SYS",
+  "match": "Settings",
   "parameters": [
     {"key":"demo", "value": "false"},
     {"key":"sound", "value": "off"}
@@ -688,40 +688,40 @@ Then the resulting configuration looks like this:
 ```json
 {
   "modified": "2016-01-02T12:34:56Z",
-  "levels" : ["service", "model", "deviceID"],
+  "levels" : ["service", "model", "device"],
   "nodes": [
     {
-      "match": "TPEG",
+      "match": "traffic",
       "nodes": [
         {
-          "match": "P107",
+          "match": "cheapo",
           "nodes": [
             {
-              "match": "Device[0-9]*",
-              "parameters": [ { "key": "radius", "value": "10" }, { "key": "interval", "value": "120" } ]
+              "match": "device[0-9]*",
+              "parameters": [ { "key": "radius_km", "value": "10" }, { "key": "interval_secs", "value": "120" } ]
             }, { 
-              "match": "Device123", 
-              "parameters": [ { "key": "radius", "value": "80" }, { "key": "interval", "value": "60" } ]
+              "match": "device123", 
+              "parameters": [ { "key": "radius_km", "value": "80" }, { "key": "interval_secs", "value": "60" } ]
             }
           ]
         }, {
-          "match": "P508",
+          "match": "luxuri",
           "nodes": [
             {
-              "match": "Device1.*",
-              "parameters": [ { "key": "radius", "value": "100" } ]
+              "match": "device1.*",
+              "parameters": [ { "key": "radius_km", "value": "100" } ]
             }, {
-              "match": "Device999",
-              "parameters": [ { "key": "radius", "value": "200" }
+              "match": "device999",
+              "parameters": [ { "key": "radius_km", "value": "200" }
               ]
             }
           ],
-          "parameters": [ { "key": "radius", "value": "40" }, { "key": "interval", "value": "120" } ]
+          "parameters": [ { "key": "radius_km", "value": "40" }, { "key": "interval_secs", "value": "120" } ]
         }
       ],
-      "parameters": [ { "key": "radius", "value": "25" }, { "key": "interval", "value": "120" } ]
+      "parameters": [ { "key": "radius_km", "value": "25" }, { "key": "interval_secs", "value": "120" } ]
     }, {
-      "match": "SYS",
+      "match": "Settings",
       "parameters": [ { "key": "demo", "value": "false" }, { "key": "sound", "value": "off" } ]
     }
   ]

@@ -206,12 +206,12 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm2");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?deviceID=&country=&connection=&navkit=").
+                target(server.getHost() + "/tree?device=&country=&connection=&version=").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"searched\":\"deviceID=&country=&connection=&navkit=\",\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"general fallback\"},{\"key\":\"interval_secs\",\"value\":\"general fallback\"}],\"searched\":\"device=&country=&connection=&version=\",\"matched\":\"device=.*&country=.*&connection=.*&version=.*\"}",
                 response.readEntity(String.class));
     }
 
@@ -220,12 +220,12 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm3");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?deviceID=x&country=y").
+                target(server.getHost() + "/tree?device=x&country=y").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"searched\":\"deviceID=x&country=y&connection=&navkit=\",\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"general fallback\"},{\"key\":\"interval_secs\",\"value\":\"general fallback\"}],\"searched\":\"device=x&country=y&connection=&version=\",\"matched\":\"device=.*&country=.*&connection=.*&version=.*\"}",
                 response.readEntity(String.class));
     }
 
@@ -234,12 +234,12 @@ public class ApiResponseFormatTest {
         LOG.info("checkRegexSearchWithEmptyTerm4");
         startServer("regex-config.json");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree?deviceID=x&country=y&connection=&navkit=z").
+                target(server.getHost() + "/tree?device=x&country=y&connection=&version=z").
                 request().
                 accept(APPLICATION_JSON_TYPE).get();
         assertNotNull(response);
         assertEquals(200, response.getStatus());
-        assertEquals("{\"parameters\":[{\"key\":\"radius\",\"value\":\"general fallback\"},{\"key\":\"interval\",\"value\":\"general fallback\"}],\"searched\":\"deviceID=x&country=y&connection=&navkit=z\",\"matched\":\"deviceID=.*&country=.*&connection=.*&navkit=.*\"}",
+        assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"general fallback\"},{\"key\":\"interval_secs\",\"value\":\"general fallback\"}],\"searched\":\"device=x&country=y&connection=&version=z\",\"matched\":\"device=.*&country=.*&connection=.*&version=.*\"}",
                 response.readEntity(String.class));
     }
 }

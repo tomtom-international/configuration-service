@@ -1,35 +1,35 @@
 {
   "modified": "2016-04-05T17:28:16Z",
-  "levels": ["service", "model", "deviceID"],
+  "levels": ["service", "model", "device"],
   "nodes": [
     {
-      "match": "TPEG",
+      "match": "traffic",
       "nodes": [
         {
-          "match": "P107",
+          "match": "cheapo",
           "parameters": [
             {
-              "key": "radius",
+              "key": "radius_km",
               "value": "25"
             }
           ]
         }, {
-          "match": "P508",
+          "match": "luxuri",
           "nodes": [
             {
-              "match": "Device123",
+              "match": "device123",
               "parameters": [
                 {
-                  "key": "radius",
+                  "key": "radius_km",
                   "value": "100"
                 }
               ]
             },
             {
-              "match": "Device999",
+              "match": "device999",
               "parameters": [
                 {
-                  "key": "radius",
+                  "key": "radius_km",
                   "value": "200"
                 }
               ]
@@ -39,12 +39,12 @@
       ],
       "parameters": [
         {
-          "key": "radius",
+          "key": "radius_km",
           "value": "50"
         }
       ]
     }, {
-      "match": "SYS",
+      "match": "settings",
       "parameters": [
         {
           "key": "demo",

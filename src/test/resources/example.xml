@@ -4,14 +4,14 @@
     <levels>
         <level>service</level>
         <level>model</level>
-        <level>deviceID</level>
+        <level>device</level>
     </levels>
     <nodes>
         <child>
-            <include>classpath::tpeg.json</include>
+            <include>classpath::traffic.json</include>
         </child>
         <child>
-            <include>classpath::sys.json</include>
+            <include>classpath::settings.json</include>
         </child>
     </nodes>
 </node>

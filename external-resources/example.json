@@ -1,18 +1,18 @@
 {
   "modified": "2016-01-02T12:34:56Z",
-  "levels": ["service", "model", "deviceID"],
+  "levels": ["service", "model", "device"],
   "nodes": [
     {
-      "match": "TPEG",
+      "match": "traffic",
       "nodes": [
         {
           "match": "P10[0-9]",
           "nodes": [
             {
-              "match": "Device456",
+              "match": "device456",
               "parameters": [
                 {
-                  "key": "radius",
+                  "key": "radius_km",
                   "value": "40"
                 }
               ]
@@ -20,28 +20,28 @@
           ],
           "parameters": [
             {
-              "key": "radius",
+              "key": "radius_km",
               "value": "25"
             }
           ]
         },
         {
-          "match": "P508",
+          "match": "luxuri",
           "nodes": [
             {
-              "match": "Device1.*",
+              "match": "device1.*",
               "parameters": [
                 {
-                  "key": "radius",
+                  "key": "radius_km",
                   "value": "100"
                 }
               ]
             },
             {
-              "match": "Device999",
+              "match": "device999",
               "parameters": [
                 {
-                  "key": "radius",
+                  "key": "radius_km",
                   "value": "200"
                 }
               ]
@@ -51,7 +51,7 @@
       ],
       "parameters": [
         {
-          "key": "radius",
+          "key": "radius_km",
           "value": "50"
         },
         {
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "match": "SYS",
+      "match": "settings",
       "parameters": [
         {
           "key": "demo",

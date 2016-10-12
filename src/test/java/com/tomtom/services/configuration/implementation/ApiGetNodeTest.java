@@ -24,7 +24,7 @@ public class ApiGetNodeTest {
     private final LocalTestServer server = new LocalTestServer("classpath:example.json");
 
     static final String HASH1 = "\"15bba634096a454170b51c072aefbab07cffd817\"";
-    static final String HASH2 = "\"8b26f819393571120aac51ab767b3b666ccfd7b4\"";
+    static final String HASH2 = "\"b69a440a2bab59d6fd4cb073d8fbaaf1aef8e2bd\"";
 
     @Before
     public void startServer() throws IncorrectConfigurationException {
@@ -46,7 +46,7 @@ public class ApiGetNodeTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
         final String s = response.readEntity(String.class);
-        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"traffic\",\"nodes\":[{\"match\":\"cheapo\",\"nodes\":[{\"match\":\"device[0-9]*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"10\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]},{\"match\":\"device123\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}]}]},{\"match\":\"luxuri\",\"nodes\":[{\"match\":\"device1.*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"100\"}]},{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"settings\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"device\"]}",
                 s);
         final NodeDTO x = new Gson().fromJson(s, NodeDTO.class);
         Assert.assertEquals(null, x.getMatch());
@@ -55,7 +55,7 @@ public class ApiGetNodeTest {
         final NodeDTO n = x.getNodes().get(0);
         Assert.assertNotNull(n.getNodes());
         Assert.assertNotNull(n.getParameters());
-        Assert.assertEquals("TPEG", n.getMatch());
+        Assert.assertEquals("traffic", n.getMatch());
         Assert.assertEquals(2, n.getNodes().size());
         Assert.assertEquals(2, n.getParameters().size());
     }
@@ -75,12 +75,12 @@ public class ApiGetNodeTest {
     public void checkSubTree1() {
         LOG.info("checkSubTree1");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/SYS").
+                target(server.getHost() + "/tree/settings").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}",
+        Assert.assertEquals("{\"match\":\"settings\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}",
                 response.readEntity(String.class));
     }
 
@@ -88,12 +88,12 @@ public class ApiGetNodeTest {
     public void checkSubTree2() {
         LOG.info("checkSubTree2");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508").
+                target(server.getHost() + "/tree/traffic/luxuri").
                 request().
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}",
+        Assert.assertEquals("{\"match\":\"luxuri\",\"nodes\":[{\"match\":\"device1.*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"100\"}]},{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}",
                 response.readEntity(String.class));
     }
 
@@ -101,7 +101,7 @@ public class ApiGetNodeTest {
     public void checkNodeNotModified() {
         LOG.info("checkNodeNotModified");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508/Device999").
+                target(server.getHost() + "/tree/traffic/luxuri/device999").
                 request().
                 header("If-Modified-Since", "Mon, 2 Jan 2016 12:34:57 GMT").    // 1 sec later than config tree.
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
@@ -115,13 +115,13 @@ public class ApiGetNodeTest {
     public void checkNodeModified() {
         LOG.info("checkNodeModified");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG/P508/Device999").
+                target(server.getHost() + "/tree/traffic/luxuri/device999").
                 request().
                 header("If-Modified-Since", "Mon, 2 Jan 2016 12:34:56 GMT").    // Same time as in config tree.
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}",
+        Assert.assertEquals("{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}",
                 response.readEntity(String.class));
         Assert.assertEquals(HASH2, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
@@ -131,7 +131,7 @@ public class ApiGetNodeTest {
     public void checkModifiedFormatWrong() {
         LOG.info("checkModifiedFormatWrong");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG").
+                target(server.getHost() + "/tree/traffic").
                 request().
                 header("If-Modified-Since", "wrong").
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
@@ -143,7 +143,7 @@ public class ApiGetNodeTest {
     public void checkETagEmpty() {
         LOG.info("checkETagEmpty");
         final Response response = new ResteasyClientBuilder().build().
-                target(server.getHost() + "/tree/TPEG").
+                target(server.getHost() + "/tree/traffic").
                 request().
                 header("If-None-Match", "").
                 accept(MediaType.APPLICATION_JSON_TYPE).get();

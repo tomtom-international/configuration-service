@@ -3,20 +3,20 @@
     <levels>
         <level>service</level>
         <level>model</level>
-        <level>deviceID</level>
+        <level>device</level>
     </levels>
     <nodes>
         <node>
-            <match>TPEG</match>
+            <match>traffic</match>
             <nodes>
                 <node>
                     <match>P10[0-9]</match>
                     <nodes>
                         <node>
-                            <match>Device456</match>
+                            <match>device456</match>
                             <parameters>
                                 <parameter>
-                                    <key>radius</key>
+                                    <key>radius_km</key>
                                     <value>40</value>
                                 </parameter>
                             </parameters>
@@ -24,28 +24,28 @@
                     </nodes>
                     <parameters>
                         <parameter>
-                            <key>radius</key>
+                            <key>radius_km</key>
                             <value>25</value>
                         </parameter>
                     </parameters>
                 </node>
                 <node>
-                    <match>P508</match>
+                    <match>luxuri</match>
                     <nodes>
                         <node>
-                            <match>Device1.*</match>
+                            <match>device1.*</match>
                             <parameters>
                                 <parameter>
-                                    <key>radius</key>
+                                    <key>radius_km</key>
                                     <value>100</value>
                                 </parameter>
                             </parameters>
                         </node>
                         <node>
-                            <match>Device999</match>
+                            <match>device999</match>
                             <parameters>
                                 <parameter>
-                                    <key>radius</key>
+                                    <key>radius_km</key>
                                     <value>200</value>
                                 </parameter>
                             </parameters>
@@ -55,7 +55,7 @@
             </nodes>
             <parameters>
                 <parameter>
-                    <key>radius</key>
+                    <key>radius_km</key>
                     <value>50</value>
                 </parameter>
                 <parameter>
@@ -65,7 +65,7 @@
             </parameters>
         </node>
         <node>
-            <match>SYS</match>
+            <match>settings</match>
             <parameters>
                 <parameter>
                     <key>demo</key>

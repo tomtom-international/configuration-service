@@ -1,0 +1,22 @@
+{
+  "modified": "2016-01-02T12:34:56Z",
+  "match": "traffic",
+  "parameters": [
+    {
+      "key": "radius_km",
+      "value": "25"
+    },
+    {
+      "key": "interval_secs",
+      "value": "120"
+    }
+  ],
+  "nodes": [
+    {
+      "include": "classpath::traffic_cheapo.json"
+    },
+    {
+      "include": "classpath::traffic_luxuri.json"
+    }
+  ]
+}

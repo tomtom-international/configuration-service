@@ -1,19 +1,19 @@
 {
-  "match": "P508",
+  "match": "luxuri",
   "nodes": [
     {
-      "match": "Device1.*",
+      "match": "device1.*",
       "parameters": [
         {
-          "key": "radius",
+          "key": "radius_km",
           "value": "100"
         }
       ]
     }, {
-      "match": "Device999",
+      "match": "device999",
       "parameters": [
         {
-          "key": "radius",
+          "key": "radius_km",
           "value": "200"
         }
       ]
@@ -21,11 +21,11 @@
   ],
   "parameters": [
     {
-      "key": "radius",
+      "key": "radius_km",
       "value": "40"
     },
     {
-      "key": "interval",
+      "key": "interval_secs",
       "value": "120"
     }
   ]

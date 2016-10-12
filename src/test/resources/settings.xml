@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <node>
-    <match>SYS</match>
+    <match>settings</match>
     <parameters>
         <parameters>
             <parameter>demo</parameter>

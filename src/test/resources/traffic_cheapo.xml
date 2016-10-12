@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <node>
-    <match>P107</match>
+    <match>cheapo</match>
     <nodes>
         <match>P10[0-9]</match>
         <nodes>
-            <match>Device456</match>
+            <match>device456</match>
             <parameters>
                 <parameters>
                     <parameters>
-                        <parameter>radius</parameter>
+                        <parameter>radius_km</parameter>
                         <parameter>40</parameter>
                     </parameters>
                 </parameters>
@@ -17,31 +17,31 @@
         <parameters>
             <parameters>
                 <parameters>
-                    <parameter>radius</parameter>
+                    <parameter>radius_km</parameter>
                     <parameter>25</parameter>
                 </parameters>
             </parameters>
         </parameters>
     </nodes>
     <nodes>
-        <match>P508</match>
+        <match>luxuri</match>
         <nodes>
-            <match>Device1.*</match>
+            <match>device1.*</match>
             <parameters>
                 <parameters>
                     <parameters>
-                        <parameter>radius</parameter>
+                        <parameter>radius_km</parameter>
                         <parameter>100</parameter>
                     </parameters>
                 </parameters>
             </parameters>
         </nodes>
         <nodes>
-            <match>Device999</match>
+            <match>device999</match>
             <parameters>
                 <parameters>
                     <parameters>
-                        <parameter>radius</parameter>
+                        <parameter>radius_km</parameter>
                         <parameter>200</parameter>
                     </parameters>
                 </parameters>
@@ -51,7 +51,7 @@
     <parameters>
         <parameters>
             <parameters>
-                <parameter>radius</parameter>
+                <parameter>radius_km</parameter>
                 <parameter>50</parameter>
             </parameters>
             <parameters>

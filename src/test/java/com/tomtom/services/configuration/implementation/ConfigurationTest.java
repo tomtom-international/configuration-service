@@ -112,72 +112,72 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:example.json"));
 
         final String rootJson = mapper.writeValueAsString(configuration.getRoot());
-        Assert.assertEquals("{\"nodes\":[{\"match\":\"TPEG\",\"nodes\":[{\"match\":\"P107\",\"nodes\":[{\"match\":\"Device[0-9]*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"10\"},{\"key\":\"interval\",\"value\":\"120\"}]},{\"match\":\"Device123\",\"parameters\":[{\"key\":\"radius\",\"value\":\"80\"},{\"key\":\"interval\",\"value\":\"60\"}]}]},{\"match\":\"P508\",\"nodes\":[{\"match\":\"Device1.*\",\"parameters\":[{\"key\":\"radius\",\"value\":\"100\"}]},{\"match\":\"Device999\",\"parameters\":[{\"key\":\"radius\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"40\"},{\"key\":\"interval\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius\",\"value\":\"25\"},{\"key\":\"interval\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"SYS\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"deviceID\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"traffic\",\"nodes\":[{\"match\":\"cheapo\",\"nodes\":[{\"match\":\"device[0-9]*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"10\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]},{\"match\":\"device123\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}]}]},{\"match\":\"luxuri\",\"nodes\":[{\"match\":\"device1.*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"100\"}]},{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"settings\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"device\"]}",
                 rootJson);
 
-        SearchResultsDTO y = configuration.matchNode(listOf(mapOf("service", "", "model", "", "deviceID", "")));
+        SearchResultsDTO y = configuration.matchNode(listOf(mapOf("service", "", "model", "", "device", "")));
         Assert.assertTrue(y.isEmpty());
 
         y = configuration.matchNode(listOf(mapOf("service", "unknown")));
         Assert.assertTrue(y.isEmpty());
 
-        Assert.assertTrue(configuration.matchNode(listOf(mapOf("service", "/sys"))).isEmpty());
+        Assert.assertTrue(configuration.matchNode(listOf(mapOf("service", "/settings"))).isEmpty());
 
-        SearchResultDTO x = configuration.matchNode(listOf(mapOf("service", "sys"))).get(0);
+        SearchResultDTO x = configuration.matchNode(listOf(mapOf("service", "settings"))).get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("service=SYS", x.getMatched());
+        Assert.assertEquals("service=settings", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "sys"))).get(0);
+        x = configuration.matchNode(listOf(mapOf("service", "settings"))).get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("service=SYS", x.getMatched());
+        Assert.assertEquals("service=settings", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "sys", "model", "unknown", "deviceID", "device"))).get(0);
+        x = configuration.matchNode(listOf(mapOf("service", "settings", "model", "unknown", "device", "device"))).get(0);
         Assert.assertEquals("demo", x.getParameters().get(0).getKey());
         Assert.assertEquals("false", x.getParameters().get(0).getValue());
         Assert.assertEquals("sound", x.getParameters().get(1).getKey());
         Assert.assertEquals("off", x.getParameters().get(1).getValue());
-        Assert.assertEquals("service=SYS", x.getMatched());
+        Assert.assertEquals("service=settings", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("25", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG", x.getMatched());
+        Assert.assertEquals("service=traffic", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "unknown"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "unknown"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("25", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG", x.getMatched());
+        Assert.assertEquals("service=traffic", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "p508"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("40", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG&model=P508", x.getMatched());
+        Assert.assertEquals("service=traffic&model=luxuri", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "p508", "deviceID", "Device123"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device123"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("100", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG&model=P508&deviceID=Device1.*", x.getMatched());
+        Assert.assertEquals("service=traffic&model=luxuri&device=device1.*", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "p508", "deviceID", "Device1.*"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device1.*"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("100", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG&model=P508&deviceID=Device1.*", x.getMatched());
+        Assert.assertEquals("service=traffic&model=luxuri&device=device1.*", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "p508", "deviceID", "Device.*"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device.*"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("40", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG&model=P508", x.getMatched());
+        Assert.assertEquals("service=traffic&model=luxuri", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "tpeg", "model", "p508", "deviceID", "Device999"))).get(0);
-        Assert.assertEquals("radius", x.getParameters().get(0).getKey());
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device999"))).get(0);
+        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
         Assert.assertEquals("200", x.getParameters().get(0).getValue());
-        Assert.assertEquals("service=TPEG&model=P508&deviceID=Device999", x.getMatched());
+        Assert.assertEquals("service=traffic&model=luxuri&device=device999", x.getMatched());
 
         configuration = new Configuration(new ConfigurationServiceProperties("classpath:onlyparams.json"));
 
@@ -186,12 +186,12 @@ public class ConfigurationTest {
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
         Assert.assertEquals("", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "TPEG"))).get(0);
+        x = configuration.matchNode(listOf(mapOf("service", "traffic"))).get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
         Assert.assertEquals("", x.getMatched());
 
-        x = configuration.matchNode(listOf(mapOf("service", "TPEG", "model", "P508"))).get(0);
+        x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri"))).get(0);
         Assert.assertEquals("x", x.getParameters().get(0).getKey());
         Assert.assertEquals("1", x.getParameters().get(0).getValue());
         Assert.assertEquals("", x.getMatched());
@@ -243,19 +243,19 @@ public class ConfigurationTest {
         x = configuration.findNode("Unknown");
         Assert.assertNull(x);
 
-        x = configuration.findNode("TPEG/Unknown");
+        x = configuration.findNode("traffic/Unknown");
         Assert.assertNull(x);
 
-        x = configuration.findNode("TPEG");
-        Assert.assertEquals("TPEG", x.getMatch());
+        x = configuration.findNode("traffic");
+        Assert.assertEquals("traffic", x.getMatch());
 
-        x = configuration.findNode("TPEG/P508");
-        Assert.assertEquals("P508", x.getMatch());
+        x = configuration.findNode("traffic/luxuri");
+        Assert.assertEquals("luxuri", x.getMatch());
 
         x = configuration.findNode("/");            // Wrong use of '/' prefix!
         Assert.assertNull(x);
 
-        x = configuration.findNode("/TPEG");        // Wrong use of '/' prefix!
+        x = configuration.findNode("/traffic");        // Wrong use of '/' prefix!
         Assert.assertNull(x);
     }
 
