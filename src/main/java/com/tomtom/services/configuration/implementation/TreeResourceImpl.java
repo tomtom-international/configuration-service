@@ -165,13 +165,15 @@ public class TreeResourceImpl implements TreeResource {
                 final int indexOfGZIP = ifNoneMatch.indexOf("--gzip");
                 if (indexOfGZIP >= 1) {
 
-                    // Strip "--gzip" before matching ETag.
-                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP - 1);
+                    // Strip "--gzip" before matching ETag. Note that we should append the quote again.
+                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP) +
+                            (ifNoneMatch.substring(0, 1).equals("\"") ? "\"" : "");
                 } else {
 
                     // Match ETag as-is.
                     ifNoneMatchWithoutGZip = ifNoneMatch;
                 }
+                LOG.debug("findBestMatch: etag='{}', ifNoneMatchWithoutGZip='{}', ifNoneMatch='{}'", eTag, ifNoneMatchWithoutGZip, ifNoneMatch);
                 eTagMatches = ifNoneMatchWithoutGZip.equalsIgnoreCase(eTag);
             } else {
 
