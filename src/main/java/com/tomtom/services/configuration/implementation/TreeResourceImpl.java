@@ -159,7 +159,19 @@ public class TreeResourceImpl implements TreeResource {
 
             // Check if the ETag matches.
             final String eTag = calculateETag(foundResults);
-            final boolean eTagMatches = (ifNoneMatch != null) && ifNoneMatch.equalsIgnoreCase(eTag);
+            final boolean eTagMatches;
+            if (ifNoneMatch != null) {
+                final String ifNoneMatchWithoutGZip;
+                final int indexOfGZIP = ifNoneMatch.indexOf("--gzip");
+                if (indexOfGZIP >= 0) {
+                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP);
+                } else {
+                    ifNoneMatchWithoutGZip = ifNoneMatch;
+                }
+                eTagMatches = ifNoneMatchWithoutGZip.equalsIgnoreCase(eTag);
+            } else {
+                eTagMatches = false;
+            }
             LOG.debug("findBestMatch: etag='{}', matches={}", eTag, eTagMatches);
 
             // Get latest modified time from search results.
