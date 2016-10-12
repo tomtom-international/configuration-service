@@ -157,7 +157,7 @@ public class TreeResourceImpl implements TreeResource {
                 throw new ApiNotFoundException("No result found: query=" + levelSearchTermsList.toString());
             }
 
-            // Check if the ETag matches.
+            // Check if the ETag matches (make sure we remove the "--gzip" suffix from the ETag).
             final String eTag = calculateETag(foundResults);
             final boolean eTagMatches;
             if (ifNoneMatch != null) {
