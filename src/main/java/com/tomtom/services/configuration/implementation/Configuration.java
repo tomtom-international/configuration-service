@@ -5,6 +5,7 @@
 package com.tomtom.services.configuration.implementation;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Splitter;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -532,6 +534,40 @@ public class Configuration {
     }
 
     @Nonnull
+    private static List<NodeDTO> getChildNodeListFromConfiguration(
+            @Nonnull final String include,
+            @Nonnull final String content,
+            @Nonnull final List<String> included)
+            throws IncorrectConfigurationException {
+
+        // Read tree as JSON or XML.
+        try {
+            // Try to read as JSON first.
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(Feature.ALLOW_COMMENTS, true);
+            return mapper.readValue(content, new TypeReference<List<NodeDTO>>(){});
+        } catch (final IOException e1) {
+            try {
+                // If JSON fails, try XML instead.
+                final XmlMapper mapper = new XmlMapper();
+                return mapper.readValue(content, new TypeReference<List<NodeDTO>>(){});
+            } catch (final IOException e2) {
+
+                // Not valid JSON or XML.
+                final String msg;
+                final String jsonError = e1.getMessage();
+                final String xmlError = e2.getMessage();
+                if (jsonError.startsWith("Unexpected character ('<'")) {
+                    msg = "XML ERROR: " + xmlError;
+                } else {
+                    msg = "JSON ERROR: " + jsonError;
+                }
+                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
+            }
+        }
+    }
+
+    @Nonnull
     private static NodeDTO getChildNodeFromConfiguration(
             @Nonnull final String include,
             @Nonnull final String content,
@@ -658,50 +694,69 @@ public class Configuration {
      * @param tree     Node to expand.
      * @param included Memory of which include files were processed.
      * @throws IncorrectConfigurationException If include recursion was detected.
+     * @return Replacements for the node that was just expanded.
      */
-    private static void expandAllIncludes(
+    private static List<NodeDTO> expandAllIncludes(
             @Nonnull final NodeDTO tree,
             @Nonnull final List<String> included) throws IncorrectConfigurationException {
         final String include = tree.getInclude();
-        if (include != null) {
+        final String includeArray = tree.getIncludeArray();
+        if (include != null || includeArray != null) {
             LOG.info("expandAllIncludes: Include specified, include={}", include);
 
-            // Check endless recursion.
-            if (included.contains(include)) {
-                throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
+            List<NodeDTO> replacement;
+            if (include != null) {
+                // Check endless recursion.
+                if (included.contains(include)) {
+                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
+                }
+
+                // Push name to stack.
+                included.add(0, include);
+
+                // Read JSON content from include.
+                final String content = readConfiguration(include);
+
+                // Parse nodes from content.
+                replacement = Arrays.asList(getChildNodeFromConfiguration(include, content, included));
+            } else {
+                // Check endless recursion.
+                if (includeArray != null && included.contains(includeArray)) {
+                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
+                }
+
+                // Push name to stack.
+                included.add(0, includeArray);
+
+                // Read JSON content from include.
+                final String content = readConfiguration(include);
+
+                // Parse nodes from content.
+                replacement = getChildNodeListFromConfiguration(include, content, included);
             }
 
-            // Push name to stack.
-            included.add(0, include);
-
-            // Read JSON content from include.
-            final String content = readConfiguration(include);
-
-            // Parse nodes from content.
-            final NodeDTO expandedChild = getChildNodeFromConfiguration(include, content, included);
-
-            // Remove include, replace with read node.
-            tree.setInclude(null);
-            tree.setMatch(expandedChild.getMatch());
-            tree.setNodes(expandedChild.getNodes());
-            tree.setParameters(expandedChild.getParameters());
-            tree.setModified(expandedChild.getModified());
-
-            // Expand all includes in children.
-            expandAllIncludes(tree, included);
+            // Expand all includes in children, and construct list of replacements
+            final List<NodeDTO> children = new ArrayList<NodeDTO>();
+            for (final NodeDTO child : replacement) {
+                children.addAll(expandAllIncludes(child, included));
+            }
 
             // Pop name from stack.
             final String removed = included.remove(0);
             assert removed.equals(include);
+            return children;
         } else {
-
             // Include not specified. Process children.
             final List<NodeDTO> children = tree.getNodes();
             if (children != null) {
+                final List<NodeDTO> replacement = new ArrayList<NodeDTO>();
                 for (final NodeDTO child : children) {
-                    expandAllIncludes(child, included);
+                    replacement.addAll(expandAllIncludes(child, included));
                 }
+                children.clear();
+                children.addAll(replacement);
             }
+            return Arrays.asList(tree);
         }
     }
 
