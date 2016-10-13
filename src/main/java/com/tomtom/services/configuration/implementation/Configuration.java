@@ -721,7 +721,7 @@ public class Configuration {
                 replacement = Arrays.asList(getChildNodeFromConfiguration(include, content, included));
             } else {
                 // Check endless recursion.
-                if (includeArray != null && included.contains(includeArray)) {
+                if (included.contains(includeArray)) {
                     throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
                 }
 
@@ -729,10 +729,10 @@ public class Configuration {
                 included.add(0, includeArray);
 
                 // Read JSON content from include.
-                final String content = readConfiguration(include);
+                final String content = readConfiguration(includeArray);
 
                 // Parse nodes from content.
-                replacement = getChildNodeListFromConfiguration(include, content, included);
+                replacement = getChildNodeListFromConfiguration(includeArray, content, included);
             }
 
             // Expand all includes in children, and construct list of replacements
@@ -743,7 +743,11 @@ public class Configuration {
 
             // Pop name from stack.
             final String removed = included.remove(0);
-            assert removed.equals(include);
+            if (include != null) {
+                assert removed.equals(include);
+            } else {
+                assert removed.equals(includeArray);
+            }
             return children;
         } else {
             // Include not specified. Process children.

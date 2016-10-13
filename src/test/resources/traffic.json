@@ -13,10 +13,7 @@
   ],
   "nodes": [
     {
-      "include": "classpath::traffic_cheapo.json"
-    },
-    {
-      "include": "classpath::traffic_luxuri.json"
+      "include_array": "classpath::traffic_models.json"
     }
   ]
 }
