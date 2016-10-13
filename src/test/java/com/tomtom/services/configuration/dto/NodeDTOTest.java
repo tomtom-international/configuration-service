@@ -20,19 +20,22 @@ public class NodeDTOTest {
                 new ParameterListDTO(Immutables.listOf(new ParameterDTO("k1", "v1"), new ParameterDTO("k2", "v2"))),
                 "modified",
                 Immutables.listOf("a", "b", "c"),
-                "include");
+                "include",
+                "includeArray");
         final NodeDTO x2 = new NodeDTO("x",
                 null,
                 new ParameterListDTO(Immutables.listOf(new ParameterDTO("k1", "v1"), new ParameterDTO("k2", "v2"))),
                 "modified",
                 Immutables.listOf("a", "b", "c"),
-                "include");
+                "include",
+                "includeArray");
         final NodeDTO x3 = new NodeDTO("x",
                 null,
                 new ParameterListDTO(Immutables.listOf(new ParameterDTO("k1", "v1"), new ParameterDTO("k2", "vX"))),
                 "modified",
                 Immutables.listOf("a", "b", "c"),
-                "include");
+                "include",
+                "includeArray");
         Assert.assertTrue(x1.equals(x2));
         Assert.assertTrue(x2.equals(x1));
         Assert.assertFalse(x1.equals(x3));

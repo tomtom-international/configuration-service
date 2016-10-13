@@ -92,7 +92,7 @@ public class Configuration {
             throws IncorrectConfigurationException {
 
         // Create an empty root.
-        NodeDTO realRoot = new NodeDTO(null, null, null, null, null, null);
+        NodeDTO realRoot = new NodeDTO(null, null, null, null, null, null, null);
         boolean realInitialConfigurationOK = false;
         this.configurationServiceProperties = configurationServiceProperties;
 

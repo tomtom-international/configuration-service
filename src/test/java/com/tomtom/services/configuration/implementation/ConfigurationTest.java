@@ -44,7 +44,7 @@ public class ConfigurationTest {
     @Test
     public void testJson1() throws Exception {
         LOG.info("testJson1");
-        final NodeDTO root = new NodeDTO(null, null, null, null, null, null);
+        final NodeDTO root = new NodeDTO(null, null, null, null, null, null, null);
         String json = mapper.writeValueAsString(root);
         LOG.info("root empty={}", json);
         Assert.assertEquals("{}", json);
@@ -76,11 +76,11 @@ public class ConfigurationTest {
     @Test
     public void testJson2() throws Exception {
         LOG.info("testJson2");
-        final NodeDTO root = new NodeDTO(null, null, null, null, null, null);
+        final NodeDTO root = new NodeDTO(null, null, null, null, null, null, null);
         Assert.assertNotNull(root);
         final List<NodeDTO> children = new ArrayList<>();
         for (int i = 0; i < 3; ++i) {
-            final NodeDTO child = new NodeDTO("child-" + i, null, null, null, null, null);
+            final NodeDTO child = new NodeDTO("child-" + i, null, null, null, null, null, null);
             final List<NodeDTO> subchildren = new ArrayList<>();
             for (int i2 = 0; i2 < 3; ++i2) {
                 final NodeDTO subchild = new NodeDTO("subchild-" + i + '/' + i2,
@@ -88,7 +88,7 @@ public class ConfigurationTest {
                         new ParameterListDTO(listOf(
                                 new ParameterDTO("x", String.valueOf(i)),
                                 new ParameterDTO("y", String.valueOf(i2)))),
-                        null, null, null);
+                        null, null, null, null);
                 subchildren.add(subchild);
             }
             child.setNodes(subchildren);
