@@ -11,9 +11,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
 import com.tomtom.services.configuration.domain.Node;
-import com.tomtom.services.configuration.dto.NodeDTO;
-import com.tomtom.services.configuration.dto.SearchResultDTO;
-import com.tomtom.services.configuration.dto.SearchResultsDTO;
+import com.tomtom.services.configuration.dto.*;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiException;
 import com.tomtom.speedtools.objects.Immutables;
 import com.tomtom.speedtools.objects.Tuple;
@@ -87,6 +85,17 @@ public class Configuration {
      * @param configurationServiceProperties Configuration.
      * @param overrideStartupConfiguration   String configuration which overrides the configuration URL.
      *                                       Note that the regular constructor uses this as well.
+     @Nullable
+     public String getInclude() {
+     beforeGet();
+     return include;
+     }
+
+     public void setInclude(@Nonnull final String include) {
+     beforeSet();
+     this.include = include.trim();
+     }
+
      */
     Configuration(
             @Nonnull final ConfigurationServiceProperties configurationServiceProperties,
@@ -534,10 +543,77 @@ public class Configuration {
     }
 
     @Nonnull
+    private static List<ParameterDTO> getChildParameterListFromConfiguration(
+            @Nonnull final String content)
+            throws IncorrectConfigurationException {
+
+        // Read tree as JSON or XML.
+        try {
+            // Try to read as JSON first.
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(Feature.ALLOW_COMMENTS, true);
+            return mapper.readValue(content, new TypeReference<List<ParameterDTO>>(){});
+        } catch (final IOException e1) {
+            try {
+                // If JSON fails, try XML instead.
+                final XmlMapper mapper = new XmlMapper();
+                return mapper.readValue(content, new TypeReference<List<ParameterDTO>>(){});
+            } catch (final IOException e2) {
+
+                // Not valid JSON or XML.
+                final String msg;
+                final String jsonError = e1.getMessage();
+                final String xmlError = e2.getMessage();
+                if (jsonError.startsWith("Unexpected character ('<'")) {
+                    msg = "XML ERROR: " + xmlError;
+                } else {
+                    msg = "JSON ERROR: " + jsonError;
+                }
+                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
+            }
+        }
+    }
+
+    @Nonnull
+    private static ParameterDTO getChildParameterFromConfiguration(
+            @Nonnull final String content)
+            throws IncorrectConfigurationException {
+
+        // Read tree as JSON or XML.
+        ParameterDTO tree;
+        try {
+
+            // Try to read as JSON first.
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(Feature.ALLOW_COMMENTS, true);
+            tree = mapper.readValue(content, ParameterDTO.class);
+        } catch (final IOException e1) {
+
+            try {
+
+                // If JSON fails, try XML instead.
+                final XmlMapper mapper = new XmlMapper();
+                tree = mapper.readValue(content, ParameterDTO.class);
+            } catch (final IOException e2) {
+
+                // Not valid JSON or XML.
+                final String msg;
+                final String jsonError = e1.getMessage();
+                final String xmlError = e2.getMessage();
+                if (jsonError.startsWith("Unexpected character ('<'")) {
+                    msg = "XML ERROR: " + xmlError;
+                } else {
+                    msg = "JSON ERROR: " + jsonError;
+                }
+                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
+            }
+        }
+        return tree;
+    }
+
+    @Nonnull
     private static List<NodeDTO> getChildNodeListFromConfiguration(
-            @Nonnull final String include,
-            @Nonnull final String content,
-            @Nonnull final List<String> included)
+            @Nonnull final String content)
             throws IncorrectConfigurationException {
 
         // Read tree as JSON or XML.
@@ -689,6 +765,72 @@ public class Configuration {
     }
 
     /**
+     * Expand all the includes in a parameter.
+     *
+     * @param tree     Parameter to expand.
+     * @param included Memory of which include files were processed.
+     * @throws IncorrectConfigurationException If include recursion was detected.
+     * @return Replacements for the parameter that was just expanded.
+     */
+    private static List<ParameterDTO> expandAllIncludesParams(
+            @Nonnull final ParameterDTO tree,
+            @Nonnull final List<String> included) throws IncorrectConfigurationException {
+        final String include = tree.getInclude();
+        final String includeArray = tree.getIncludeArray();
+        if (include != null || includeArray != null) {
+            List<ParameterDTO> replacement;
+            if (include != null) {
+                LOG.info("expandAllIncludesParams: Include specified, include={}", include);
+                // Check endless recursion.
+                if (included.contains(include)) {
+                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
+                }
+
+                // Push name to stack.
+                included.add(0, include);
+
+                // Read JSON content from include.
+                final String content = readConfiguration(include);
+
+                // Parse nodes from content.
+                replacement = Arrays.asList(getChildParameterFromConfiguration(content));
+            } else {
+                LOG.info("expandAllIncludesParams: IncludeArray specified, includeArray={}", includeArray);
+                // Check endless recursion.
+                if (included.contains(includeArray)) {
+                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
+                }
+
+                // Push name to stack.
+                included.add(0, includeArray);
+
+                // Read JSON content from include.
+                final String content = readConfiguration(includeArray);
+
+                // Parse nodes from content.
+                replacement = getChildParameterListFromConfiguration(content);
+            }
+
+            // Expand all includes in children, and construct list of replacements
+            final List<ParameterDTO> children = new ArrayList<ParameterDTO>();
+            for (final ParameterDTO child : replacement) {
+                children.addAll(expandAllIncludesParams(child, included));
+            }
+
+            // Pop name from stack.
+            final String removed = included.remove(0);
+            if (include != null) {
+                assert removed.equals(include);
+            } else {
+                assert removed.equals(includeArray);
+            }
+            return children;
+        } else {
+            return Arrays.asList(tree);
+        }
+    }
+
+    /**
      * Expand all the included subtrees in a node.
      *
      * @param tree     Node to expand.
@@ -702,10 +844,9 @@ public class Configuration {
         final String include = tree.getInclude();
         final String includeArray = tree.getIncludeArray();
         if (include != null || includeArray != null) {
-            LOG.info("expandAllIncludes: Include specified, include={}", include);
-
             List<NodeDTO> replacement;
             if (include != null) {
+                LOG.info("expandAllIncludes: Include specified, include={}", include);
                 // Check endless recursion.
                 if (included.contains(include)) {
                     throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
@@ -720,6 +861,7 @@ public class Configuration {
                 // Parse nodes from content.
                 replacement = Arrays.asList(getChildNodeFromConfiguration(include, content, included));
             } else {
+                LOG.info("expandAllIncludes: IncludeArray specified, includeArray={}", includeArray);
                 // Check endless recursion.
                 if (included.contains(includeArray)) {
                     throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
@@ -732,7 +874,7 @@ public class Configuration {
                 final String content = readConfiguration(includeArray);
 
                 // Parse nodes from content.
-                replacement = getChildNodeListFromConfiguration(includeArray, content, included);
+                replacement = getChildNodeListFromConfiguration(content);
             }
 
             // Expand all includes in children, and construct list of replacements
@@ -759,6 +901,15 @@ public class Configuration {
                 }
                 children.clear();
                 children.addAll(replacement);
+            }
+
+            final List<ParameterDTO> params = tree.getParameters();
+            if (params != null) {
+                final List<ParameterDTO> replacementParams = new ArrayList<ParameterDTO>();
+                for (final ParameterDTO param : params) {
+                    replacementParams.addAll(expandAllIncludesParams(param, included));
+                }
+                tree.setParameters(new ParameterListDTO(replacementParams));
             }
             return Arrays.asList(tree);
         }

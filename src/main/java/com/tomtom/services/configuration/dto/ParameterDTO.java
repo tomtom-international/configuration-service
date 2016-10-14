@@ -12,6 +12,7 @@ import com.tomtom.speedtools.apivalidation.ApiDTO;
 import com.tomtom.speedtools.utils.StringUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -24,20 +25,36 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ParameterDTO extends ApiDTO {
 
     /**
-     * Key name. Cannot be null or empty.
+     * Key name. Cannot be null or empty after parsing includes.
      */
     @JsonProperty("key")
     @XmlElement(name = "key")
-    @Nonnull
+    @Nullable
     private String key;
 
     /**
-     * Value. Cannot be null, but can be empty.
+     * Value. Cannot be null after parsing includes, but can be empty.
      */
     @JsonProperty("value")
     @XmlElement(name = "value")
-    @Nonnull
+    @Nullable
     private String value;
+
+    /**
+     * Include name. Can be null.
+     */
+    @JsonProperty("include")
+    @XmlElement(name = "include")
+    @Nullable
+    private String include;
+
+    /**
+     * Include name. Can be null.
+     */
+    @JsonProperty("include_array")
+    @XmlElement(name = "include_array")
+    @Nullable
+    private String includeArray;
 
     /**
      * For an explanation of validate(), see {@link NodeDTO}.
@@ -45,9 +62,23 @@ public class ParameterDTO extends ApiDTO {
     @Override
     public void validate() {
         validator().start();
-        validator().checkNotNull(true, "key", key);
-        validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
-        validator().checkNotNull(true, "value", value);
+        if (include != null) {
+            validator().checkNotNull(true, "include", include);
+            validator().checkNull(true, "include_array", includeArray);
+            validator().checkNull(true, "key", key);
+            validator().checkNull(true, "value", value);
+        } else if (includeArray != null) {
+            validator().checkNotNull(true, "include_array", includeArray);
+            validator().checkNull(true, "include", include);
+            validator().checkNull(true, "key", key);
+            validator().checkNull(true, "value", value);
+        } else {
+            validator().checkNull(true, "include_array", includeArray);
+            validator().checkNull(true, "include", include);
+            validator().checkNotNull(true, "key", key);
+            validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
+            validator().checkNotNull(true, "value", value);
+        }
         validator().done();
     }
 
@@ -75,7 +106,29 @@ public class ParameterDTO extends ApiDTO {
         super(false);
     }
 
-    @Nonnull
+    @Nullable
+    public String getIncludeArray() {
+        beforeGet();
+        return includeArray;
+    }
+
+    public void setIncludeArray(@Nonnull final String includeArray) {
+        beforeSet();
+        this.includeArray = includeArray.trim();
+    }
+
+    @Nullable
+    public String getInclude() {
+        beforeGet();
+        return include;
+    }
+
+    public void setInclude(@Nonnull final String include) {
+        beforeSet();
+        this.include = include.trim();
+    }
+
+    @Nullable
     public String getKey() {
         beforeGet();
         return key;

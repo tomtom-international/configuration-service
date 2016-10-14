@@ -1,0 +1,10 @@
+[
+  {
+    "key": "radius_km",
+    "value": "25"
+  },
+  {
+    "key": "interval_secs",
+    "value": "120"
+  }
+]
