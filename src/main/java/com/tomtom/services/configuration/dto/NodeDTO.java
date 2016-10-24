@@ -117,8 +117,25 @@ public class NodeDTO extends ApiDTO {
     @Override
     public void validate() {
         validator().start();
-        if (include == null && includeArray == null) {
-
+        if (include != null) {
+            // Include specified: all others must be null.
+            validator().checkNull(false, "match", match);
+            validator().checkNull(false, "nodes", nodes);
+            validator().checkNull(false, "parameters", parameters);
+            validator().checkNull(false, "modified", modified);
+            validator().checkNull(false, "levels", levels);
+            validator().checkNull(false, "include_array", includeArray);
+            validator().checkString(true, "include", include, 1, Integer.MAX_VALUE);
+        } else if (includeArray != null) {
+            // Include_Array specified: all others must be null.
+            validator().checkNull(false, "match", match);
+            validator().checkNull(false, "nodes", nodes);
+            validator().checkNull(false, "parameters", parameters);
+            validator().checkNull(false, "modified", modified);
+            validator().checkNull(false, "levels", levels);
+            validator().checkNull(false, "include", include);
+            validator().checkString(true, "include_array", includeArray, 1, Integer.MAX_VALUE);
+        } else {
             // No include specified.
             validator().checkString(false, "match", match, 1, Integer.MAX_VALUE);
             if (nodes != null) {
@@ -149,20 +166,6 @@ public class NodeDTO extends ApiDTO {
                 validator().checkNotNull(false, "levels", levels);
             } else {
                 validator().checkNull(true, "levels", levels);
-            }
-        } else {
-
-            // Include specified: all others must be null.
-            validator().checkNull(false, "match", match);
-            validator().checkNull(false, "nodes", nodes);
-            validator().checkNull(false, "parameters", parameters);
-            validator().checkNull(false, "modified", modified);
-            validator().checkNull(false, "levels", levels);
-            if (include != null) {
-                validator().checkString(true, "include", include, 1, Integer.MAX_VALUE);
-            } else {
-                validator().checkString(true, "include_array", includeArray, 1, Integer.MAX_VALUE);
-                validator().checkNull(false, "include", include);
             }
         }
         validator().done();

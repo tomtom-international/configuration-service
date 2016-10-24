@@ -659,39 +659,22 @@ public class Configuration {
             @Nonnull final List<String> included) throws IncorrectConfigurationException {
         final String include = tree.getInclude();
         final String includeArray = tree.getIncludeArray();
-        if (include != null || includeArray != null) {
+        if (include != null) {
             List<ParameterDTO> replacement;
-            if (include != null) {
-                LOG.info("expandAllIncludesParams: Include specified, include={}", include);
-                // Check endless recursion.
-                if (included.contains(include)) {
-                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
-                }
-
-                // Push name to stack.
-                included.add(0, include);
-
-                // Read JSON content from include.
-                final String content = readConfiguration(include);
-
-                // Parse nodes from content.
-                replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<ParameterDTO>(){}));
-            } else {
-                LOG.info("expandAllIncludesParams: IncludeArray specified, includeArray={}", includeArray);
-                // Check endless recursion.
-                if (included.contains(includeArray)) {
-                    throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
-                }
-
-                // Push name to stack.
-                included.add(0, includeArray);
-
-                // Read JSON content from include.
-                final String content = readConfiguration(includeArray);
-
-                // Parse nodes from content.
-                replacement = getChildObjectFromConfiguration(content, new TypeReference<List<ParameterDTO>>(){});
+            LOG.info("expandAllIncludesParams: Include specified, include={}", include);
+            // Check endless recursion.
+            if (included.contains(include)) {
+                throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
             }
+
+            // Push name to stack.
+            included.add(0, include);
+
+            // Read JSON content from include.
+            final String content = readConfiguration(include);
+
+            // Parse nodes from content.
+            replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<ParameterDTO>(){}));
 
             // Expand all includes in children, and construct list of replacements
             final List<ParameterDTO> children = new ArrayList<ParameterDTO>();
@@ -701,11 +684,34 @@ public class Configuration {
 
             // Pop name from stack.
             final String removed = included.remove(0);
-            if (include != null) {
-                assert removed.equals(include);
-            } else {
-                assert removed.equals(includeArray);
+            assert removed.equals(include);
+            return children;
+        } else if (includeArray != null) {
+            List<ParameterDTO> replacement;
+            LOG.info("expandAllIncludesParams: IncludeArray specified, includeArray={}", includeArray);
+            // Check endless recursion.
+            if (included.contains(includeArray)) {
+                throw new IncorrectConfigurationException("Endless recursion detected at include=" + includeArray);
             }
+
+            // Push name to stack.
+            included.add(0, includeArray);
+
+            // Read JSON content from include.
+            final String content = readConfiguration(includeArray);
+
+            // Parse nodes from content.
+            replacement = getChildObjectFromConfiguration(content, new TypeReference<List<ParameterDTO>>(){});
+
+            // Expand all includes in children, and construct list of replacements
+            final List<ParameterDTO> children = new ArrayList<ParameterDTO>();
+            for (final ParameterDTO child : replacement) {
+                children.addAll(expandAllIncludesParams(child, included));
+            }
+
+            // Pop name from stack.
+            final String removed = included.remove(0);
+            assert removed.equals(includeArray);
             return children;
         } else {
             return Arrays.asList(tree);
