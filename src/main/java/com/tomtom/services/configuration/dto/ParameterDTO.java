@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tomtom.services.configuration.domain.Parameter;
 import com.tomtom.speedtools.apivalidation.ApiDTO;
 import com.tomtom.speedtools.utils.StringUtils;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -128,9 +129,10 @@ public class ParameterDTO extends ApiDTO {
         this.include = include.trim();
     }
 
-    @Nullable
+    @Nonnull
     public String getKey() {
         beforeGet();
+        if (key == null) throw new InvalidStateException("No ParameterDTO should be left without valid Key");
         return key;
     }
 
@@ -142,6 +144,7 @@ public class ParameterDTO extends ApiDTO {
     @Nonnull
     public String getValue() {
         beforeGet();
+        if (key == null) throw new InvalidStateException("No ParameterDTO should be left without valid value");
         return value;
     }
 

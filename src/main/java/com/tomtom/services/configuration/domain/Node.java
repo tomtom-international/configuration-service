@@ -103,7 +103,7 @@ final public class Node {
      * @param nodeDTO    Node to convert.
      * @param parentNode Parent of node to create, null for the root node.
      */
-    public Node(@Nonnull final NodeDTO nodeDTO, @Nullable Node parentNode) {
+    public Node(@Nonnull final NodeDTO nodeDTO, @Nullable final Node parentNode) {
 
         // Set name. Replace null-name (always root) with root name.
         this.match = nodeDTO.getMatch();

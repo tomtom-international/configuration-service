@@ -34,7 +34,7 @@ public class ConfigurationTest {
     @Nonnull
     public Map<String, String> mapOf(final String... args) {
         Assert.assertTrue((args.length % 2) == 0);
-        Map<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>();
         for (int i = 0; i < args.length; i = i + 2) {
             map.put(args[i], args[i + 1]);
         }

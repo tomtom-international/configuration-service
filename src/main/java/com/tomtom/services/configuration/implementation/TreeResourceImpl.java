@@ -102,7 +102,7 @@ public class TreeResourceImpl implements TreeResource {
         }
 
         processor.process("findBestMatch", LOG, response, () -> {
-            LOG.info("findBestMatch: query={}, if-modified-since={}, if-none-match={}", queryParameters.keySet().toString(), ifModifiedSince, ifNoneMatch);
+            LOG.info("findBestMatch: query={}, if-modified-since={}, if-none-match={}", queryParameters.keySet(), ifModifiedSince, ifNoneMatch);
 
             // Get all parameter names (which are the level names).
             final Set<String> levelNames = queryParameters.keySet();
@@ -117,7 +117,7 @@ public class TreeResourceImpl implements TreeResource {
             // Now create a full set of search maps with (level-name: search-term).
             final List<Map<String, String>> levelSearchTermsList = new ArrayList<>();
             for (int i = 0; i < nrOfSearches; ++i) {
-                Map<String, String> levelSearchTerms = new HashMap<>();
+                final Map<String, String> levelSearchTerms = new HashMap<>();
                 for (final String levelName : levelNames) {
                     final String searchTerm;
                     final List<String> terms = Lists.newArrayList(Splitter.on(SEPARATOR_QUERY).trimResults().split(queryParameters.getFirst(levelName)));
@@ -154,7 +154,7 @@ public class TreeResourceImpl implements TreeResource {
             // First try and find the response.
             final SearchResultsDTO foundResults = configuration.matchNode(levelSearchTermsList);
             if (foundResults.isEmpty()) {
-                throw new ApiNotFoundException("No result found: query=" + levelSearchTermsList.toString());
+                throw new ApiNotFoundException("No result found: query=" + levelSearchTermsList);
             }
 
             // Check if the ETag matches (make sure we remove the "--gzip" suffix from the ETag).
@@ -167,7 +167,7 @@ public class TreeResourceImpl implements TreeResource {
 
                     // Strip "--gzip" before matching ETag. Note that we should append the quote again.
                     ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP) +
-                            (ifNoneMatch.substring(0, 1).equals("\"") ? "\"" : "");
+                            ("\"".equals(ifNoneMatch.substring(0, 1)) ? "\"" : "");
                 } else {
 
                     // Match ETag as-is.

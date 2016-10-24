@@ -58,7 +58,7 @@ public class LocalTestServer {
             // This method is stubbed and never used.
             @Nonnull
             @Override
-            public <T> T createTopLevelActor(@Nonnull final Class<T> interfaceClass, @Nonnull final Class<? extends T> implementationClass, @Nonnull Object... explicitParameters) {
+            public <T> T createTopLevelActor(@Nonnull final Class<T> interfaceClass, @Nonnull final Class<? extends T> implementationClass, @Nonnull final Object... explicitParameters) {
                 assert false;
                 //noinspection ConstantConditions
                 return null;
