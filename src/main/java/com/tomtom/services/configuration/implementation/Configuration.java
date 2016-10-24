@@ -85,17 +85,6 @@ public class Configuration {
      * @param configurationServiceProperties Configuration.
      * @param overrideStartupConfiguration   String configuration which overrides the configuration URL.
      *                                       Note that the regular constructor uses this as well.
-     @Nullable
-     public String getInclude() {
-     beforeGet();
-     return include;
-     }
-
-     public void setInclude(@Nonnull final String include) {
-     beforeSet();
-     this.include = include.trim();
-     }
-
      */
     Configuration(
             @Nonnull final ConfigurationServiceProperties configurationServiceProperties,
