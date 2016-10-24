@@ -471,13 +471,60 @@ public class Configuration {
     }
 
     @Nonnull
+    private static <T> T getChildObjectFromConfiguration(
+            @Nonnull final String content,
+            @Nonnull final TypeReference<T> type)
+            throws IncorrectConfigurationException {
+        // Read tree as JSON or XML.
+        try {
+            // Try to read as JSON first.
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(Feature.ALLOW_COMMENTS, true);
+            return mapper.readValue(content, type);
+        } catch (final IOException e1) {
+            try {
+                // If JSON fails, try XML instead.
+                final XmlMapper mapper = new XmlMapper();
+                return mapper.readValue(content, type);
+            } catch (final IOException e2) {
+
+                // Not valid JSON or XML.
+                final String msg;
+                final String jsonError = e1.getMessage();
+                final String xmlError = e2.getMessage();
+                if (jsonError.startsWith("Unexpected character ('<'")) {
+                    msg = "XML ERROR: " + xmlError;
+                } else {
+                    msg = "JSON ERROR: " + jsonError;
+                }
+                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
+            }
+        }
+    }
+
+    @Nonnull
     private static NodeDTO getRootNodeAndValidateTree(
             @Nonnull final String include,
             @Nonnull final String content)
             throws IncorrectConfigurationException {
 
         // Read the tree from the configuration.
-        final NodeDTO root = getChildNodeFromConfiguration(include, content, new ArrayList<>());
+        final NodeDTO rawTree = getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>(){});
+
+        // Inline all includes recursively.
+        final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>());
+        final NodeDTO root = rootTree.get(0);
+
+        // Check if node match strings do not conflict.
+        if (!checkNodeMatchStringsRoot(root)) {
+            throw new IncorrectConfigurationException("Configuration is not OK! " +
+                    "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
+        }
+
+        // Validate the (sub)tree.
+        root.validate();
+
+        LOG.debug("getRootNodeAndValidateTree: Configuration for node '{}' is OK", include);
 
         // Check if the match string of the root is null; all child match strings have been checked by now (when tree was read in).
         if (root.getMatch() != null) {
@@ -529,160 +576,6 @@ public class Configuration {
 
     private static boolean isValidMatchString(@Nonnull final String match) {
         return ((match.indexOf(SEPARATOR_WRONG) + match.indexOf(SEPARATOR_PATH) + match.indexOf(SEPARATOR_QUERY)) == -3);
-    }
-
-    @Nonnull
-    private static List<ParameterDTO> getChildParameterListFromConfiguration(
-            @Nonnull final String content)
-            throws IncorrectConfigurationException {
-
-        // Read tree as JSON or XML.
-        try {
-            // Try to read as JSON first.
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(Feature.ALLOW_COMMENTS, true);
-            return mapper.readValue(content, new TypeReference<List<ParameterDTO>>(){});
-        } catch (final IOException e1) {
-            try {
-                // If JSON fails, try XML instead.
-                final XmlMapper mapper = new XmlMapper();
-                return mapper.readValue(content, new TypeReference<List<ParameterDTO>>(){});
-            } catch (final IOException e2) {
-
-                // Not valid JSON or XML.
-                final String msg;
-                final String jsonError = e1.getMessage();
-                final String xmlError = e2.getMessage();
-                if (jsonError.startsWith("Unexpected character ('<'")) {
-                    msg = "XML ERROR: " + xmlError;
-                } else {
-                    msg = "JSON ERROR: " + jsonError;
-                }
-                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
-            }
-        }
-    }
-
-    @Nonnull
-    private static ParameterDTO getChildParameterFromConfiguration(
-            @Nonnull final String content)
-            throws IncorrectConfigurationException {
-
-        // Read tree as JSON or XML.
-        ParameterDTO tree;
-        try {
-
-            // Try to read as JSON first.
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(Feature.ALLOW_COMMENTS, true);
-            tree = mapper.readValue(content, ParameterDTO.class);
-        } catch (final IOException e1) {
-
-            try {
-
-                // If JSON fails, try XML instead.
-                final XmlMapper mapper = new XmlMapper();
-                tree = mapper.readValue(content, ParameterDTO.class);
-            } catch (final IOException e2) {
-
-                // Not valid JSON or XML.
-                final String msg;
-                final String jsonError = e1.getMessage();
-                final String xmlError = e2.getMessage();
-                if (jsonError.startsWith("Unexpected character ('<'")) {
-                    msg = "XML ERROR: " + xmlError;
-                } else {
-                    msg = "JSON ERROR: " + jsonError;
-                }
-                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
-            }
-        }
-        return tree;
-    }
-
-    @Nonnull
-    private static List<NodeDTO> getChildNodeListFromConfiguration(
-            @Nonnull final String content)
-            throws IncorrectConfigurationException {
-
-        // Read tree as JSON or XML.
-        try {
-            // Try to read as JSON first.
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(Feature.ALLOW_COMMENTS, true);
-            return mapper.readValue(content, new TypeReference<List<NodeDTO>>(){});
-        } catch (final IOException e1) {
-            try {
-                // If JSON fails, try XML instead.
-                final XmlMapper mapper = new XmlMapper();
-                return mapper.readValue(content, new TypeReference<List<NodeDTO>>(){});
-            } catch (final IOException e2) {
-
-                // Not valid JSON or XML.
-                final String msg;
-                final String jsonError = e1.getMessage();
-                final String xmlError = e2.getMessage();
-                if (jsonError.startsWith("Unexpected character ('<'")) {
-                    msg = "XML ERROR: " + xmlError;
-                } else {
-                    msg = "JSON ERROR: " + jsonError;
-                }
-                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
-            }
-        }
-    }
-
-    @Nonnull
-    private static NodeDTO getChildNodeFromConfiguration(
-            @Nonnull final String include,
-            @Nonnull final String content,
-            @Nonnull final List<String> included)
-            throws IncorrectConfigurationException {
-
-        // Read tree as JSON or XML.
-        NodeDTO tree;
-        try {
-
-            // Try to read as JSON first.
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(Feature.ALLOW_COMMENTS, true);
-            tree = mapper.readValue(content, NodeDTO.class);
-        } catch (final IOException e1) {
-
-            try {
-
-                // If JSON fails, try XML instead.
-                final XmlMapper mapper = new XmlMapper();
-                tree = mapper.readValue(content, NodeDTO.class);
-            } catch (final IOException e2) {
-
-                // Not valid JSON or XML.
-                final String msg;
-                final String jsonError = e1.getMessage();
-                final String xmlError = e2.getMessage();
-                if (jsonError.startsWith("Unexpected character ('<'")) {
-                    msg = "XML ERROR: " + xmlError;
-                } else {
-                    msg = "JSON ERROR: " + jsonError;
-                }
-                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
-            }
-        }
-
-        // Inline all includes recursively.
-        expandAllIncludes(tree, included);
-
-        // Check if node match strings do not conflict.
-        if (!checkNodeMatchStringsRoot(tree)) {
-            throw new IncorrectConfigurationException("Configuration is not OK! " +
-                    "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
-        }
-
-        // Validate the (sub)tree.
-        tree.validate();
-
-        LOG.debug("getRootNodeFromConfiguration: Configuration for node '{}' is OK", include);
-        return tree;
     }
 
     /**
@@ -782,7 +675,7 @@ public class Configuration {
                 final String content = readConfiguration(include);
 
                 // Parse nodes from content.
-                replacement = Arrays.asList(getChildParameterFromConfiguration(content));
+                replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<ParameterDTO>(){}));
             } else {
                 LOG.info("expandAllIncludesParams: IncludeArray specified, includeArray={}", includeArray);
                 // Check endless recursion.
@@ -797,7 +690,7 @@ public class Configuration {
                 final String content = readConfiguration(includeArray);
 
                 // Parse nodes from content.
-                replacement = getChildParameterListFromConfiguration(content);
+                replacement = getChildObjectFromConfiguration(content, new TypeReference<List<ParameterDTO>>(){});
             }
 
             // Expand all includes in children, and construct list of replacements
@@ -848,7 +741,7 @@ public class Configuration {
                 final String content = readConfiguration(include);
 
                 // Parse nodes from content.
-                replacement = Arrays.asList(getChildNodeFromConfiguration(include, content, included));
+                replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>(){}));
             } else {
                 LOG.info("expandAllIncludes: IncludeArray specified, includeArray={}", includeArray);
                 // Check endless recursion.
@@ -863,7 +756,7 @@ public class Configuration {
                 final String content = readConfiguration(includeArray);
 
                 // Parse nodes from content.
-                replacement = getChildNodeListFromConfiguration(content);
+                replacement = getChildObjectFromConfiguration(content, new TypeReference<List<NodeDTO>>(){});
             }
 
             // Expand all includes in children, and construct list of replacements
