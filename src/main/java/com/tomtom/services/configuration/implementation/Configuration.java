@@ -647,6 +647,20 @@ public class Configuration {
     }
 
     /**
+     * Check that all parameters have a key and a value.
+     * @param params list of parameters to check
+     * @throws IncorrectConfigurationException If a parameter was found without key or value.
+     */
+    private static void checkAllParamsHaveKeyAndValue(final List<ParameterDTO> params) throws IncorrectConfigurationException {
+        for (final ParameterDTO p : params) {
+            if ((p.getKey() == null) ||
+                (p.getValue() == null)) {
+                throw new IncorrectConfigurationException("Parameter found without key or value!");
+            }
+        }
+    }
+
+    /**
      * Expand all the includes in a parameter.
      *
      * @param tree     Parameter to expand.
@@ -804,6 +818,8 @@ public class Configuration {
                 for (final ParameterDTO param : params) {
                     replacementParams.addAll(expandAllIncludesParams(param, included));
                 }
+
+                checkAllParamsHaveKeyAndValue(replacementParams);
                 tree.setParameters(new ParameterListDTO(replacementParams));
             }
             return Arrays.asList(tree);

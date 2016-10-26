@@ -34,6 +34,7 @@ final public class Parameter {
     }
 
     public Parameter(@Nonnull final ParameterDTO parameterDTO) {
+        //noinspection ConstantConditions Already checked in Configuration during load
         this(parameterDTO.getKey(), parameterDTO.getValue());
     }
 
