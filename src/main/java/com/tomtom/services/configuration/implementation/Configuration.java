@@ -12,7 +12,12 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
 import com.tomtom.services.configuration.domain.Node;
-import com.tomtom.services.configuration.dto.*;
+import com.tomtom.services.configuration.dto.NodeDTO;
+import com.tomtom.services.configuration.dto.ParameterDTO;
+import com.tomtom.services.configuration.dto.ParameterListDTO;
+import com.tomtom.services.configuration.dto.SearchResultDTO;
+import com.tomtom.services.configuration.dto.SearchResultsDTO;
+import com.tomtom.services.configuration.dto.SupportsInclude;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiException;
 import com.tomtom.speedtools.objects.Immutables;
 import com.tomtom.speedtools.objects.Tuple;
@@ -30,8 +35,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -672,21 +677,21 @@ public class Configuration {
      * @return Replacements for the object that was just expanded.
      * @throws IncorrectConfigurationException If include recursion was detected.
      */
-    private static <T extends IHasIncludes> List<T> expandAllIncludes(
+    private static <T extends SupportsInclude> List<T> expandAllIncludes(
             @Nonnull final T tree,
             @Nonnull final List<String> included,
-            @Nonnull final Class<T> classRef) throws IncorrectConfigurationException {
+            @Nonnull final Class<T> clazz) throws IncorrectConfigurationException {
         final List<T> children;
         final String include = tree.getInclude();
         final String includeArray = tree.getIncludeArray();
         if (include != null) {
-            children = replaceInclude(included, include, classRef, false);
+            children = replaceInclude(included, include, clazz, false);
         } else {
             if (includeArray != null) {
-                children = replaceInclude(included, includeArray, classRef, true);
+                children = replaceInclude(included, includeArray, clazz, true);
             } else {
                 children = Arrays.asList(tree);
-                if (classRef == NodeDTO.class) {
+                if (clazz == NodeDTO.class) {
                     final NodeDTO treeD = (NodeDTO) tree;
                     // Include not specified. Process children.
                     final List<NodeDTO> currentNodes = treeD.getNodes();
@@ -718,18 +723,21 @@ public class Configuration {
     /**
      * Replaces include statement with 0..n replacements loaded from a different file. It guarantees that no more
      * include statements are present in the returned output.
+     *
      * @param included List of files included so far (for cycle detection)
-     * @param include File to include
-     * @param classRef Reference to the type of object that should be loaded from the target file
+     * @param include  File to include
+     * @param clazz    Reference to the type of object that should be loaded from the target file
      * @param multiple Boolean indicating whether the file should contain an array or a single object.
-     * @param <T> Type of object to load from the target file. Must equal the classRef.
+     * @param <T>      Type of object to load from the target file. Must equal the clazz.
      * @return List of replacement objects. The list may always contain multiple or zero returns, as any replacement
      * itself may be an include for zero or multiple objects.
      * @throws IncorrectConfigurationException If there is a detected problem with the configuration at this point.
      */
     @Nonnull
-    private static <T extends IHasIncludes> List<T> replaceInclude(@Nonnull final List<String> included, @Nonnull final String include, @Nonnull final Class<T> classRef, @Nonnull final Boolean multiple) throws IncorrectConfigurationException {
-        final List<T> children;// Check endless recursion.
+    private static <T extends SupportsInclude> List<T> replaceInclude(@Nonnull final List<String> included,
+                                                                      @Nonnull final String include,
+                                                                      @Nonnull final Class<T> clazz,
+                                                                      @Nonnull final Boolean multiple) throws IncorrectConfigurationException {
         if (included.contains(include)) {
             throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
         }
@@ -743,16 +751,16 @@ public class Configuration {
         // Parse nodes from content.
         final List<T> replacement;
         if (multiple) {
-            replacement = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructCollectionType(List.class, classRef));
+            replacement = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructCollectionType(List.class, clazz));
         } else {
-            final T obj = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(classRef));
+            final T obj = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(clazz));
             replacement = Arrays.asList(obj);
         }
 
         // Expand all includes in children, and construct list of replacements
-        children = new ArrayList<>();
+        final List<T> children = new ArrayList<>();
         for (final T child : replacement) {
-            children.addAll(expandAllIncludes(child, included, classRef));
+            children.addAll(expandAllIncludes(child, included, clazz));
         }
 
         // Pop name from stack.

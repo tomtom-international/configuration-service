@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ParameterDTO extends ApiDTO implements IHasIncludes {
+public class ParameterDTO extends ApiDTO implements SupportsInclude {
 
     /**
      * Key name. Cannot be null or empty after parsing includes.
@@ -149,6 +149,6 @@ public class ParameterDTO extends ApiDTO implements IHasIncludes {
 
     public void setValue(@Nonnull final String value) {
         beforeSet();
-        this.value = StringUtils.trim(value);                       // Empty string allowed.
+        this.value = StringUtils.trim(value);  // Empty string allowed.
     }
 }
