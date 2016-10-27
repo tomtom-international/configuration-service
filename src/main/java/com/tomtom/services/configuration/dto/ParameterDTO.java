@@ -106,6 +106,7 @@ public class ParameterDTO extends ApiDTO implements IHasIncludes {
         super(false);
     }
 
+    @Override
     @Nullable
     public String getIncludeArray() {
         beforeGet();
@@ -117,6 +118,7 @@ public class ParameterDTO extends ApiDTO implements IHasIncludes {
         this.includeArray = includeArray.trim();
     }
 
+    @Override
     @Nullable
     public String getInclude() {
         beforeGet();

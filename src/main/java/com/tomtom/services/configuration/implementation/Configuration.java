@@ -5,7 +5,6 @@
 package com.tomtom.services.configuration.implementation;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -688,7 +687,7 @@ public class Configuration {
             } else {
                 children = Arrays.asList(tree);
                 if (classRef == NodeDTO.class) {
-                    NodeDTO treeD = (NodeDTO) tree;
+                    final NodeDTO treeD = (NodeDTO) tree;
                     // Include not specified. Process children.
                     final List<NodeDTO> currentNodes = treeD.getNodes();
                     if (currentNodes != null) {
@@ -730,7 +729,7 @@ public class Configuration {
      */
     @Nonnull
     private static <T extends IHasIncludes> List<T> replaceInclude(@Nonnull final List<String> included, @Nonnull final String include, @Nonnull final Class<T> classRef, @Nonnull final Boolean multiple) throws IncorrectConfigurationException {
-        List<T> children;// Check endless recursion.
+        final List<T> children;// Check endless recursion.
         if (included.contains(include)) {
             throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
         }
@@ -746,7 +745,7 @@ public class Configuration {
         if (multiple) {
             replacement = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructCollectionType(List.class, classRef));
         } else {
-            T obj = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(classRef));
+            final T obj = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(classRef));
             replacement = Arrays.asList(obj);
         }
 

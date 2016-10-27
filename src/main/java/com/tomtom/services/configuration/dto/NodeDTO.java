@@ -272,6 +272,7 @@ public class NodeDTO extends ApiDTO implements IHasIncludes {
         this.parameters = ((parameters == null) || parameters.isEmpty()) ? null : parameters;
     }
 
+    @Override
     @Nullable
     public String getInclude() {
         beforeGet();
@@ -283,6 +284,7 @@ public class NodeDTO extends ApiDTO implements IHasIncludes {
         this.include = StringUtils.emptyToNull(StringUtils.trim(include));
     }
 
+    @Override
     @Nullable
     public String getIncludeArray() {
         beforeGet();
