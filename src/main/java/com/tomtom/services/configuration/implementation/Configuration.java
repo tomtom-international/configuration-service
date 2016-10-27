@@ -45,7 +45,7 @@ import static com.tomtom.speedtools.objects.Objects.notNullOr;
 /**
  * This class implements the search tree, which consists of nodes and leafs. Every node can have
  * 0 or more children nodes and 0 or 1 leaf node. There is a single root node.
- *
+ * <p>
  * Nodes have a match string, an optional list of child nodes and an optional leaf with parameters.
  * Node match strings are unique within children nodes and cannot be empty, except for the root node
  * which is absent.
@@ -306,7 +306,7 @@ public class Configuration {
 
     /**
      * Given a full node path, return the node and its parent node, or null.
-     *
+     * <p>
      * Important: If the root node is found, the parent node is ALSO the root node. This is primarily because
      * you cannot return a null value in a tuple.
      *
@@ -509,7 +509,8 @@ public class Configuration {
             throws IncorrectConfigurationException {
 
         // Read the tree from the configuration.
-        final NodeDTO rawTree = getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>(){});
+        final NodeDTO rawTree = getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>() {
+        });
 
         // Inline all includes recursively.
         final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>());
@@ -648,14 +649,17 @@ public class Configuration {
 
     /**
      * Check that all parameters have a key and a value.
+     *
      * @param params list of parameters to check
      * @throws IncorrectConfigurationException If a parameter was found without key or value.
      */
-    private static void checkAllParamsHaveKeyAndValue(final List<ParameterDTO> params) throws IncorrectConfigurationException {
+    private static void checkAllParamsHaveKeyAndValue(final @Nonnull List<ParameterDTO> params) throws IncorrectConfigurationException {
         for (final ParameterDTO p : params) {
-            if ((p.getKey() == null) ||
-                (p.getValue() == null)) {
-                throw new IncorrectConfigurationException("Parameter found without key or value!");
+            if (p.getKey() == null) {
+                throw new IncorrectConfigurationException("Parameter found without key");
+            }
+            if (p.getValue() == null) {
+                throw new IncorrectConfigurationException("Parameter found without value");
             }
         }
     }
@@ -665,8 +669,8 @@ public class Configuration {
      *
      * @param tree     Parameter to expand.
      * @param included Memory of which include files were processed.
-     * @throws IncorrectConfigurationException If include recursion was detected.
      * @return Replacements for the parameter that was just expanded.
+     * @throws IncorrectConfigurationException If include recursion was detected.
      */
     private static List<ParameterDTO> expandAllIncludesParams(
             @Nonnull final ParameterDTO tree,
@@ -688,7 +692,8 @@ public class Configuration {
             final String content = readConfiguration(include);
 
             // Parse nodes from content.
-            replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<ParameterDTO>(){}));
+            replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<ParameterDTO>() {
+            }));
 
             // Expand all includes in children, and construct list of replacements
             final List<ParameterDTO> children = new ArrayList<>();
@@ -715,7 +720,8 @@ public class Configuration {
             final String content = readConfiguration(includeArray);
 
             // Parse nodes from content.
-            replacement = getChildObjectFromConfiguration(content, new TypeReference<List<ParameterDTO>>(){});
+            replacement = getChildObjectFromConfiguration(content, new TypeReference<List<ParameterDTO>>() {
+            });
 
             // Expand all includes in children, and construct list of replacements
             final List<ParameterDTO> children = new ArrayList<>();
@@ -737,16 +743,16 @@ public class Configuration {
      *
      * @param tree     Node to expand.
      * @param included Memory of which include files were processed.
-     * @throws IncorrectConfigurationException If include recursion was detected.
      * @return Replacements for the node that was just expanded.
+     * @throws IncorrectConfigurationException If include recursion was detected.
      */
     private static List<NodeDTO> expandAllIncludes(
             @Nonnull final NodeDTO tree,
             @Nonnull final List<String> included) throws IncorrectConfigurationException {
+        final List<NodeDTO> children;
         final String include = tree.getInclude();
         final String includeArray = tree.getIncludeArray();
         if (include != null) {
-            final List<NodeDTO> replacement;
             LOG.info("expandAllIncludes: Include specified, include={}", include);
             // Check endless recursion.
             if (included.contains(include)) {
@@ -760,11 +766,11 @@ public class Configuration {
             final String content = readConfiguration(include);
 
             // Parse nodes from content.
-            replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>() {
+            final List<NodeDTO> replacement = Arrays.asList(getChildObjectFromConfiguration(content, new TypeReference<NodeDTO>() {
             }));
 
             // Expand all includes in children, and construct list of replacements
-            final List<NodeDTO> children = new ArrayList<>();
+            children = new ArrayList<>();
             for (final NodeDTO child : replacement) {
                 children.addAll(expandAllIncludes(child, included));
             }
@@ -772,9 +778,7 @@ public class Configuration {
             // Pop name from stack.
             final String removed = included.remove(0);
             assert removed.equals(include);
-            return children;
         } else if (includeArray != null) {
-            final List<NodeDTO> replacement;
             LOG.info("expandAllIncludes: IncludeArray specified, includeArray={}", includeArray);
             // Check endless recursion.
             if (included.contains(includeArray)) {
@@ -788,10 +792,11 @@ public class Configuration {
             final String content = readConfiguration(includeArray);
 
             // Parse nodes from content.
-            replacement = getChildObjectFromConfiguration(content, new TypeReference<List<NodeDTO>>(){});
+            final List<NodeDTO> replacement = getChildObjectFromConfiguration(content, new TypeReference<List<NodeDTO>>() {
+            });
 
             // Expand all includes in children, and construct list of replacements
-            final List<NodeDTO> children = new ArrayList<>();
+            children = new ArrayList<>();
             for (final NodeDTO child : replacement) {
                 children.addAll(expandAllIncludes(child, included));
             }
@@ -799,17 +804,16 @@ public class Configuration {
             // Pop name from stack.
             final String removed = included.remove(0);
             assert removed.equals(includeArray);
-            return children;
         } else {
             // Include not specified. Process children.
-            final List<NodeDTO> children = tree.getNodes();
-            if (children != null) {
+            final List<NodeDTO> currentNodes = tree.getNodes();
+            if (currentNodes != null) {
                 final List<NodeDTO> replacement = new ArrayList<>();
-                for (final NodeDTO child : children) {
+                for (final NodeDTO child : currentNodes) {
                     replacement.addAll(expandAllIncludes(child, included));
                 }
-                children.clear();
-                children.addAll(replacement);
+                currentNodes.clear();
+                currentNodes.addAll(replacement);
             }
 
             final List<ParameterDTO> params = tree.getParameters();
@@ -822,8 +826,9 @@ public class Configuration {
                 checkAllParamsHaveKeyAndValue(replacementParams);
                 tree.setParameters(new ParameterListDTO(replacementParams));
             }
-            return Arrays.asList(tree);
+            children = Arrays.asList(tree);
         }
+        return children;
     }
 
     /**

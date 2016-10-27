@@ -36,8 +36,8 @@ public class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
      * For an explanation of validate(), see {@link NodeDTO}.
      */
     @Override
-    public void validateOne(@Nonnull final SearchResultDTO t) {
-        validator().checkNotNullAndValidate(false, "searchResult", t);
+    public void validateOne(@Nonnull final SearchResultDTO elm) {
+        validator().checkNotNullAndValidate(false, "searchResult", elm);
     }
 
     public SearchResultsDTO(@Nonnull final List<SearchResultDTO> searchResults) {

@@ -35,8 +35,8 @@ public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
      * class only needs to implement a method to check a single list element.
      */
     @Override
-    public void validateOne(@Nonnull final ParameterDTO t) {
-        validator().checkNotNullAndValidate(false, "parameter", t);
+    public void validateOne(@Nonnull final ParameterDTO elm) {
+        validator().checkNotNullAndValidate(false, "parameter", elm);
     }
 
     public ParameterListDTO(@Nonnull final List<ParameterDTO> parameters) {
