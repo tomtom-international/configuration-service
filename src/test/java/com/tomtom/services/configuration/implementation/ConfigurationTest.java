@@ -315,6 +315,13 @@ public class ConfigurationTest {
         Assert.assertNull(configuration);
     }
 
+    @Test(expected = IncorrectConfigurationException.class)
+    public void testIncludeRecursive() throws IncorrectConfigurationException {
+        LOG.info("testIncludeRecursive");
+        final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-recursive.json"));
+        Assert.assertNull(configuration);
+    }
+
     @Test
     public void testIncludeMultiOK1() throws IncorrectConfigurationException {
         LOG.info("testIncludeMultiOK1");

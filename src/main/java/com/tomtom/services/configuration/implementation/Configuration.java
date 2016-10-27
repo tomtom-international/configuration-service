@@ -107,9 +107,10 @@ public class Configuration {
             try {
 
                 // Read the tree and validate.
-                final NodeDTO root = getRootNodeAndValidateTree(
-                        configurationServiceProperties.getStartupConfigurationURI(),
-                        overrideStartupConfiguration);
+                final NodeDTO root = getRootOfInclude(overrideStartupConfiguration);
+
+                // Validate root and all siblings.
+                root.validate();
                 LOG.info("Tree: Startup configuration read OK, startupConfiguration={}", root);
 
                 // Use the root just read as the real root.
@@ -481,15 +482,18 @@ public class Configuration {
             @Nonnull final String content,
             @Nonnull final JavaType type)
             throws IncorrectConfigurationException {
+
         // Read tree as JSON or XML.
         try {
+
             // Try to read as JSON first.
             final ObjectMapper mapper = new ObjectMapper();
             mapper.configure(Feature.ALLOW_COMMENTS, true);
             return mapper.readValue(content, type);
         } catch (final IOException e1) {
+
+            // If JSON fails, try XML instead.
             try {
-                // If JSON fails, try XML instead.
                 final XmlMapper mapper = new XmlMapper();
                 return mapper.readValue(content, type);
             } catch (final IOException e2) {
@@ -509,31 +513,24 @@ public class Configuration {
     }
 
     @Nonnull
-    private static NodeDTO getRootNodeAndValidateTree(
-            @Nonnull final String include,
-            @Nonnull final String content)
+    private static NodeDTO getRootOfInclude(@Nonnull final String content)
             throws IncorrectConfigurationException {
 
         // Read the tree from the configuration.
-        final NodeDTO rawTree = getChildObjectFromConfiguration(content, constructType(NodeDTO.class));
+        final NodeDTO rootNotExpanded = getChildObjectFromConfiguration(content, constructType(NodeDTO.class));
 
         // Inline all includes recursively.
-        final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>());
-        if (rootTree.size() != 1) {
+        final List<NodeDTO> rootExpanded = expandAllIncludes(rootNotExpanded, new ArrayList<>());
+        if (rootExpanded.size() != 1) {
             throw new IncorrectConfigurationException("Configuration is not OK! Root should contain a single node.");
         }
-        final NodeDTO root = rootTree.get(0);
+        final NodeDTO root = rootExpanded.get(0);
 
         // Check if node match strings do not conflict.
         if (!checkNodeMatchStringsRoot(root)) {
             throw new IncorrectConfigurationException("Configuration is not OK! " +
                     "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
         }
-
-        // Validate the (sub)tree.
-        root.validate();
-
-        LOG.debug("getRootNodeAndValidateTree: Configuration for node '{}' is OK", include);
 
         // Check if the match string of the root is null; all child match strings have been checked by now (when tree was read in).
         if (root.getMatch() != null) {
@@ -577,9 +574,6 @@ public class Configuration {
                 throw new IncorrectConfigurationException("Incorrect number of 'levels' specified, expecting at least " + deepestLevel + " levels");
             }
         }
-
-        // Validate the root (and all of its children).
-        root.validate();
         return root;
     }
 
@@ -656,23 +650,6 @@ public class Configuration {
     }
 
     /**
-     * Check that all parameters have a key and a value.
-     *
-     * @param params list of parameters to check
-     * @throws IncorrectConfigurationException If a parameter was found without key or value.
-     */
-    private static void checkAllParamsHaveKeyAndValue(final @Nonnull List<ParameterDTO> params) throws IncorrectConfigurationException {
-        for (final ParameterDTO p : params) {
-            if (p.getKey() == null) {
-                throw new IncorrectConfigurationException("Parameter found without key");
-            }
-            if (p.getValue() == null) {
-                throw new IncorrectConfigurationException("Parameter found without value");
-            }
-        }
-    }
-
-    /**
      * Expand all the included subtrees in a thing with includes.
      *
      * @param object   Object to expand.
@@ -686,19 +663,9 @@ public class Configuration {
         final List<T> replacementObjects;
         final String include = object.getInclude();
         final String includeArray = object.getIncludeArray();
-        if (include != null) {
+        if ((include == null) && (includeArray == null)) {
 
-            // Was: include.
-            final JavaType type = constructType(object.getClass());
-            replacementObjects = getReplacementObjectsFromInclude(type, include, false, included);
-            assert replacementObjects.size() == 1;
-        } else if (includeArray != null) {
-
-            // Was: include_array.
-            final JavaType type = constructCollectionType(List.class, object.getClass());
-            replacementObjects = getReplacementObjectsFromInclude(type, includeArray, true, included);
-            assert replacementObjects.size() >= 1;
-        } else {
+            // No include or include_array specified. Replacement is object itself.
             replacementObjects = Arrays.asList(object);
 
             // For nodes we need to dive deeper.
@@ -725,11 +692,31 @@ public class Configuration {
                     for (final ParameterDTO parameter : parameters) {
                         replacementParameters.addAll(expandAllIncludes(parameter, included));
                     }
-
-                    checkAllParamsHaveKeyAndValue(replacementParameters);
                     nodeDTO.setParameters(new ParameterListDTO(replacementParameters));
                 }
             }
+        } else {
+
+            // Either include or include_array was specified.
+            final String includeToProcess;
+            final JavaType type;
+            if (include != null) {
+
+                // Was: include.
+                type = constructType(object.getClass());
+                includeToProcess = include;
+            } else {
+                assert includeArray != null;
+
+                // Was: include_array.
+                type = constructCollectionType(List.class, object.getClass());
+                includeToProcess = includeArray;
+            }
+
+            // Process include.
+            replacementObjects = getReplacementObjectsFromInclude(type, includeToProcess, included);
+            assert ((include != null) && (replacementObjects.size() == 1)) ||
+                    ((includeArray != null) && (replacementObjects.size() >= 1));
         }
         return replacementObjects;
     }
@@ -741,7 +728,6 @@ public class Configuration {
      * @param <T>      Type of object to load from the target file. Must equal the clazz.
      * @param type     Reference to the type of object that should be loaded from the target include.
      * @param include  URI to include.
-     * @param multiple Boolean indicating whether the file should contain an array or a single object.
      * @param included List of files included so far (for cycle detection).
      * @return List of replacement objects. The list may always contain multiple or zero returns, as any replacement
      * itself may be an include for zero or multiple objects.
@@ -751,7 +737,6 @@ public class Configuration {
     private static <T extends SupportsInclude> List<T> getReplacementObjectsFromInclude(
             @Nonnull final JavaType type,
             @Nonnull final String include,
-            final boolean multiple,
             @Nonnull final List<String> included) throws IncorrectConfigurationException {
 
         // Check for endless recursion.
@@ -767,7 +752,7 @@ public class Configuration {
 
         // Parse nodes from content.
         final List<T> childrenNotExpanded;
-        if (multiple) {
+        if (type.isCollectionLikeType()) {
 
             // Was: include_array.
             childrenNotExpanded = getChildObjectFromConfiguration(content, type);

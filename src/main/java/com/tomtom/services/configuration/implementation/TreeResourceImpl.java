@@ -75,8 +75,6 @@ public class TreeResourceImpl implements TreeResource {
     /**
      * This variable is filled by JAX-RS and contains the URI context.
      */
-
-
     @Inject
     public TreeResourceImpl(
             @Nonnull final Configuration configuration,
