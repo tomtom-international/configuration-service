@@ -1,0 +1,8 @@
+[
+  {
+    "include": "classpath::traffic_cheapo.json"
+  },
+  {
+    "include": "classpath::traffic_luxuri.json"
+  }
+]

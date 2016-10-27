@@ -17,7 +17,7 @@ public class NodeTest {
     @Test
     public void testNodeEmpty1() {
         LOG.info("testNodeEmpty1");
-        Node x = new Node("x");
+        final Node x = new Node("x");
         assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNull(x.getNodes());
@@ -27,7 +27,7 @@ public class NodeTest {
     @Test
     public void testNodeEmpty2() {
         LOG.info("testNodeEmpty2");
-        Node x = new Node("x", Immutables.emptyList(), Immutables.emptyList(), null, null, null);
+        final Node x = new Node("x", Immutables.emptyList(), Immutables.emptyList(), null, null, null);
         assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNull(x.getNodes());
@@ -37,7 +37,7 @@ public class NodeTest {
     @Test
     public void testNode() {
         LOG.info("testNode");
-        Node x = new Node("x", Immutables.listOf(new Node("y")), Immutables.listOf(new Parameter("1", "2")), null, null, null);
+        final Node x = new Node("x", Immutables.listOf(new Node("y")), Immutables.listOf(new Parameter("1", "2")), null, null, null);
         assertEquals("x", x.getMatch());
         assertNull(x.getModified());
         assertNotNull(x.getNodes());

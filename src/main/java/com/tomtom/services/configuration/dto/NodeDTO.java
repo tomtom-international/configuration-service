@@ -29,7 +29,7 @@ import java.util.List;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "node")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class NodeDTO extends ApiDTO {
+public class NodeDTO extends ApiDTO implements IHasIncludes {
 
     /**
      * Node match string, can only be null for root node. Cannot be empty, only null.
@@ -86,6 +86,15 @@ public class NodeDTO extends ApiDTO {
     private String include;
 
     /**
+     * Path of include file. This property is mutually exclusive with name/nodes/parameters/modified:
+     * the contents of the include file replace this node entirely.
+     */
+    @JsonProperty("include_array")
+    @XmlElement(name = "include_array")
+    @Nullable
+    private String includeArray;
+
+    /**
      * The method validate() is called to check the validity of the DTO object. Note that the DTO
      * objects are treated as immutable objects. This means that the normal sequence of operation
      * is:
@@ -108,8 +117,25 @@ public class NodeDTO extends ApiDTO {
     @Override
     public void validate() {
         validator().start();
-        if (include == null) {
-
+        if (include != null) {
+            // Include specified: all others must be null.
+            validator().checkNull(false, "match", match);
+            validator().checkNull(false, "nodes", nodes);
+            validator().checkNull(false, "parameters", parameters);
+            validator().checkNull(false, "modified", modified);
+            validator().checkNull(false, "levels", levels);
+            validator().checkNull(false, "include_array", includeArray);
+            validator().checkString(true, "include", include, 1, Integer.MAX_VALUE);
+        } else if (includeArray != null) {
+            // Include_Array specified: all others must be null.
+            validator().checkNull(false, "match", match);
+            validator().checkNull(false, "nodes", nodes);
+            validator().checkNull(false, "parameters", parameters);
+            validator().checkNull(false, "modified", modified);
+            validator().checkNull(false, "levels", levels);
+            validator().checkNull(false, "include", include);
+            validator().checkString(true, "include_array", includeArray, 1, Integer.MAX_VALUE);
+        } else {
             // No include specified.
             validator().checkString(false, "match", match, 1, Integer.MAX_VALUE);
             if (nodes != null) {
@@ -141,15 +167,6 @@ public class NodeDTO extends ApiDTO {
             } else {
                 validator().checkNull(true, "levels", levels);
             }
-        } else {
-
-            // Include specified: all others must be null.
-            validator().checkNull(false, "match", match);
-            validator().checkNull(false, "nodes", nodes);
-            validator().checkNull(false, "parameters", parameters);
-            validator().checkNull(false, "modified", modified);
-            validator().checkNull(false, "levels", levels);
-            validator().checkString(true, "include", include, 1, Integer.MAX_VALUE);
         }
         validator().done();
     }
@@ -160,7 +177,8 @@ public class NodeDTO extends ApiDTO {
             @Nullable final ParameterListDTO parameters,
             @Nullable final String modified,
             @Nullable final List<String> levels,
-            @Nullable final String include) {
+            @Nullable final String include,
+            @Nullable final String includeArray) {
         super(false);
         setMatch(match);
         setNodes(nodes);
@@ -168,6 +186,7 @@ public class NodeDTO extends ApiDTO {
         setModified(modified);
         setLevels(levels);
         setInclude(include);
+        setIncludeArray(includeArray);
     }
 
     /**
@@ -253,6 +272,7 @@ public class NodeDTO extends ApiDTO {
         this.parameters = ((parameters == null) || parameters.isEmpty()) ? null : parameters;
     }
 
+    @Override
     @Nullable
     public String getInclude() {
         beforeGet();
@@ -262,6 +282,18 @@ public class NodeDTO extends ApiDTO {
     public void setInclude(@Nullable final String include) {
         beforeSet();
         this.include = StringUtils.emptyToNull(StringUtils.trim(include));
+    }
+
+    @Override
+    @Nullable
+    public String getIncludeArray() {
+        beforeGet();
+        return includeArray;
+    }
+
+    public void setIncludeArray(@Nullable final String includeArray) {
+        beforeSet();
+        this.includeArray = StringUtils.emptyToNull(StringUtils.trim(includeArray));
     }
 
     @Nullable

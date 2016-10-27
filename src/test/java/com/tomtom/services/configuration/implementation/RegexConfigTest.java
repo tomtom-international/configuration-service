@@ -5,12 +5,10 @@
 package com.tomtom.services.configuration.implementation;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;

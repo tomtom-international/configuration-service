@@ -3,20 +3,15 @@
   "match": "traffic",
   "parameters": [
     {
-      "key": "radius_km",
-      "value": "25"
+      "include": "classpath::apikey.json"
     },
     {
-      "key": "interval_secs",
-      "value": "120"
+      "include_array": "classpath::traffic_default.json"
     }
   ],
   "nodes": [
     {
-      "include": "classpath::traffic_cheapo.json"
-    },
-    {
-      "include": "classpath::traffic_luxuri.json"
+      "include_array": "classpath::traffic_models.json"
     }
   ]
 }

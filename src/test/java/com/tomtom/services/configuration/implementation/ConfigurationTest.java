@@ -34,7 +34,7 @@ public class ConfigurationTest {
     @Nonnull
     public Map<String, String> mapOf(final String... args) {
         Assert.assertTrue((args.length % 2) == 0);
-        Map<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>();
         for (int i = 0; i < args.length; i = i + 2) {
             map.put(args[i], args[i + 1]);
         }
@@ -44,7 +44,7 @@ public class ConfigurationTest {
     @Test
     public void testJson1() throws Exception {
         LOG.info("testJson1");
-        final NodeDTO root = new NodeDTO(null, null, null, null, null, null);
+        final NodeDTO root = new NodeDTO(null, null, null, null, null, null, null);
         String json = mapper.writeValueAsString(root);
         LOG.info("root empty={}", json);
         Assert.assertEquals("{}", json);
@@ -76,11 +76,11 @@ public class ConfigurationTest {
     @Test
     public void testJson2() throws Exception {
         LOG.info("testJson2");
-        final NodeDTO root = new NodeDTO(null, null, null, null, null, null);
+        final NodeDTO root = new NodeDTO(null, null, null, null, null, null, null);
         Assert.assertNotNull(root);
         final List<NodeDTO> children = new ArrayList<>();
         for (int i = 0; i < 3; ++i) {
-            final NodeDTO child = new NodeDTO("child-" + i, null, null, null, null, null);
+            final NodeDTO child = new NodeDTO("child-" + i, null, null, null, null, null, null);
             final List<NodeDTO> subchildren = new ArrayList<>();
             for (int i2 = 0; i2 < 3; ++i2) {
                 final NodeDTO subchild = new NodeDTO("subchild-" + i + '/' + i2,
@@ -88,7 +88,7 @@ public class ConfigurationTest {
                         new ParameterListDTO(listOf(
                                 new ParameterDTO("x", String.valueOf(i)),
                                 new ParameterDTO("y", String.valueOf(i2)))),
-                        null, null, null);
+                        null, null, null, null);
                 subchildren.add(subchild);
             }
             child.setNodes(subchildren);
@@ -112,7 +112,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:example.json"));
 
         final String rootJson = mapper.writeValueAsString(configuration.getRoot());
-        Assert.assertEquals("{\"nodes\":[{\"match\":\"traffic\",\"nodes\":[{\"match\":\"cheapo\",\"nodes\":[{\"match\":\"device[0-9]*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"10\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]},{\"match\":\"device123\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}]}]},{\"match\":\"luxuri\",\"nodes\":[{\"match\":\"device1.*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"100\"}]},{\"match\":\"device999\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"settings\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"device\"]}",
+        Assert.assertEquals("{\"nodes\":[{\"match\":\"traffic\",\"nodes\":[{\"match\":\"cheapo\",\"nodes\":[{\"match\":\"device[0-9]*\",\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"10\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]},{\"match\":\"device123\",\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}]}]},{\"match\":\"luxuri\",\"nodes\":[{\"match\":\"device1.*\",\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"100\"}]},{\"match\":\"device999\",\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"200\"}]}],\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}],\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"modified\":\"2016-01-02T12:34:56Z\"},{\"match\":\"settings\",\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"modified\":\"2016-01-02T12:34:50Z\"}],\"modified\":\"2016-01-02T12:34:00Z\",\"levels\":[\"service\",\"model\",\"device\"]}",
                 rootJson);
 
         SearchResultsDTO y = configuration.matchNode(listOf(mapOf("service", "", "model", "", "device", "")));
@@ -145,38 +145,38 @@ public class ConfigurationTest {
         Assert.assertEquals("service=settings", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("25", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("25", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "unknown"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("25", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("25", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("40", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("40", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic&model=luxuri", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device123"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("100", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("100", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic&model=luxuri&device=device1.*", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device1.*"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("100", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("100", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic&model=luxuri&device=device1.*", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device.*"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("40", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("40", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic&model=luxuri", x.getMatched());
 
         x = configuration.matchNode(listOf(mapOf("service", "traffic", "model", "luxuri", "device", "device999"))).get(0);
-        Assert.assertEquals("radius_km", x.getParameters().get(0).getKey());
-        Assert.assertEquals("200", x.getParameters().get(0).getValue());
+        Assert.assertEquals("radius_km", x.getParameters().get(1).getKey());
+        Assert.assertEquals("200", x.getParameters().get(1).getValue());
         Assert.assertEquals("service=traffic&model=luxuri&device=device999", x.getMatched());
 
         configuration = new Configuration(new ConfigurationServiceProperties("classpath:onlyparams.json"));

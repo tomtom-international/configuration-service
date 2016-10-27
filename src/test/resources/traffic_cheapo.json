@@ -5,6 +5,9 @@
       "match": "device[0-9]*",
       "parameters": [
         {
+          "include": "classpath::apikey.json"
+        },
+        {
           "key": "radius_km",
           "value": "10"
         },
@@ -16,6 +19,9 @@
     }, {
       "match": "device123",
       "parameters": [
+        {
+          "include": "classpath::apikey.json"
+        },
         {
           "key": "radius_km",
           "value": "80"

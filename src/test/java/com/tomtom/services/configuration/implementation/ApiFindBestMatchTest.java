@@ -21,7 +21,7 @@ public class ApiFindBestMatchTest {
 
     private final LocalTestServer server = new LocalTestServer("classpath:example.json");
 
-    static final String HASH = "\"5b2d902ec1b147215da8e08331d68dc09f9a19af\"";
+    static final String HASH = "\"0e54b7591e3059b0ef7b1a4d9de263081997dd69\"";
 
     @Before
     public void startServer() throws IncorrectConfigurationException {
@@ -42,7 +42,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -55,7 +55,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -68,7 +68,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=cheapo&device=\",\"matched\":\"service=traffic\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=cheapo&device=\",\"matched\":\"service=traffic\"}",
                 response.readEntity(String.class));
     }
 
@@ -81,7 +81,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -94,7 +94,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=settings&model=cheapo&device=device123\",\"matched\":\"service=settings\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=settings&model=cheapo&device=device123\",\"matched\":\"service=settings\"}]",
                 response.readEntity(String.class));
     }
 
@@ -107,7 +107,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"80\"},{\"key\":\"interval_secs\",\"value\":\"60\"}],\"searched\":\"service=traffic&model=cheapo&device=device123\",\"matched\":\"service=traffic&model=cheapo&device=device123\"}",
                 response.readEntity(String.class));
     }
 
@@ -120,7 +120,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"}",
                 response.readEntity(String.class));
     }
 
@@ -133,7 +133,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"}",
                 response.readEntity(String.class));
     }
 
@@ -146,7 +146,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
                 response.readEntity(String.class));
     }
 
@@ -170,7 +170,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=&device=\",\"matched\":\"service=traffic\"},{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"},{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=&device=\",\"matched\":\"service=traffic\"},{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"40\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=luxuri&device=\",\"matched\":\"service=traffic&model=luxuri\"},{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}]",
                 response.readEntity(String.class));
     }
 
@@ -211,7 +211,7 @@ public class ApiFindBestMatchTest {
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
                 response.readEntity(String.class));
     }
 
@@ -301,7 +301,7 @@ public class ApiFindBestMatchTest {
         Assert.assertEquals(200, response.getStatus());
         Assert.assertEquals(HASH, response.getHeaderString("ETag"));
         Assert.assertEquals("Sat, 02 Jan 2016 12:34:56 GMT", response.getHeaderString("Last-Modified"));
-        Assert.assertEquals("{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
+        Assert.assertEquals("{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"200\"}],\"searched\":\"service=traffic&model=luxuri&device=device999\",\"matched\":\"service=traffic&model=luxuri&device=device999\"}",
                 response.readEntity(String.class));
     }
 
@@ -325,7 +325,7 @@ public class ApiFindBestMatchTest {
                 accept(MediaType.APPLICATION_JSON_TYPE).get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatus());
-        Assert.assertEquals("[{\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=&device=\",\"matched\":\"service=traffic\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=settings&model=&device=\",\"matched\":\"service=settings\"}]",
+        Assert.assertEquals("[{\"parameters\":[{\"key\":\"api_key\",\"value\":\"my_api_key\"},{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}],\"searched\":\"service=traffic&model=&device=\",\"matched\":\"service=traffic\"},{\"parameters\":[{\"key\":\"demo\",\"value\":\"false\"},{\"key\":\"sound\",\"value\":\"off\"}],\"searched\":\"service=settings&model=&device=\",\"matched\":\"service=settings\"}]",
                 response.readEntity(String.class));
     }
 

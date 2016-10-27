@@ -5,14 +5,14 @@
 package com.tomtom.services.configuration.implementation;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
 import com.tomtom.services.configuration.domain.Node;
-import com.tomtom.services.configuration.dto.NodeDTO;
-import com.tomtom.services.configuration.dto.SearchResultDTO;
-import com.tomtom.services.configuration.dto.SearchResultsDTO;
+import com.tomtom.services.configuration.dto.*;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiException;
 import com.tomtom.speedtools.objects.Immutables;
 import com.tomtom.speedtools.objects.Tuple;
@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ import static com.tomtom.speedtools.objects.Objects.notNullOr;
 /**
  * This class implements the search tree, which consists of nodes and leafs. Every node can have
  * 0 or more children nodes and 0 or 1 leaf node. There is a single root node.
- *
+ * <p>
  * Nodes have a match string, an optional list of child nodes and an optional leaf with parameters.
  * Node match strings are unique within children nodes and cannot be empty, except for the root node
  * which is absent.
@@ -92,7 +93,7 @@ public class Configuration {
             throws IncorrectConfigurationException {
 
         // Create an empty root.
-        NodeDTO realRoot = new NodeDTO(null, null, null, null, null, null);
+        NodeDTO realRoot = new NodeDTO(null, null, null, null, null, null, null);
         boolean realInitialConfigurationOK = false;
         this.configurationServiceProperties = configurationServiceProperties;
 
@@ -166,7 +167,7 @@ public class Configuration {
 
         // Process all search queries.
         for (final Map<String, String> levelSearchTerms : levelSearchTermsList) {
-            LOG.debug("matchNode: search #{}, levelSearchTerms={}", results.size() + 1, levelSearchTerms.toString());
+            LOG.debug("matchNode: search #{}, levelSearchTerms={}", results.size() + 1, levelSearchTerms);
 
             /*
              * Search tree for parameters. Start with assuming the search fails and the result is
@@ -306,7 +307,7 @@ public class Configuration {
 
     /**
      * Given a full node path, return the node and its parent node, or null.
-     *
+     * <p>
      * Important: If the root node is found, the parent node is ALSO the root node. This is primarily because
      * you cannot return a null value in a tuple.
      *
@@ -471,13 +472,60 @@ public class Configuration {
     }
 
     @Nonnull
+    private static <T> T getChildObjectFromConfiguration(
+            @Nonnull final String content,
+            @Nonnull final JavaType type)
+            throws IncorrectConfigurationException {
+        // Read tree as JSON or XML.
+        try {
+            // Try to read as JSON first.
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(Feature.ALLOW_COMMENTS, true);
+            return mapper.readValue(content, type);
+        } catch (final IOException e1) {
+            try {
+                // If JSON fails, try XML instead.
+                final XmlMapper mapper = new XmlMapper();
+                return mapper.readValue(content, type);
+            } catch (final IOException e2) {
+
+                // Not valid JSON or XML.
+                final String msg;
+                final String jsonError = e1.getMessage();
+                final String xmlError = e2.getMessage();
+                if (jsonError.startsWith("Unexpected character ('<'")) {
+                    msg = "XML ERROR: " + xmlError;
+                } else {
+                    msg = "JSON ERROR: " + jsonError;
+                }
+                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
+            }
+        }
+    }
+
+    @Nonnull
     private static NodeDTO getRootNodeAndValidateTree(
             @Nonnull final String include,
             @Nonnull final String content)
             throws IncorrectConfigurationException {
 
         // Read the tree from the configuration.
-        final NodeDTO root = getChildNodeFromConfiguration(include, content, new ArrayList<>());
+        final NodeDTO rawTree = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(NodeDTO.class));
+
+        // Inline all includes recursively.
+        final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>(), NodeDTO.class);
+        final NodeDTO root = rootTree.get(0);
+
+        // Check if node match strings do not conflict.
+        if (!checkNodeMatchStringsRoot(root)) {
+            throw new IncorrectConfigurationException("Configuration is not OK! " +
+                    "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
+        }
+
+        // Validate the (sub)tree.
+        root.validate();
+
+        LOG.debug("getRootNodeAndValidateTree: Configuration for node '{}' is OK", include);
 
         // Check if the match string of the root is null; all child match strings have been checked by now (when tree was read in).
         if (root.getMatch() != null) {
@@ -529,59 +577,6 @@ public class Configuration {
 
     private static boolean isValidMatchString(@Nonnull final String match) {
         return ((match.indexOf(SEPARATOR_WRONG) + match.indexOf(SEPARATOR_PATH) + match.indexOf(SEPARATOR_QUERY)) == -3);
-    }
-
-    @Nonnull
-    private static NodeDTO getChildNodeFromConfiguration(
-            @Nonnull final String include,
-            @Nonnull final String content,
-            @Nonnull final List<String> included)
-            throws IncorrectConfigurationException {
-
-        // Read tree as JSON or XML.
-        NodeDTO tree;
-        try {
-
-            // Try to read as JSON first.
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(Feature.ALLOW_COMMENTS, true);
-            tree = mapper.readValue(content, NodeDTO.class);
-        } catch (final IOException e1) {
-
-            try {
-
-                // If JSON fails, try XML instead.
-                final XmlMapper mapper = new XmlMapper();
-                tree = mapper.readValue(content, NodeDTO.class);
-            } catch (final IOException e2) {
-
-                // Not valid JSON or XML.
-                final String msg;
-                final String jsonError = e1.getMessage();
-                final String xmlError = e2.getMessage();
-                if (jsonError.startsWith("Unexpected character ('<'")) {
-                    msg = "XML ERROR: " + xmlError;
-                } else {
-                    msg = "JSON ERROR: " + jsonError;
-                }
-                throw new IncorrectConfigurationException("Configuration is NOT OK! Should be valid JSON or XML\n" + msg);
-            }
-        }
-
-        // Inline all includes recursively.
-        expandAllIncludes(tree, included);
-
-        // Check if node match strings do not conflict.
-        if (!checkNodeMatchStringsRoot(tree)) {
-            throw new IncorrectConfigurationException("Configuration is not OK! " +
-                    "Nodes match strings are incorrectly formatted, not unique or contain incorrect key/value pairs.");
-        }
-
-        // Validate the (sub)tree.
-        tree.validate();
-
-        LOG.debug("getRootNodeFromConfiguration: Configuration for node '{}' is OK", include);
-        return tree;
     }
 
     /**
@@ -653,56 +648,117 @@ public class Configuration {
     }
 
     /**
-     * Expand all the included subtrees in a node.
+     * Check that all parameters have a key and a value.
      *
-     * @param tree     Node to expand.
+     * @param params list of parameters to check
+     * @throws IncorrectConfigurationException If a parameter was found without key or value.
+     */
+    private static void checkAllParamsHaveKeyAndValue(final @Nonnull List<ParameterDTO> params) throws IncorrectConfigurationException {
+        for (final ParameterDTO p : params) {
+            if (p.getKey() == null) {
+                throw new IncorrectConfigurationException("Parameter found without key");
+            }
+            if (p.getValue() == null) {
+                throw new IncorrectConfigurationException("Parameter found without value");
+            }
+        }
+    }
+
+    /**
+     * Expand all the included subtrees in a thing with includes.
+     *
+     * @param tree     Object to expand. Must implement IHasIncludes.
      * @param included Memory of which include files were processed.
+     * @return Replacements for the object that was just expanded.
      * @throws IncorrectConfigurationException If include recursion was detected.
      */
-    private static void expandAllIncludes(
-            @Nonnull final NodeDTO tree,
-            @Nonnull final List<String> included) throws IncorrectConfigurationException {
+    private static <T extends IHasIncludes> List<T> expandAllIncludes(
+            @Nonnull final T tree,
+            @Nonnull final List<String> included,
+            @Nonnull final Class<T> classRef) throws IncorrectConfigurationException {
+        final List<T> children;
         final String include = tree.getInclude();
+        final String includeArray = tree.getIncludeArray();
         if (include != null) {
-            LOG.info("expandAllIncludes: Include specified, include={}", include);
-
-            // Check endless recursion.
-            if (included.contains(include)) {
-                throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
-            }
-
-            // Push name to stack.
-            included.add(0, include);
-
-            // Read JSON content from include.
-            final String content = readConfiguration(include);
-
-            // Parse nodes from content.
-            final NodeDTO expandedChild = getChildNodeFromConfiguration(include, content, included);
-
-            // Remove include, replace with read node.
-            tree.setInclude(null);
-            tree.setMatch(expandedChild.getMatch());
-            tree.setNodes(expandedChild.getNodes());
-            tree.setParameters(expandedChild.getParameters());
-            tree.setModified(expandedChild.getModified());
-
-            // Expand all includes in children.
-            expandAllIncludes(tree, included);
-
-            // Pop name from stack.
-            final String removed = included.remove(0);
-            assert removed.equals(include);
+            children = replaceInclude(included, include, classRef, false);
         } else {
+            if (includeArray != null) {
+                children = replaceInclude(included, includeArray, classRef, true);
+            } else {
+                children = Arrays.asList(tree);
+                if (classRef == NodeDTO.class) {
+                    final NodeDTO treeD = (NodeDTO) tree;
+                    // Include not specified. Process children.
+                    final List<NodeDTO> currentNodes = treeD.getNodes();
+                    if (currentNodes != null) {
+                        final List<NodeDTO> replacement = new ArrayList<>();
+                        for (final NodeDTO child : currentNodes) {
+                            replacement.addAll(expandAllIncludes(child, included, NodeDTO.class));
+                        }
+                        currentNodes.clear();
+                        currentNodes.addAll(replacement);
+                    }
 
-            // Include not specified. Process children.
-            final List<NodeDTO> children = tree.getNodes();
-            if (children != null) {
-                for (final NodeDTO child : children) {
-                    expandAllIncludes(child, included);
+                    final List<ParameterDTO> params = treeD.getParameters();
+                    if (params != null) {
+                        final List<ParameterDTO> replacementParams = new ArrayList<>();
+                        for (final ParameterDTO param : params) {
+                            replacementParams.addAll(expandAllIncludes(param, included, ParameterDTO.class));
+                        }
+
+                        checkAllParamsHaveKeyAndValue(replacementParams);
+                        treeD.setParameters(new ParameterListDTO(replacementParams));
+                    }
                 }
             }
         }
+        return children;
+    }
+
+    /**
+     * Replaces include statement with 0..n replacements loaded from a different file. It guarantees that no more
+     * include statements are present in the returned output.
+     * @param included List of files included so far (for cycle detection)
+     * @param include File to include
+     * @param classRef Reference to the type of object that should be loaded from the target file
+     * @param multiple Boolean indicating whether the file should contain an array or a single object.
+     * @param <T> Type of object to load from the target file. Must equal the classRef.
+     * @return List of replacement objects. The list may always contain multiple or zero returns, as any replacement
+     * itself may be an include for zero or multiple objects.
+     * @throws IncorrectConfigurationException If there is a detected problem with the configuration at this point.
+     */
+    @Nonnull
+    private static <T extends IHasIncludes> List<T> replaceInclude(@Nonnull final List<String> included, @Nonnull final String include, @Nonnull final Class<T> classRef, @Nonnull final Boolean multiple) throws IncorrectConfigurationException {
+        final List<T> children;// Check endless recursion.
+        if (included.contains(include)) {
+            throw new IncorrectConfigurationException("Endless recursion detected at include=" + include);
+        }
+
+        // Push name to stack.
+        included.add(0, include);
+
+        // Read JSON content from include.
+        final String content = readConfiguration(include);
+
+        // Parse nodes from content.
+        final List<T> replacement;
+        if (multiple) {
+            replacement = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructCollectionType(List.class, classRef));
+        } else {
+            final T obj = getChildObjectFromConfiguration(content, TypeFactory.defaultInstance().constructType(classRef));
+            replacement = Arrays.asList(obj);
+        }
+
+        // Expand all includes in children, and construct list of replacements
+        children = new ArrayList<>();
+        for (final T child : replacement) {
+            children.addAll(expandAllIncludes(child, included, classRef));
+        }
+
+        // Pop name from stack.
+        final String removed = included.remove(0);
+        assert removed.equals(include);
+        return children;
     }
 
     /**

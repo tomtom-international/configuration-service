@@ -16,7 +16,7 @@ public class ParameterTest {
     @Test
     public void testParameter() {
         LOG.info("testParameter");
-        Parameter x = new Parameter("x", "y");
+        final Parameter x = new Parameter("x", "y");
         assertEquals("x", x.getKey());
         assertEquals("y", x.getValue());
         assertEquals("{\"key\":\"x\",\"value\":\"y\"}", x.toString());
