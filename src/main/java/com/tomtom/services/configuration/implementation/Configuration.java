@@ -518,7 +518,7 @@ public class Configuration {
         final NodeDTO rawTree = getChildObjectFromConfiguration(content, constructType(NodeDTO.class));
 
         // Inline all includes recursively.
-        final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>(), NodeDTO.class);
+        final List<NodeDTO> rootTree = expandAllIncludes(rawTree, new ArrayList<>());
         if (rootTree.size() != 1) {
             throw new IncorrectConfigurationException("Configuration is not OK! Root should contain a single node.");
         }
@@ -675,24 +675,28 @@ public class Configuration {
     /**
      * Expand all the included subtrees in a thing with includes.
      *
-     * @param object    Object to expand.
+     * @param object   Object to expand.
      * @param included Memory of which include files were processed.
-     * @param clazz    Class type of which a list of these needs to be returned.
      * @return Replacements for the object that was just expanded.
      * @throws IncorrectConfigurationException If include recursion was detected.
      */
     private static <T extends SupportsInclude> List<T> expandAllIncludes(
             @Nonnull final T object,
-            @Nonnull final List<String> included,
-            @Nonnull final Class<T> clazz) throws IncorrectConfigurationException {
+            @Nonnull final List<String> included) throws IncorrectConfigurationException {
         final List<T> replacementObjects;
         final String include = object.getInclude();
         final String includeArray = object.getIncludeArray();
         if (include != null) {
-            replacementObjects = getReplacementObjectsFromInclude(included, include, clazz, false);
+
+            // Was: include.
+            final JavaType type = constructType(object.getClass());
+            replacementObjects = getReplacementObjectsFromInclude(type, include, false, included);
             assert replacementObjects.size() == 1;
         } else if (includeArray != null) {
-            replacementObjects = getReplacementObjectsFromInclude(included, includeArray, clazz, true);
+
+            // Was: include_array.
+            final JavaType type = constructCollectionType(List.class, object.getClass());
+            replacementObjects = getReplacementObjectsFromInclude(type, includeArray, true, included);
             assert replacementObjects.size() >= 1;
         } else {
             replacementObjects = Arrays.asList(object);
@@ -706,7 +710,7 @@ public class Configuration {
                 if (childrenNodes != null) {
                     final List<NodeDTO> replacementNodes = new ArrayList<>();
                     for (final NodeDTO childNode : childrenNodes) {
-                        replacementNodes.addAll(expandAllIncludes(childNode, included, NodeDTO.class));
+                        replacementNodes.addAll(expandAllIncludes(childNode, included));
                     }
 
                     // Replace existing nodes with expanded ones.
@@ -719,7 +723,7 @@ public class Configuration {
                 if (parameters != null) {
                     final List<ParameterDTO> replacementParameters = new ArrayList<>();
                     for (final ParameterDTO parameter : parameters) {
-                        replacementParameters.addAll(expandAllIncludes(parameter, included, ParameterDTO.class));
+                        replacementParameters.addAll(expandAllIncludes(parameter, included));
                     }
 
                     checkAllParamsHaveKeyAndValue(replacementParameters);
@@ -734,21 +738,21 @@ public class Configuration {
      * Replaces include statement with 0..n replacements loaded from a different file. It guarantees that no more
      * include statements are present in the returned output.
      *
-     * @param included List of files included so far (for cycle detection)
-     * @param include  File to include
-     * @param clazz    Reference to the type of object that should be loaded from the target include.
-     * @param multiple Boolean indicating whether the file should contain an array or a single object.
      * @param <T>      Type of object to load from the target file. Must equal the clazz.
+     * @param type     Reference to the type of object that should be loaded from the target include.
+     * @param include  URI to include.
+     * @param multiple Boolean indicating whether the file should contain an array or a single object.
+     * @param included List of files included so far (for cycle detection).
      * @return List of replacement objects. The list may always contain multiple or zero returns, as any replacement
      * itself may be an include for zero or multiple objects.
      * @throws IncorrectConfigurationException If there is a detected problem with the configuration at this point.
      */
     @Nonnull
     private static <T extends SupportsInclude> List<T> getReplacementObjectsFromInclude(
-            @Nonnull final List<String> included,
+            @Nonnull final JavaType type,
             @Nonnull final String include,
-            @Nonnull final Class<T> clazz,
-            final boolean multiple) throws IncorrectConfigurationException {
+            final boolean multiple,
+            @Nonnull final List<String> included) throws IncorrectConfigurationException {
 
         // Check for endless recursion.
         if (included.contains(include)) {
@@ -766,18 +770,18 @@ public class Configuration {
         if (multiple) {
 
             // Was: include_array.
-            childrenNotExpanded = getChildObjectFromConfiguration(content, constructCollectionType(List.class, clazz));
+            childrenNotExpanded = getChildObjectFromConfiguration(content, type);
         } else {
 
             // Was: include.
-            final T child = getChildObjectFromConfiguration(content, constructType(clazz));
+            final T child = getChildObjectFromConfiguration(content, type);
             childrenNotExpanded = Arrays.asList(child);
         }
 
         // Expand all includes in children as well and construct final list of children.
         final List<T> children = new ArrayList<>();
         for (final T childNotExpanded : childrenNotExpanded) {
-            children.addAll(expandAllIncludes(childNotExpanded, included, clazz));
+            children.addAll(expandAllIncludes(childNotExpanded, included));
         }
 
         // Pop name from stack.
