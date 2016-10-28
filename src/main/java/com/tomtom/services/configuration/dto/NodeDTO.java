@@ -121,6 +121,7 @@ public class NodeDTO extends ApiDTO implements SupportsInclude {
         }
         validator().checkNotNullAndValidate(false, "parameters", parameters);
         validator().checkNull(true, "include", include);
+        validator().checkNull(true, "include_array", includeArray);
         if (modified != null) {
 
             // Check if the modified date/time can be parsed.
