@@ -12,12 +12,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Splitter;
 import com.tomtom.services.configuration.ConfigurationServiceProperties;
 import com.tomtom.services.configuration.domain.Node;
-import com.tomtom.services.configuration.dto.NodeDTO;
-import com.tomtom.services.configuration.dto.ParameterDTO;
-import com.tomtom.services.configuration.dto.ParameterListDTO;
-import com.tomtom.services.configuration.dto.SearchResultDTO;
-import com.tomtom.services.configuration.dto.SearchResultsDTO;
-import com.tomtom.services.configuration.dto.SupportsInclude;
+import com.tomtom.services.configuration.dto.*;
 import com.tomtom.speedtools.apivalidation.exceptions.ApiException;
 import com.tomtom.speedtools.objects.Immutables;
 import com.tomtom.speedtools.objects.Tuple;
@@ -28,20 +23,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response.Status;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -629,12 +614,9 @@ public class Configuration {
         final Set<String> matches = new HashSet<>();      // Node match strings (per level).
         for (final NodeDTO child : children) {
             final String match = child.getMatch();
-            if (match == null) {
+            if ((match == null) || match.isEmpty()) {
                 ok = false;
-                LOG.error("checkNodeMatchStringsChildren: match cannot be null");
-            } else if (match.isEmpty()) {
-                ok = false;
-                LOG.error("checkNodeMatchStringsChildren: match cannot be empty");
+                LOG.error("checkNodeMatchStringsChildren: match cannot be null or empty");
             } else if (!isValidMatchString(match)) {
                 ok = false;
                 LOG.error("checkNodeMatchStringsChildren: incorrect format fort match");
@@ -715,8 +697,7 @@ public class Configuration {
 
             // Process include.
             replacementObjects = getReplacementObjectsFromInclude(type, includeToProcess, included);
-            assert ((include != null) && (replacementObjects.size() == 1)) ||
-                    ((includeArray != null) && (replacementObjects.size() >= 1));
+            assert ((include != null) && (replacementObjects.size() == 1)) || (includeArray != null);
         }
         return replacementObjects;
     }
@@ -725,7 +706,7 @@ public class Configuration {
      * Replaces include statement with 0..n replacements loaded from a different file. It guarantees that no more
      * include statements are present in the returned output.
      *
-     * @param <T>      Type of object to load from the target file. Must equal the clazz.
+     * @param <T>      Type of object to load from the target file.
      * @param type     Reference to the type of object that should be loaded from the target include.
      * @param include  URI to include.
      * @param included List of files included so far (for cycle detection).
@@ -776,13 +757,13 @@ public class Configuration {
     }
 
     @Nonnull
-    private static JavaType constructType(@Nonnull Class<?> clazz) {
+    private static JavaType constructType(@Nonnull final Class<?> clazz) {
         return TypeFactory.defaultInstance().constructType(clazz);
     }
 
     @SuppressWarnings("rawtypes")
     @Nonnull
-    private static JavaType constructCollectionType(@Nonnull Class<? extends Collection> collection, @Nonnull Class<?> clazz) {
+    private static JavaType constructCollectionType(@Nonnull final Class<? extends Collection> collection, @Nonnull final Class<?> clazz) {
         return TypeFactory.defaultInstance().constructCollectionType(collection, clazz);
     }
 

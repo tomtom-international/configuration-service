@@ -17,11 +17,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,56 +113,38 @@ public class NodeDTO extends ApiDTO implements SupportsInclude {
     @Override
     public void validate() {
         validator().start();
-        if (include != null) {
-            // Include specified: all others must be null.
-            validator().checkNull(false, "match", match);
-            validator().checkNull(false, "nodes", nodes);
-            validator().checkNull(false, "parameters", parameters);
-            validator().checkNull(false, "modified", modified);
-            validator().checkNull(false, "levels", levels);
-            validator().checkNull(false, "include_array", includeArray);
-            validator().checkString(true, "include", include, 1, Integer.MAX_VALUE);
-        } else if (includeArray != null) {
-            // Include_Array specified: all others must be null.
-            validator().checkNull(false, "match", match);
-            validator().checkNull(false, "nodes", nodes);
-            validator().checkNull(false, "parameters", parameters);
-            validator().checkNull(false, "modified", modified);
-            validator().checkNull(false, "levels", levels);
-            validator().checkNull(false, "include", include);
-            validator().checkString(true, "include_array", includeArray, 1, Integer.MAX_VALUE);
+
+        // This validation is ONLY executed after includes have been expanded, so they must be null.
+        validator().checkString(false, "match", match, 1, Integer.MAX_VALUE);
+        if (nodes != null) {
+            validator().checkNotNullAndValidateAll(false, "nodes", Immutables.listOf(nodes));
+        }
+        validator().checkNotNullAndValidate(false, "parameters", parameters);
+        validator().checkNull(true, "include", include);
+        if (modified != null) {
+
+            // Check if the modified date/time can be parsed.
+            boolean ok = false;
+            try {
+                UTCTime.from(ISODateTimeFormat.dateTimeParser().parseDateTime(modified));
+                ok = true;
+            } catch (final IllegalArgumentException ignored) {
+                // Ignore, check is below.
+            }
+
+            // If it can't be parsed, output an understandable message.
+            if (!ok) {
+                validator().checkAllowedValues(true, "modified", modified, "YYYY-MM-DDTHH:mm:ssZ");
+            }
+
+            // Check length of string (longer than 20 chars indicates non-'Z' timezone.
+            validator().checkString(true, "modified", ok ? modified : "", 20, 20);
+        }
+        //noinspection VariableNotUsedInsideIf
+        if (match == null) {
+            validator().checkNotNull(false, "levels", levels);
         } else {
-            // No include specified.
-            validator().checkString(false, "match", match, 1, Integer.MAX_VALUE);
-            if (nodes != null) {
-                validator().checkNotNullAndValidateAll(false, "nodes", Immutables.listOf(nodes));
-            }
-            validator().checkNotNullAndValidate(false, "parameters", parameters);
-            validator().checkNull(true, "include", include);
-            if (modified != null) {
-
-                // Check if the modified date/time can be parsed.
-                boolean ok = false;
-                try {
-                    UTCTime.from(ISODateTimeFormat.dateTimeParser().parseDateTime(modified));
-                    ok = true;
-                } catch (final IllegalArgumentException ignored) {
-                    // Ignore, check is below.
-                }
-
-                // If it can't be parsed, output an understandable message.
-                if (!ok) {
-                    validator().checkAllowedValues(true, "modified", modified, "YYYY-MM-DDTHH:mm:ssZ");
-                }
-
-                // Check length of string (longer than 20 chars indicates non-'Z' timezone.
-                validator().checkString(true, "modified", ok ? modified : "", 20, 20);
-            }
-            if (match == null) {
-                validator().checkNotNull(false, "levels", levels);
-            } else {
-                validator().checkNull(true, "levels", levels);
-            }
+            validator().checkNull(true, "levels", levels);
         }
         validator().done();
     }

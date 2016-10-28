@@ -62,23 +62,13 @@ public class ParameterDTO extends ApiDTO implements SupportsInclude {
     @Override
     public void validate() {
         validator().start();
-        if (include != null) {
-            validator().checkNotNull(true, "include", include);
-            validator().checkNull(true, "include_array", includeArray);
-            validator().checkNull(true, "key", key);
-            validator().checkNull(true, "value", value);
-        } else if (includeArray != null) {
-            validator().checkNotNull(true, "include_array", includeArray);
-            validator().checkNull(true, "include", include);
-            validator().checkNull(true, "key", key);
-            validator().checkNull(true, "value", value);
-        } else {
-            validator().checkNull(true, "include_array", includeArray);
-            validator().checkNull(true, "include", include);
-            validator().checkNotNull(true, "key", key);
-            validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
-            validator().checkNotNull(true, "value", value);
-        }
+
+        // This validation is ONLY executed after includes have been expanded, so they must be null.
+        validator().checkNull(true, "include_array", includeArray);
+        validator().checkNull(true, "include", include);
+        validator().checkNotNull(true, "key", key);
+        validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
+        validator().checkNotNull(true, "value", value);
         validator().done();
     }
 

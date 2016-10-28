@@ -34,13 +34,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class implements the /parameter resource.
@@ -159,20 +153,10 @@ public class TreeResourceImpl implements TreeResource {
             final String eTag = calculateETag(foundResults);
             final boolean eTagMatches;
             if (ifNoneMatch != null) {
-                final String ifNoneMatchWithoutGZip;
-                final int indexOfGZIP = ifNoneMatch.indexOf("--gzip");
-                if (indexOfGZIP >= 1) {
+                final String ifNoneMatchCleaned = removeQuotedAndLowercase(ifNoneMatch);
 
-                    // Strip "--gzip" before matching ETag. Note that we should append the quote again.
-                    ifNoneMatchWithoutGZip = ifNoneMatch.substring(0, indexOfGZIP) +
-                            ("\"".equals(ifNoneMatch.substring(0, 1)) ? "\"" : "");
-                } else {
-
-                    // Match ETag as-is.
-                    ifNoneMatchWithoutGZip = ifNoneMatch;
-                }
-                LOG.debug("findBestMatch: etag='{}', ifNoneMatchWithoutGZip='{}', ifNoneMatch='{}'", eTag, ifNoneMatchWithoutGZip, ifNoneMatch);
-                eTagMatches = ifNoneMatchWithoutGZip.equalsIgnoreCase(eTag);
+                // Use "startsWith" to strip of "--gzip" suffixes etc.
+                eTagMatches = eTag.startsWith(ifNoneMatchCleaned);
             } else {
 
                 // Missing ETag, so consider it different.
@@ -278,16 +262,35 @@ public class TreeResourceImpl implements TreeResource {
     }
 
     /**
-     * Create an ETag value for an object.
+     * Create an ETag value for an object. Not quoted.
      *
      * @param object Object to create an ETag for.
-     * @return ETag string (quoted).
+     * @return ETag string (not quoted).
      */
     @Nonnull
     private static String calculateETag(@Nonnull final Object object) {
         final String json = Json.toJson(object);
         final SHA1Hash hash = SHA1Hash.saltedHash(json, HASH_SALT);
-        return '"' + hash.toString() + '"';
+        return hash.toString();
+    }
+
+    /**
+     * Unquote a string.
+     *
+     * @param quotedString Quoted input string.
+     * @return Trimmed, unquoted and lowercase string.
+     */
+    @Nonnull
+    private static String removeQuotedAndLowercase(@Nonnull final String quotedString) {
+        final String result;
+        final String trimmed = quotedString.trim();
+        if (trimmed.lastIndexOf('"') > trimmed.indexOf('"')) {
+            assert trimmed.length() > 2;
+            result = trimmed.substring(1, trimmed.length() - 1);
+        } else {
+            result = trimmed;
+        }
+        return result.toLowerCase();
     }
 
     /**

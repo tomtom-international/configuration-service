@@ -40,14 +40,14 @@ public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
     }
 
     public ParameterListDTO(@Nonnull final List<ParameterDTO> parameters) {
-        super(parameters);
+        super(false, parameters);
     }
 
     @SuppressWarnings("UnusedDeclaration")
     @Deprecated
     ParameterListDTO() {
         // Default constructor required by JAX-B.
-        super();
+        super(false);
     }
 
     @JsonProperty("parameters")

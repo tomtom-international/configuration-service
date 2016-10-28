@@ -4,7 +4,8 @@
 
 package com.tomtom.services.configuration.dto;
 
-import com.sun.istack.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * Interface that allows access to the include parameters. To be implemented by any type that
@@ -17,7 +18,8 @@ public interface SupportsInclude {
      *
      * @return Value of "include" (non-empty), or null if no include was specified
      */
-    @Nullable String getInclude();
+    @Nullable
+    String getInclude();
 
     /**
      * Get the include string (non-empty), or null if no include was specified.

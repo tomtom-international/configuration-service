@@ -12,6 +12,7 @@ import com.tomtom.services.configuration.dto.ParameterDTO;
 import com.tomtom.services.configuration.dto.ParameterListDTO;
 import com.tomtom.services.configuration.dto.SearchResultDTO;
 import com.tomtom.services.configuration.dto.SearchResultsDTO;
+import com.tomtom.speedtools.json.Json;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -327,6 +328,9 @@ public class ConfigurationTest {
         LOG.info("testIncludeMultiOK1");
         final Configuration configuration = new Configuration(new ConfigurationServiceProperties("classpath:include-multi-ok1.json"));
         Assert.assertNotNull(configuration);
+        final String contents = Json.toJson(configuration);
+        Assert.assertEquals("{\"initialConfigurationOK\":true,\"root\":{\"nodes\":[{\"match\":\"X\",\"nodes\":[{\"match\":\".*\",\"parameters\":[{\"key\":\"radius_km\",\"value\":\"25\"},{\"key\":\"interval_secs\",\"value\":\"120\"}]}]}],\"modified\":\"2016-01-02T12:34:56Z\",\"levels\":[\"l1\",\"l2\"]},\"configurationServiceProperties\":{\"startupConfigurationURI\":\"classpath:include-multi-ok1.json\"}}",
+                contents);
     }
 
     @Test

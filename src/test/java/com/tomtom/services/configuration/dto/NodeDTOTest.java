@@ -5,7 +5,7 @@
 package com.tomtom.services.configuration.dto;
 
 import com.tomtom.speedtools.objects.Immutables;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
