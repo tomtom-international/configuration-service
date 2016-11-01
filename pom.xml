@@ -419,6 +419,7 @@
                 <artifactId>maven-remote-resources-plugin</artifactId>
                 <version>${maven-remote-resources-plugin.version}</version>
             </plugin>
+
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
