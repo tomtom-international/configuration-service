@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # Ignore property and configuration files in main resource directory!
 # -----------------------------------------------------------------------------
-src/main/resources/application-configuration-data.properties
+src/main/resources/configuration-service.properties
 src/main/resources/log4j.xml
 src/main/resources/*.json
 src/main/resources/*.xml
