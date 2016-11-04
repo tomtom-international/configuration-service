@@ -112,26 +112,9 @@
         <guice.version>4.1.0</guice.version>
         <jsr305.version>3.0.0</jsr305.version>
         <log4j.version>1.2.17</log4j.version>
-        <slf4j.version>1.7.21</slf4j.version>
         <resteasy.version>3.0.19.Final</resteasy.version>
+        <slf4j.version>1.7.21</slf4j.version>
     </properties>
-
-    <!-- This repository is listed here for bootstrap reasons only; just in case you did not
-         copy config/settings.xml to $HOME/.m2/settings.xml.
-
-         It is used to be able to find and fetch the TomTom Super POM the 1st time. After that,
-         the right repositories are automatically inherited from the TomTom Super POM.
-    -->
-    <repositories>
-        <repository>
-            <id>boot</id>
-            <name>TomTom Public Repository</name>
-            <url>http://nexus-ams.tomtomgroup.com:8081/nexus/content/groups/public</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
