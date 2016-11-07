@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.tomtom.services.configuration.implementation;
 
 import akka.dispatch.Futures;

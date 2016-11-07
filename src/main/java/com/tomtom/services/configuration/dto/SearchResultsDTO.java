@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.tomtom.services.configuration.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
