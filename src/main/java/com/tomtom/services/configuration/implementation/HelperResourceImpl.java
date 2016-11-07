@@ -163,8 +163,7 @@ public class HelperResourceImpl implements HelperResource {
     }
 
     @Override
-    public void getVersion(
-            @Suspended @Nonnull final AsyncResponse response) {
+    public void getVersion(@Suspended @Nonnull final AsyncResponse response) {
 
         // No input validation required. Just return version number.
         final String pomVersion = mavenProperties.getPomVersion();
