@@ -29,8 +29,6 @@ import com.tomtom.services.configuration.implementation.TreeResourceImpl;
 import com.tomtom.speedtools.guice.GuiceConfigurationModule;
 import com.tomtom.speedtools.json.Json;
 import com.tomtom.speedtools.rest.GeneralExceptionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
@@ -49,7 +47,6 @@ import javax.ws.rs.core.Response.Status;
  * The "speedtools.default.properties" is required, but its values may be overridden in other property files.
  */
 public class DeploymentModule extends GuiceConfigurationModule {
-    private static final Logger LOG = LoggerFactory.getLogger(DeploymentModule.class);
 
     public DeploymentModule() {
         super(

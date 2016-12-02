@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2016, TomTom International BV (http://www.tomtom.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,7 @@ import com.tomtom.services.configuration.dto.SearchResultsDTO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
@@ -37,26 +33,26 @@ import javax.ws.rs.core.UriInfo;
 @Path("/tree")
 public interface TreeResource {
 
-    public static final String PATH_PARAM = "path";
-    public static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
-    public static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+    String PATH_PARAM = "path";
+    String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
+    String HEADER_IF_NONE_MATCH = "If-None-Match";
 
-    public static final char SEPARATOR_QUERY = ',';
-    public static final char SEPARATOR_WRONG = ';';
-    public final static char SEPARATOR_PATH = '/';
+    char SEPARATOR_QUERY = ',';
+    char SEPARATOR_WRONG = ';';
+    char SEPARATOR_PATH = '/';
 
     /**
      * Try to match a search query string with the search tree and return the deepest
      * level parameters found in the tree.
-     *
+     * <p>
      * Return codes:
      * 200 - Match (exact or partial) found.
      * 304 - Not newer than If-Modified-Since time or no different ETag than If-None-Match.
      * 404 - No match found.
-     *
+     * <p>
      * The return message has format {@link SearchResultsDTO} and specifies the full
      * path of the deepest node matching the search path.
-     *
+     * <p>
      * Important: as the URI overlaps with the "getNode" URI for the root node, this method actually
      * returns the root node of the search tree, if no search parameters were provided.
      *
@@ -76,7 +72,7 @@ public interface TreeResource {
 
     /**
      * Get a specific node from the search tree, given a search path.
-     *
+     * <p>
      * Return codes:
      * 200 - Exact match found.
      * 304 - Not newer than If-Modified-Since time or no different ETag than If-None-Match.

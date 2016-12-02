@@ -51,19 +51,19 @@ final public class Node {
      * non-empty for other nodes.
      */
     @Nullable
-    final private String match;
+    private final String match;
 
     /**
      * Children nodes (optional), null if none. The collection cannot be empty (only null).
      */
     @Nullable
-    final private Set<Node> nodes;
+    private final Set<Node> nodes;
 
     /**
      * Parameters leaf (optional), null if none. The collection cannot be empty (only null).
      */
     @Nullable
-    final private Set<Parameter> parameters;
+    private final Set<Parameter> parameters;
 
     /**
      * The last modified date of this node. This is the latest modified date of the node itself
@@ -72,14 +72,14 @@ final public class Node {
     @JsonSerialize(using = JsonSerializerWithSecondsResolution.class)
     @JsonDeserialize(using = JsonDateTimeStringDeserializer.class)
     @Nullable
-    final private DateTime modified;
+    private final DateTime modified;
 
     /**
      * Order of node level names. The map cannot be empty (only null). This property is actually
      * only allowed for the root node.
      */
     @Nullable
-    final private List<String> levels;
+    private final List<String> levels;
 
     /**
      * The parentNode property holds a convenient link to the parent of this node.
@@ -88,7 +88,7 @@ final public class Node {
      */
     @JsonIgnore
     @Nullable
-    transient final private Node parentNode;
+    transient private final Node parentNode;
 
     public Node(
             @Nullable final String match,
@@ -121,13 +121,13 @@ final public class Node {
         this.match = nodeDTO.getMatch();
 
         // Set parameters, create an immutable list.
-        final Collection<Parameter> parameters = new ArrayList<>();
+        final Collection<Parameter> parametersOfNode = new ArrayList<>();
         if (nodeDTO.getParameters() != null) {
             nodeDTO.getParameters().stream().forEach(parameterDTO -> {
-                parameters.add(new Parameter(parameterDTO));
+                parametersOfNode.add(new Parameter(parameterDTO));
             });
         }
-        this.parameters = parameters.isEmpty() ? null : Immutables.setOf(parameters);
+        this.parameters = parametersOfNode.isEmpty() ? null : Immutables.setOf(parametersOfNode);
 
         // Set modified date/time, get latest modified from children as well.
         this.modified = (nodeDTO.getModified() == null) ? null : UTCTime.from(ISODateTimeFormat.dateTimeParser().parseDateTime(nodeDTO.getModified()));

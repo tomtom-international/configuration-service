@@ -84,7 +84,7 @@ public class SearchResultDTO extends ApiDTO {
     @SuppressWarnings("NullableProblems")
     @JsonIgnore
     @Nonnull
-    transient private Node node;
+    private transient Node node;
 
     /**
      * For an explanation of validate(), see {@link NodeDTO}.
@@ -112,12 +112,12 @@ public class SearchResultDTO extends ApiDTO {
     }
 
     public SearchResultDTO(@Nonnull final Node node) {
-        final Set<Parameter> parameters = node.getParameters();
+        final Set<Parameter> parametersOfNode = node.getParameters();
         final List<ParameterDTO> parameterDTOs = new ArrayList<>();
-        if (parameters == null) {
+        if (parametersOfNode == null) {
             this.parameters = null;
         } else {
-            for (final Parameter parameter : parameters) {
+            for (final Parameter parameter : parametersOfNode) {
                 parameterDTOs.add(new ParameterDTO(parameter));
             }
         }

@@ -119,14 +119,14 @@ public class Configuration {
             try {
 
                 // Read the tree and validate.
-                final NodeDTO root = getRootOfInclude(overrideStartupConfiguration);
+                final NodeDTO rootOfInclude = getRootOfInclude(overrideStartupConfiguration);
 
                 // Validate root and all siblings.
-                root.validate();
-                LOG.info("Tree: Startup configuration read OK, startupConfiguration={}", root);
+                rootOfInclude.validate();
+                LOG.info("Tree: Startup configuration read OK, startupConfiguration={}", rootOfInclude);
 
                 // Use the root just read as the real root.
-                realRoot = root;
+                realRoot = rootOfInclude;
                 realInitialConfigurationOK = true;
             } catch (final ApiException | IncorrectConfigurationException e) {
                 LOG.error("Tree: Startup configuration cannot be read: {}", e.getMessage());
@@ -590,7 +590,7 @@ public class Configuration {
     }
 
     private static boolean isValidMatchString(@Nonnull final String match) {
-        return ((match.indexOf(SEPARATOR_WRONG) + match.indexOf(SEPARATOR_PATH) + match.indexOf(SEPARATOR_QUERY)) == -3);
+        return (match.indexOf(SEPARATOR_WRONG) + match.indexOf(SEPARATOR_PATH) + match.indexOf(SEPARATOR_QUERY)) == -3;
     }
 
     /**
