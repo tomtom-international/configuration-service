@@ -50,7 +50,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "searchResult")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SearchResultDTO extends ApiDTO {
+public final class SearchResultDTO extends ApiDTO {
 
     @JsonProperty("parameters")
     @JsonUnwrapped

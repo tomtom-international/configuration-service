@@ -44,7 +44,7 @@ import java.util.Set;
  */
 @Immutable
 @JsonInclude(Include.NON_EMPTY)
-final public class Node {
+public final class Node {
 
     /**
      * Node match string. The match is null for the root node and non-null,
@@ -88,7 +88,7 @@ final public class Node {
      */
     @JsonIgnore
     @Nullable
-    transient private final Node parentNode;
+    private final transient Node parentNode;
 
     public Node(
             @Nullable final String match,

@@ -37,7 +37,7 @@ import java.util.List;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "searchResults")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
+public final class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
 
     /**
      * This class does not have properties itself: it is just a

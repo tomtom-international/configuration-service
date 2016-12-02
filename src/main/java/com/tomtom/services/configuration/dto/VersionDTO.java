@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "version")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class VersionDTO extends ApiDTO {
+public final class VersionDTO extends ApiDTO {
     public static final int API_VERSION_MAX_LENGTH = 25;
     public static final int API_VERSION_MIN_LENGTH = 0;
 

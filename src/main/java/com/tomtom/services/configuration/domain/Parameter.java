@@ -30,13 +30,13 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @JsonInclude(Include.NON_EMPTY)
-final public class Parameter {
+public final class Parameter {
 
     @Nonnull
-    final private String key;
+    private final String key;
 
     @Nonnull
-    final private String value;
+    private final String value;
 
     public Parameter(
             @Nonnull final String key,

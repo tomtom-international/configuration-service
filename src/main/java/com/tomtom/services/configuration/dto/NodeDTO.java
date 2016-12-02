@@ -41,7 +41,7 @@ import java.util.List;
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "node")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class NodeDTO extends ApiDTO implements SupportsInclude {
+public final class NodeDTO extends ApiDTO implements SupportsInclude {
 
     /**
      * Node match string, can only be null for root node. Cannot be empty, only null.
