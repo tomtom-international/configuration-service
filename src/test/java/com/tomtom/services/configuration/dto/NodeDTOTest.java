@@ -27,6 +27,7 @@ public class NodeDTOTest {
 
     @Test
     public void testEquals() {
+        LOG.info("testEquals");
         final NodeDTO x1 = new NodeDTO("x",
                 null,
                 new ParameterListDTO(Immutables.listOf(new ParameterDTO("k1", "v1"), new ParameterDTO("k2", "v2"))),

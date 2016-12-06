@@ -28,11 +28,7 @@ import com.tomtom.speedtools.utils.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +42,7 @@ import static com.google.common.base.Strings.nullToEmpty;
  * element, which specifies the fallback node of the list of parameters in the
  * search tree.
  */
-@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode"})
+@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode", "squid:S2065", "squid:S2637", "squid:S2160"})
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "searchResult")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -86,19 +82,6 @@ public final class SearchResultDTO extends ApiDTO {
     @Nonnull
     private transient Node node;
 
-    /**
-     * For an explanation of validate(), see {@link NodeDTO}.
-     */
-    @Override
-    public void validate() {
-        validator().start();
-        validator().checkNotNullAndValidate(false, "parameters", parameters);
-        validator().checkNotNull(true, "searched", matched);
-        validator().checkNotNull(true, "matched", matched);
-        validator().checkNotNull(true, "node", node);
-        validator().done();
-    }
-
     public SearchResultDTO(
             @Nullable final ParameterListDTO parameters,
             @Nullable final String searched,
@@ -127,11 +110,24 @@ public final class SearchResultDTO extends ApiDTO {
         setNode(node);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
     @Deprecated
     SearchResultDTO() {
         // Default constructor required by JAX-B.
         super(false);
+    }
+
+    /**
+     * For an explanation of validate(), see {@link NodeDTO}.
+     */
+    @Override
+    public void validate() {
+        validator().start();
+        validator().checkNotNullAndValidate(false, "parameters", parameters);
+        validator().checkNotNull(true, "searched", matched);
+        validator().checkNotNull(true, "matched", matched);
+        validator().checkNotNull(true, "node", node);
+        validator().done();
     }
 
     @Nullable

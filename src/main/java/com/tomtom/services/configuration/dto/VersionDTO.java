@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * version of the service, as well as the full path of the configuration file (as that
  * defines the version of the configuration itself).
  */
-@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "squid:S2160"})
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "version")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -58,6 +58,21 @@ public final class VersionDTO extends ApiDTO {
     @Nullable
     private String startupConfigurationURI;
 
+    public VersionDTO(
+            @Nonnull final String version,
+            @Nullable final String startupConfigurationURI) {
+        super();
+        setVersion(version);
+        setStartupConfigurationURI(startupConfigurationURI);
+    }
+
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
+    @Deprecated
+    VersionDTO() {
+        // Default constructor required by JAX-B.
+        super();
+    }
+
     /**
      * For an explanation of validate(), see {@link NodeDTO}.
      */
@@ -69,21 +84,6 @@ public final class VersionDTO extends ApiDTO {
         validator().checkString(false, "startupConfigurationURI", startupConfigurationURI,
                 0, Integer.MAX_VALUE);
         validator().done();
-    }
-
-    public VersionDTO(
-            @Nonnull final String version,
-            @Nullable final String startupConfigurationURI) {
-        super();
-        setVersion(version);
-        setStartupConfigurationURI(startupConfigurationURI);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    @Deprecated
-    VersionDTO() {
-        // Default constructor required by JAX-B.
-        super();
     }
 
     @Nonnull

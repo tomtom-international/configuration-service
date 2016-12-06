@@ -28,6 +28,7 @@ public class SearchResultDTOTest {
 
     @Test
     public void testEquals() {
+        LOG.info("testEquals");
         final Node root = new Node("root");
         final SearchResultDTO x1 = new SearchResultDTO(new ParameterListDTO(Immutables.listOf(new ParameterDTO("x", "1"), new ParameterDTO("y", "2"))), "a=1", "a=1", root);
         final SearchResultDTO x2 = new SearchResultDTO(new ParameterListDTO(Immutables.listOf(new ParameterDTO("x", "1"), new ParameterDTO("y", "2"))), "a=1", "a=1", root);

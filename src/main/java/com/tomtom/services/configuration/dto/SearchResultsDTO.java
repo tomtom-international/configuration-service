@@ -44,23 +44,23 @@ public final class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
      * list of elements (represented by 'this').
      */
 
+    public SearchResultsDTO(@Nonnull final List<SearchResultDTO> searchResults) {
+        super(searchResults);
+    }
+
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
+    @Deprecated
+    SearchResultsDTO() {
+        // Default constructor required by JAX-B.
+        super();
+    }
+
     /**
      * For an explanation of validate(), see {@link NodeDTO}.
      */
     @Override
     public void validateOne(@Nonnull final SearchResultDTO elm) {
         validator().checkNotNullAndValidate(false, "searchResult", elm);
-    }
-
-    public SearchResultsDTO(@Nonnull final List<SearchResultDTO> searchResults) {
-        super(searchResults);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    @Deprecated
-    SearchResultsDTO() {
-        // Default constructor required by JAX-B.
-        super();
     }
 
     @JsonProperty("searchResults")

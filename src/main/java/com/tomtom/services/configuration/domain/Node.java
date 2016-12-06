@@ -44,6 +44,7 @@ import java.util.Set;
  */
 @Immutable
 @JsonInclude(Include.NON_EMPTY)
+@SuppressWarnings("squid:S2065")
 public final class Node {
 
     /**
@@ -123,9 +124,7 @@ public final class Node {
         // Set parameters, create an immutable list.
         final Collection<Parameter> parametersOfNode = new ArrayList<>();
         if (nodeDTO.getParameters() != null) {
-            nodeDTO.getParameters().stream().forEach(parameterDTO -> {
-                parametersOfNode.add(new Parameter(parameterDTO));
-            });
+            nodeDTO.getParameters().stream().forEach(parameterDTO -> parametersOfNode.add(new Parameter(parameterDTO)));
         }
         this.parameters = parametersOfNode.isEmpty() ? null : Immutables.setOf(parametersOfNode);
 

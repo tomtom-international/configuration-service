@@ -31,6 +31,7 @@ import javax.ws.rs.core.UriInfo;
  * This class defines the methods to query the configurations search tree.
  */
 @Path("/tree")
+@SuppressWarnings("squid:S1214")
 public interface TreeResource {
 
     String PATH_PARAM = "path";

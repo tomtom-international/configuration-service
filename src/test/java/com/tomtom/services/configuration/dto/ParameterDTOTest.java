@@ -26,6 +26,7 @@ public class ParameterDTOTest {
 
     @Test
     public void testEquals() {
+        LOG.info("testEquals");
         final ParameterDTO x1 = new ParameterDTO("x", "1");
         final ParameterDTO x2 = new ParameterDTO("x", "1");
         final ParameterDTO x3 = new ParameterDTO("x", "2");

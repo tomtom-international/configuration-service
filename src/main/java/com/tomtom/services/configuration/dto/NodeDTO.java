@@ -29,15 +29,11 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode"})
+@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode", "squid:S2160"})
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "node")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -106,6 +102,71 @@ public final class NodeDTO extends ApiDTO implements SupportsInclude {
     @Nullable
     private String includeArray;
 
+
+    public NodeDTO(
+            @Nullable final String match,
+            @Nullable final List<NodeDTO> nodes,
+            @Nullable final ParameterListDTO parameters,
+            @Nullable final String modified,
+            @Nullable final List<String> levels,
+            @Nullable final String include,
+            @Nullable final String includeArray) {
+        super(false);
+        setMatch(match);
+        setNodes(nodes);
+        setParameters(parameters);
+        setModified(modified);
+        setLevels(levels);
+        setInclude(include);
+        setIncludeArray(includeArray);
+    }
+
+    /**
+     * Create a NodeDTO from a Node object.
+     *
+     * @param node Node to be converted.
+     */
+    public NodeDTO(@Nonnull final Node node) {
+
+        // Set name.
+        setMatch(node.getMatch());
+
+        // Copy nodes.
+        if (node.getNodes() == null) {
+            setNodes(null);
+        } else {
+            final List<NodeDTO> nodeDTOs = new ArrayList<>();
+            node.getNodes().stream().forEach(childNode -> nodeDTOs.add(new NodeDTO(childNode)));
+            setNodes(nodeDTOs);
+        }
+
+        // Copy parameters.
+        if (node.getParameters() == null) {
+            setParameters(null);
+        } else {
+            final List<ParameterDTO> parameterDTOs = new ArrayList<>();
+            node.getParameters().stream().forEach(parameter -> parameterDTOs.add(new ParameterDTO(parameter)));
+            setParameters(new ParameterListDTO(parameterDTOs));
+        }
+
+        // Set modified date/time.
+        setModified((node.getModified() == null) ? null : ISODateTimeFormat.dateTimeNoMillis().print(node.getModified()));
+
+        // Set level name order.
+        if (node.getLevels() == null) {
+            setLevels(null);
+        } else {
+            setLevels(node.getLevels());
+        }
+    }
+
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
+    @Deprecated
+    NodeDTO() {
+        // Default constructor required by JAX-B.
+        super(false);
+    }
+
     /**
      * The method validate() is called to check the validity of the DTO object. Note that the DTO
      * objects are treated as immutable objects. This means that the normal sequence of operation
@@ -127,6 +188,7 @@ public final class NodeDTO extends ApiDTO implements SupportsInclude {
      * setters will be called.
      */
     @Override
+    @SuppressWarnings("squid:S1166")
     public void validate() {
         validator().start();
 
@@ -164,74 +226,6 @@ public final class NodeDTO extends ApiDTO implements SupportsInclude {
             validator().checkNull(true, "levels", levels);
         }
         validator().done();
-    }
-
-    public NodeDTO(
-            @Nullable final String match,
-            @Nullable final List<NodeDTO> nodes,
-            @Nullable final ParameterListDTO parameters,
-            @Nullable final String modified,
-            @Nullable final List<String> levels,
-            @Nullable final String include,
-            @Nullable final String includeArray) {
-        super(false);
-        setMatch(match);
-        setNodes(nodes);
-        setParameters(parameters);
-        setModified(modified);
-        setLevels(levels);
-        setInclude(include);
-        setIncludeArray(includeArray);
-    }
-
-    /**
-     * Create a NodeDTO from a Node object.
-     *
-     * @param node Node to be converted.
-     */
-    public NodeDTO(@Nonnull final Node node) {
-
-        // Set name.
-        setMatch(node.getMatch());
-
-        // Copy nodes.
-        if (node.getNodes() == null) {
-            setNodes(null);
-        } else {
-            final List<NodeDTO> nodeDTOs = new ArrayList<>();
-            node.getNodes().stream().forEach(childNode -> {
-                nodeDTOs.add(new NodeDTO(childNode));
-            });
-            setNodes(nodeDTOs);
-        }
-
-        // Copy parameters.
-        if (node.getParameters() == null) {
-            setParameters(null);
-        } else {
-            final List<ParameterDTO> parameterDTOs = new ArrayList<>();
-            node.getParameters().stream().forEach(parameter -> {
-                parameterDTOs.add(new ParameterDTO(parameter));
-            });
-            setParameters(new ParameterListDTO(parameterDTOs));
-        }
-
-        // Set modified date/time.
-        setModified((node.getModified() == null) ? null : ISODateTimeFormat.dateTimeNoMillis().print(node.getModified()));
-
-        // Set level name order.
-        if (node.getLevels() == null) {
-            setLevels(null);
-        } else {
-            setLevels(node.getLevels());
-        }
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    @Deprecated
-    NodeDTO() {
-        // Default constructor required by JAX-B.
-        super(false);
     }
 
     @Nullable

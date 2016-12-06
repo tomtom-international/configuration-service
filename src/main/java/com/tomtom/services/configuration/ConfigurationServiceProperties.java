@@ -26,6 +26,7 @@ import javax.inject.Named;
  * This class contains the properties which are specific for the Configuration Service.
  * It uses SpeedTools and Guice to inject the properties in the constructor.
  */
+@SuppressWarnings("squid:S2637")
 public class ConfigurationServiceProperties implements HasProperties {
 
     @Nonnull

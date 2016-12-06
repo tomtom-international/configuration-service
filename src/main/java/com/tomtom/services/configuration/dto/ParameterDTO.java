@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NullableProblems", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode"})
+@SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NullableProblems", "NonFinalFieldReferenceInEquals", "NonFinalFieldReferencedInHashCode", "squid:S2160"})
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -68,22 +68,6 @@ public final class ParameterDTO extends ApiDTO implements SupportsInclude {
     @Nullable
     private String includeArray;
 
-    /**
-     * For an explanation of validate(), see {@link NodeDTO}.
-     */
-    @Override
-    public void validate() {
-        validator().start();
-
-        // This validation is ONLY executed after includes have been expanded, so they must be null.
-        validator().checkNull(true, "include_array", includeArray);
-        validator().checkNull(true, "include", include);
-        validator().checkNotNull(true, "key", key);
-        validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
-        validator().checkNotNull(true, "value", value);
-        validator().done();
-    }
-
     public ParameterDTO(
             @Nonnull final String key,
             @Nonnull final String value) {
@@ -101,11 +85,27 @@ public final class ParameterDTO extends ApiDTO implements SupportsInclude {
         this(parameter.getKey(), parameter.getValue());
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
     @Deprecated
     ParameterDTO() {
         // Default constructor required by JAX-B.
         super(false);
+    }
+
+    /**
+     * For an explanation of validate(), see {@link NodeDTO}.
+     */
+    @Override
+    public void validate() {
+        validator().start();
+
+        // This validation is ONLY executed after includes have been expanded, so they must be null.
+        validator().checkNull(true, "include_array", includeArray);
+        validator().checkNull(true, "include", include);
+        validator().checkNotNull(true, "key", key);
+        validator().checkString(true, "key", key, 1, Integer.MAX_VALUE);
+        validator().checkNotNull(true, "value", value);
+        validator().done();
     }
 
     @Override

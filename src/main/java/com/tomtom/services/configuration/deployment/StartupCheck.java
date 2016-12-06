@@ -85,7 +85,7 @@ public class StartupCheck {
         // Empty.
     }
 
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+    @SuppressWarnings({"UseOfSystemOutOrSystemErr", "squid:S106"})
     private static void check(final boolean check, @Nonnull final String reason) {
         if (!check) {
             LOG.error("check: System did NOT start succesfully. Reason: {}", reason);

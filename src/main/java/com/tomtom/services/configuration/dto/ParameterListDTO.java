@@ -40,6 +40,17 @@ public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
      * list of elements (represented by 'this').
      */
 
+    public ParameterListDTO(@Nonnull final List<ParameterDTO> parameters) {
+        super(false, parameters);
+    }
+
+    @SuppressWarnings({"UnusedDeclaration", "squid:MissingDeprecatedCheck", "squid:S1133"})
+    @Deprecated
+    ParameterListDTO() {
+        // Default constructor required by JAX-B.
+        super(false);
+    }
+
     /**
      * For an explanation of validate(), see {@link NodeDTO}.
      *
@@ -49,17 +60,6 @@ public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
     @Override
     public void validateOne(@Nonnull final ParameterDTO elm) {
         validator().checkNotNullAndValidate(false, "parameter", elm);
-    }
-
-    public ParameterListDTO(@Nonnull final List<ParameterDTO> parameters) {
-        super(false, parameters);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    @Deprecated
-    ParameterListDTO() {
-        // Default constructor required by JAX-B.
-        super(false);
     }
 
     @JsonProperty("parameters")
