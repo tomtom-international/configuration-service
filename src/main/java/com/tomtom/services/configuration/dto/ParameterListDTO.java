@@ -29,16 +29,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+/**
+ * This class does not have properties itself: it is just a
+ * list of elements (represented by 'this').
+ *
+ * For an explanation of validate(), see {@link NodeDTO}.
+ *
+ * Contrary to an ApiDTO object, the class ApiListDTO handles validate() and ta derived
+ * class only needs to implement a method to check a single list element.
+ */
+
 @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "parameters")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
-
-    /**
-     * This class does not have properties itself: it is just a
-     * list of elements (represented by 'this').
-     */
 
     public ParameterListDTO(@Nonnull final List<ParameterDTO> parameters) {
         super(false, parameters);
@@ -51,12 +56,6 @@ public class ParameterListDTO extends ApiListDTO<ParameterDTO> {
         super(false);
     }
 
-    /**
-     * For an explanation of validate(), see {@link NodeDTO}.
-     *
-     * Contrary to an ApiDTO object, the class ApiListDTO handles validate() and ta derived
-     * class only needs to implement a method to check a single list element.
-     */
     @Override
     public void validateOne(@Nonnull final ParameterDTO elm) {
         validator().checkNotNullAndValidate(false, "parameter", elm);

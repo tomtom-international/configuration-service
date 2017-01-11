@@ -32,17 +32,20 @@ import java.util.List;
 /**
  * This class represents the response of a 'GET' call to query the
  * search tree.
+ *
+ *
+ * This class does not have properties itself: it is just a
+ * list of elements (represented by 'this').
+ *
+ *
+ * For an explanation of validate(), see {@link NodeDTO}.
  */
+
 @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 @JsonInclude(Include.NON_EMPTY)
 @XmlRootElement(name = "searchResults")
 @XmlAccessorType(XmlAccessType.FIELD)
 public final class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
-
-    /**
-     * This class does not have properties itself: it is just a
-     * list of elements (represented by 'this').
-     */
 
     public SearchResultsDTO(@Nonnull final List<SearchResultDTO> searchResults) {
         super(searchResults);
@@ -55,9 +58,6 @@ public final class SearchResultsDTO extends ApiListDTO<SearchResultDTO> {
         super();
     }
 
-    /**
-     * For an explanation of validate(), see {@link NodeDTO}.
-     */
     @Override
     public void validateOne(@Nonnull final SearchResultDTO elm) {
         validator().checkNotNullAndValidate(false, "searchResult", elm);

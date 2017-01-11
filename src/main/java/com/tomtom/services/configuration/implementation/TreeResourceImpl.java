@@ -84,9 +84,6 @@ public class TreeResourceImpl implements TreeResource {
     @Nonnull
     private final SimpleDateFormat formatIfModifiedSince = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
-    /**
-     * This variable is filled by JAX-RS and contains the URI context.
-     */
     @Inject
     public TreeResourceImpl(
             @Nonnull final Configuration configuration,
