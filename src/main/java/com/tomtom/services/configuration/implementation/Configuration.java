@@ -646,7 +646,7 @@ public class Configuration {
                 LOG.error("checkNodeMatchStringsChildren: match cannot be null or empty");
             } else if (!isValidMatchString(match)) {
                 ok = false;
-                LOG.error("checkNodeMatchStringsChildren: incorrect format fort match");
+                LOG.error("checkNodeMatchStringsChildren: incorrect format for match");
             } else if (matches.contains(match)) {
                 ok = false;
                 LOG.error("checkNodeMatchStringsChildren: match string must be unique, match={}", match);

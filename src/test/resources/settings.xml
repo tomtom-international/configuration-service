@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <node>
+    <modified>2016-01-02T12:34:50Z</modified>
     <match>settings</match>
     <parameters>
-        <parameters>
-            <parameter>demo</parameter>
-            <parameter>false</parameter>
-        </parameters>
-        <parameters>
-            <parameter>sound</parameter>
-            <parameter>off</parameter>
-        </parameters>
+        <parameter>
+            <key>demo</key>
+            <value>false</value>
+        </parameter>
+        <parameter>
+            <key>sound</key>
+            <value>off</value>
+        </parameter>
     </parameters>
 </node>

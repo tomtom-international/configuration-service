@@ -11,7 +11,7 @@
             <include>classpath::traffic.json</include>
         </child>
         <child>
-            <include>classpath::settings.json</include>
+            <include>classpath::settings.xml</include>
         </child>
     </nodes>
 </node>
