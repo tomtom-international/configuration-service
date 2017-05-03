@@ -15,7 +15,7 @@ function checkString {
         echo OK
     else
         echo ""
-        echo "ERROR: '"$LINE"' does not match: '"$REGEX"'"
+        echo "ERROR: '$LINE' does not match: '$REGEX'"
         echo "Test case failed!"
         echo ""
         echo "Is the service running at $HOST.*?"
