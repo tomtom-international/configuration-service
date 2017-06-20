@@ -1,7 +1,7 @@
 # Read Me of the Configuration Service
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7d866929be7c43cdae32dac4be3eaa6f)](https://www.codacy.com/app/rijnb/configuration-service?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tomtom-international/configuration-service&amp;utm_campaign=Badge_Grade)
-[![Build Status](https://img.shields.io/travis/tomtom-international/configuration-service.svg?maxAge=3600)](https://travis-ci.org/tomtom-international/configuration-service)
+[![Build Status](https://img.shields.io/travis/tomtom-international/configuration-service.svg?maxAge=3600&branch=master)](https://travis-ci.org/tomtom-international/configuration-service)
 [![Coverage Status](https://coveralls.io/repos/github/tomtom-international/configuration-service/badge.svg?branch=master&maxAge=3600)](https://coveralls.io/github/tomtom-international/configuration-service?branch=master)
 [![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
 [![Release](https://img.shields.io/github/release/tomtom-international/configuration-service.svg?maxAge=3600)](https://github.com/tomtom-international/configuration-service/releases)
