@@ -110,7 +110,7 @@
         <log4j.version>1.2.17</log4j.version>
         <resteasy.version>3.0.19.Final</resteasy.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <speedtools.version>3.1.0</speedtools.version>
+        <speedtools.version>3.2.0</speedtools.version>
     </properties>
 
     <dependencies>
