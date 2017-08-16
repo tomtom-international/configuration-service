@@ -224,6 +224,11 @@ repository.
 
 ## Build and Run
 
+First, make sure you have the correct file encoding (UTF8) set for Java on your system.
+Include this environment variable in your `.profile` or `.bashrc`:
+
+    export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
+
 To build and run the REST API, copy the properties and configuration file and once into your
 main resources directory, so Maven will copy them to your classpath if your run Tomcat or Jetty.
 
