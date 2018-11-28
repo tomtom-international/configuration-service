@@ -84,7 +84,7 @@
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <doxia-module-confluence.version>1.8</doxia-module-confluence.version>
         <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
-        <jetty-plugin.version>8.1.9.v20130131</jetty-plugin.version>
+        <jetty-plugin.version>9.4.14.v20181114</jetty-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
         <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
@@ -108,7 +108,7 @@
         <log4j.version>1.2.17</log4j.version>
         <resteasy.version>3.6.2.Final</resteasy.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <speedtools.version>3.2.11</speedtools.version>
+        <speedtools.version>3.2.12</speedtools.version>
     </properties>
 
     <dependencies>
