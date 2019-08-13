@@ -23,7 +23,7 @@
     <!-- Define our own top-level POM. -->
     <groupId>com.tomtom.services</groupId>
     <artifactId>configuration-service</artifactId>
-    <version>1.2.9</version>
+    <version>1.2.10</version>
     <packaging>war</packaging>
 
     <name>Configuration Service</name>
@@ -101,7 +101,7 @@
         <guava.version>27.0.1-jre</guava.version>
         <guice.version>4.2.2</guice.version>
         <jackson.version>2.9.9</jackson.version>
-        <jackson-databind.version>2.9.9.1</jackson-databind.version>
+        <jackson-databind.version>2.9.9.3</jackson-databind.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.inject.version>1</javax.inject.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -109,7 +109,7 @@
         <log4j.version>1.2.17</log4j.version>
         <resteasy.version>3.6.2.Final</resteasy.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <speedtools.version>3.2.14</speedtools.version>
+        <speedtools.version>3.2.16</speedtools.version>
     </properties>
 
     <dependencies>
