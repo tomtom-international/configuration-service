@@ -109,7 +109,7 @@
         <log4j.version>1.2.17</log4j.version>
         <resteasy.version>3.6.2.Final</resteasy.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <speedtools.version>3.2.16</speedtools.version>
+        <speedtools.version>3.2.17</speedtools.version>
     </properties>
 
     <dependencies>
