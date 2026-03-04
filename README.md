@@ -755,6 +755,16 @@ You can use `GET /tree` to retrieve the full search tree from an existing node.
 You can actually use the output of this call as the input for a new node. All you
 need to do, is point the `ConfigurationService.startupConfigurationURI` property at it.
 
+## Productizing the Configuration Service
+
+If the Configuration Service is used in a production environment, you should consider
+the following best practices:
+
+- Ensure that proper authorization is in place to prevent unauthorized access to the key/value store (by, for example using `/tree`).
+- Ensure that the configuration files are properly secured and protected from unauthorized access.
+- Implement logging and monitoring to track changes and potential issues.
+- Regularly review and update the configuration files to ensure they align with current requirements and security standards.
+
 ## Build Environment (Java 8)
 
 The source uses Java JDK 1.8, so make sure your Java compiler is set to 1.8, for example
@@ -809,4 +819,3 @@ regular compile, build or release commands, such as:
 
 If you encounter any problems with this library, don't hesitate to use the `Issues` session to file your issues.
 Normally, one of our developers should be able to comment on them and fix.
-
