@@ -6,6 +6,12 @@
 [![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
 [![Release](https://img.shields.io/github/release/tomtom-international/configuration-service.svg?maxAge=3600)](https://github.com/tomtom-international/configuration-service/releases)
 
+## Important Notice
+
+This project serves as an example of how to build a simple REST-based configuration service in Java.
+
+When used in production, proper authentication and authorization should be implemented.
+
 ## Introduction
 
 The Configuration Service provide a REST API service to dynamically get "application
