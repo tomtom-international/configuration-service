@@ -35,7 +35,7 @@ import java.util.List;
  *
  * For an explanation of validate(), see {@link NodeDTO}.
  *
- * Contrary to an ApiDTO object, the class ApiListDTO handles validate() and ta derived
+ * Contrary to an ApiDTO object, the class ApiListDTO handles validate() and a derived
  * class only needs to implement a method to check a single list element.
  */
 

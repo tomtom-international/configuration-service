@@ -25,7 +25,7 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * This class adds the Cross-Origin Resource Sharing feature to allow Javascript to call
- * this service from another domain. It essentially add the calling domain to the list
+ * this service from another domain. It essentially adds the calling domain to the list
  * of allowed origins in the HTTP header.
  *
  * The feature is enabled by adding it to web.xml

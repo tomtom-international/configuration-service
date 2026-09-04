@@ -59,7 +59,7 @@ public class DeploymentModule extends GuiceConfigurationModule {
         assert binder != null;
 
         /**
-         * Important: the next call will fail if tbe properties file is not found.
+         * Important: the next call will fail if the properties file is not found.
          * Normally, the properties file should NOT be part of the WAR file and must
          * be added to the deployment manually so the service is able to find it.
          * See also the README file in the 'src/main/resource' directory.
@@ -76,7 +76,7 @@ public class DeploymentModule extends GuiceConfigurationModule {
         // Bind properties.
         binder.bind(ConfigurationServiceProperties.class).in(Singleton.class);
 
-        // Bind tree data as eager singleton tor read config data immediately.
+        // Bind tree data as eager singleton to read config data immediately.
         binder.bind(Configuration.class).asEagerSingleton();
 
         // Bind start-up checking class (example).

@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This class represents nodes in the search tree. A node has a name, a list of children nodes
+ * This class represents nodes in the search tree. A node has a name, a list of children nodes,
  * optionally a number of parameters and a last modified time.
  */
 @Immutable

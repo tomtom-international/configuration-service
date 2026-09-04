@@ -52,7 +52,7 @@ public final class VersionDTO extends ApiDTO {
 
     /**
      * The URI of the startup configuration, which was read during startup of the service.
-     * If not start configuration was specified, this element is empty.
+     * If no startup configuration was specified, this element is empty.
      */
     @XmlElement(name = "startupConfigurationURI")
     @Nullable

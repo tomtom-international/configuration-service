@@ -124,7 +124,7 @@ public final class SearchResultDTO extends ApiDTO {
     public void validate() {
         validator().start();
         validator().checkNotNullAndValidate(false, "parameters", parameters);
-        validator().checkNotNull(true, "searched", matched);
+        validator().checkNotNull(true, "searched", searched);
         validator().checkNotNull(true, "matched", matched);
         validator().checkNotNull(true, "node", node);
         validator().done();
